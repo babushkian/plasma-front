@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import {Link} from "react-router-dom"
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import {BASE_URL, URL_GET_PROGRAMS} from "../../utils/urls"
 import {PrognameType} from "./MainScreen.types"
+import {AddDispatch} from "../../store/store"
+import {dateDiapazonActions} from "../../store/date_diapazon.slice"
+
 // import ProgramMainTable from "../../components/ProgramMainTable/ProgramMainTable"
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"))
@@ -13,6 +17,7 @@ const MainScreen: React.FC = () => {
     const [data, setData] = useState<PrognameType[]>();
     // const tableData = useRef<React.JSX.Element[]>([])
     // const [dataInfo, setDataInfo] = useState<React.JSX.Element>(<div>Не загружено...</div>)
+    const dispatch = useDispatch<AddDispatch>()
 
     const loadData = async () => {
         try {
@@ -27,6 +32,9 @@ const MainScreen: React.FC = () => {
         }
     };
     
+    const dispatchDiapazon = ()=> {
+        dispatch(dateDiapazonActions.setDiapazon({startDate: new Date(2025, 0, 1), endDate:new Date(2025, 1, 15)}))
+    }
 
     return (
         <>
@@ -36,7 +44,12 @@ const MainScreen: React.FC = () => {
             <div>
                 <button type="button" onClick={loadData}>Получить данные</button>
             </div>
-            
+
+            <div>
+                <button type="button" onClick={dispatchDiapazon}>Обновление состояния</button>
+            </div>
+
+
             {data && 
             <Suspense fallback={<div>Загрузка...</div>}>
                  <ProgramMainTable data={data} />

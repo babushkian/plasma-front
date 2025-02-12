@@ -10,6 +10,8 @@ import MainScreen from "./pages/MainScreen/MainScreen";
 import Details from "./pages/Details/Details.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import {BASE_URL, URL_GET_PROGRAM_PARTS} from "./utils/urls"
+import { Provider } from 'react-redux';
+import { store } from './store/store.ts';
 
 
 const router = createBrowserRouter([
@@ -40,7 +42,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router}></RouterProvider>
-    
+    <Provider store={store}>
+      <RouterProvider router={router}></RouterProvider>
+    </Provider>
   </StrictMode>,
 )
