@@ -1,0 +1,15 @@
+.navbar {
+    padding: 6px 12px;
+    display:flex;
+    flex-direction: row;
+    gap: 30px;
+    justify-content: start;
+    background-color: aquamarine;
+    list-style-type: none;
+}
+
+.navlink{
+    flex:1;
+    font-weight: bold;
+}
+
