@@ -5,11 +5,13 @@ import axios from "axios";
 
 import './index.css'
 // import App from './App.tsx'
-import Login from "./pages/Login/Login";
+import Navbar from "./layouts/NavBar/NavBar.tsx";
 import MainScreen from "./pages/MainScreen/MainScreen";
 import Details from "./pages/Details/Details.tsx";
-import Navbar from "./layouts/NavBar/NavBar.tsx";
+import Login from "./pages/Login/Login";
+
 import {BASE_URL, URL_GET_PROGRAM_PARTS} from "./utils/urls"
+
 import { Provider } from 'react-redux';
 import { store } from './store/store.ts';
 
@@ -43,7 +45,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router}></RouterProvider>
+      <RouterProvider router={router} />
     </Provider>
   </StrictMode>,
 )
