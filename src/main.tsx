@@ -21,17 +21,13 @@ const router = createBrowserRouter([
     { path: "/", element: <Navbar />, children: [
       { path: "/", element: <MainScreen /> },
       { path: "/login", element: <Login /> },
-      { path: "/details", element: <Details /> },
       { path: "/program/:programName", 
         element: <Details />, 
         errorElement: <div className='errormessage'>Страница не найдена</div>,
         loader: async ({params}) => {
-          console.log(params)
-          console.log(params.programName)
-          const path = `${BASE_URL}/${URL_GET_PROGRAM_PARTS}${params.programName}`;
+          const path = `${BASE_URL}/${URL_GET_PROGRAM_PARTS}/${params.programName}`;
           console.log(path)
           const {data} = await axios.get(path)
-          console.log(data)
           return data
         }
       },

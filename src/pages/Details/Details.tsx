@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 export type ProgramPartsType = IProgramPartsRecord[]
 export interface IProgramPartsRecord {
@@ -28,10 +28,9 @@ export interface IProgramPartsRecord {
   
 
 
-const MainScreen = () => {
+const Details = () => {
     const data = useLoaderData() as ProgramPartsType
-    //const {programName} = useParams() 
     return data.map((record) => <div key={record.PK_PIP}>Детали задания {`${record.ProgramName}    ${record.PartName}  ${record.RepeatID}  ${record.QtyInProcess}`}</div>);
 };
 
-export default MainScreen;
+export default Details;

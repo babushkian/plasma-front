@@ -22,7 +22,7 @@ const actionmap: Record<ProgramStatus, string> = {
 };
 
 const MainScreen = () => {
-    const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 5), endDate: new Date(2025, 1, 15) };
+    const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>();
     const dispatch = useDispatch<AddDispatch>();
@@ -52,7 +52,7 @@ const MainScreen = () => {
 
     /* оправлем данные программы для обновления статуса */
     const handleCreateData: handleCreateDataType = async (params) => {
-        //createDaraRequest(params);
+        createDaraRequest(params);
         console.log("создется запись в таблице:", params.ProgramName, params.program_status)
         loadData();
     };
