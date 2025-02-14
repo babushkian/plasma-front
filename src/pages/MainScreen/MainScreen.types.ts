@@ -12,4 +12,6 @@ export type DateDiapazonType = {
     endDate: Date;
 }
 
-export type handleCreateDataType = (params: ICreateData) => void;
+export type handleCreateDataType = (params: ICreateData[]) => void;
+export type handleSelectType = (params: ICreateData) => void;
+

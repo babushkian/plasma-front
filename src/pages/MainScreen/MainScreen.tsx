@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -8,8 +8,9 @@ import { AddDispatch, RootState } from "../../store/store";
 import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { convertDateToString, convertStringToDate } from "../../utils/convert_time";
-import { DateDiapazonType, ProgramStatus, handleCreateDataType } from "./MainScreen.types";
-import { createDaraRequest } from "../../utils/requests";
+import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./MainScreen.types";
+import { createDaraRequest, ICreateData } from "../../utils/requests";
+import styles from "./MainScreen.module.css";
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
 
@@ -24,25 +25,28 @@ const actionmap: Record<ProgramStatus, string> = {
 const MainScreen = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
-    const [data, setData] = useState<PrognameType[]>();
+    const [data, setData] = useState<PrognameType[]>([]);
+
+    type CreateDataObject = Record<string, ICreateData>;
+    const [selectedData, setSelectedData] = useState<CreateDataObject>({}); // массив для отправки на сервер
+    const [selectedQty, setSelectedQty] = useState<number>(0);
+
     const dispatch = useDispatch<AddDispatch>();
-    
-    const [loading, setLoading] = useState(false)
-    const [showTable, setShowTable] = useState(false)
+
+    const [loading, setLoading] = useState(false);
+    const [showTable, setShowTable] = useState(false);
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
     const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
 
-
-
     // TODO:  вставить данные из глобального состояния
     /*загружаем заные о програмах */
     const loadData = async () => {
-        setShowTable(false)
-        setLoading(true)
+        setShowTable(false);
+        setLoading(true);
         // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
-        await new Promise<void>((resolve) => setTimeout(() => resolve(), 800));
-        
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
+
         try {
             const response = await axios.get<PrognameType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
@@ -52,8 +56,8 @@ const MainScreen = () => {
             });
             setData(response.data);
             console.log("данные с сревера:", response.data);
-            setLoading(false)
-            setShowTable(true)
+            setLoading(false);
+            setShowTable(true);
         } catch (error) {
             console.error("Error fetching protected data:", error);
             return;
@@ -61,11 +65,31 @@ const MainScreen = () => {
     };
 
     /* оправлем данные программы для обновления статуса */
-    const handleCreateData: handleCreateDataType = async (params) => {
-        createDaraRequest(params);
-        console.log("создется запись в таблице:", params.ProgramName, params.program_status)
+    const handleCreateData: handleCreateDataType = async () => {
+
+        const createRecords = Object.values(selectedData)
+        createDaraRequest(createRecords);
+        
+        setSelectedData({})
         loadData();
     };
+
+    const handleSelect: handleSelectType = (props) => {
+        console.log("выбираем запись", props);
+        setSelectedData((prev) => {
+            // если имя программы уже есть среди выделенных записей, его надо удалить
+            if (Object.keys(prev).includes(props.ProgramName)) {
+                console.log("надо удалить запись");
+                return Object.fromEntries(Object.entries(prev).filter(([key]) => key !== props.ProgramName));
+            }
+            // а если не встречается - добавить
+            return { ...prev, [props.ProgramName]: props };
+        });
+    };
+
+    useEffect(() => {
+        setSelectedQty(Object.keys(selectedData).length);
+    }, [selectedData]);
 
     const dispatchDiapazon = () => {
         dispatch(
@@ -88,10 +112,12 @@ const MainScreen = () => {
                 <p>Конечная дата: {endDateState}</p>
             </div> */}
 
-            <div>
+            <div className={styles["flex_container"]}>
                 <button type="button" onClick={loadData}>
                     Получить данные
                 </button>
+                <button type="button" onClick={handleCreateData}>Загрузить выбранные записи</button>
+                {selectedQty}
             </div>
 
             <div>
@@ -104,7 +130,7 @@ const MainScreen = () => {
             {loading && <div>Загрузка...</div>}
             {showTable && (
                 <Suspense fallback={<div>Загрузка...</div>}>
-                    <ProgramMainTable data={data} handleCreateData={handleCreateData} />
+                    <ProgramMainTable data={data} handleSelect={handleSelect} />
                 </Suspense>
             )}
         </>

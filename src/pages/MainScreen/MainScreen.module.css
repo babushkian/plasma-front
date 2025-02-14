@@ -1,0 +1,6 @@
+.flex_container {
+    margin: 6px;;
+    display:flex;
+    justify-content: space-between;
+    gap: 24px;
+}

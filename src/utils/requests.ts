@@ -8,14 +8,16 @@ export interface ICreateData {
     ProgramName: string;
 }
 
-export const createDaraRequest = async (params: ICreateData) => {
+export const createDaraRequest = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const a = [params]
-        console.log(a)
-        const response = await axios.post(`${BASE_URL}/${URL_CREATE_PROGRAM_DATA}`, a );
-        console.log("Была изменена запись", response);
+        console.log("------------------запрос на обновление---------------------")
+        console.log(params)
+        const response = await axios.post(`${BASE_URL}/${URL_CREATE_PROGRAM_DATA}`, params );
+        console.log("Ответ сервера: ", response);
     } catch (error) {
-        console.error("Error during login:", error);
+        if (error instanceof Error )
+            console.error("Ошибка при запросе на создание программ:", error);
+        
     }
 };
