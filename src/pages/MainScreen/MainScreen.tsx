@@ -26,6 +26,9 @@ const MainScreen = () => {
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>();
     const dispatch = useDispatch<AddDispatch>();
+    
+    const [loading, setLoading] = useState(false)
+    const [showTable, setShowTable] = useState(false)
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
     const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
@@ -35,6 +38,11 @@ const MainScreen = () => {
     // TODO:  вставить данные из глобального состояния
     /*загружаем заные о програмах */
     const loadData = async () => {
+        setShowTable(false)
+        setLoading(true)
+        // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
+        await new Promise<void>((resolve) => setTimeout(() => resolve(), 800));
+        
         try {
             const response = await axios.get<PrognameType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
@@ -43,7 +51,9 @@ const MainScreen = () => {
                 },
             });
             setData(response.data);
-            console.log("Protected data:", response.data);
+            console.log("данные с сревера:", response.data);
+            setLoading(false)
+            setShowTable(true)
         } catch (error) {
             console.error("Error fetching protected data:", error);
             return;
@@ -91,7 +101,8 @@ const MainScreen = () => {
                 </button> */}
             </div>
 
-            {data && (
+            {loading && <div>Загрузка...</div>}
+            {showTable && (
                 <Suspense fallback={<div>Загрузка...</div>}>
                     <ProgramMainTable data={data} handleCreateData={handleCreateData} />
                 </Suspense>
