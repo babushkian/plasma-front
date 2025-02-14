@@ -28,7 +28,7 @@ export interface IProgramPartsRecord {
   
 
 
-const MainScreen: React.FC = () => {
+const MainScreen = () => {
     const data = useLoaderData() as ProgramPartsType
     //const {programName} = useParams() 
     return data.map((record) => <div key={record.PK_PIP}>Детали задания {`${record.ProgramName}    ${record.PartName}  ${record.RepeatID}  ${record.QtyInProcess}`}</div>);

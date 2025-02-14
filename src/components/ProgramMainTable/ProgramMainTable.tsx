@@ -1,27 +1,22 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { PrognameType } from "../../pages/MainScreen/MainScreen.types";
+import { PrognameType, ProgramStatus } from "../../pages/MainScreen/MainScreen.types";
+import TableRow from "../TableRow/TableRow";
+import {handleCreateDataType} from "../../pages/MainScreen/MainScreen.types"
 // import styles from "./ProgramMainTable.module.css"
 
-const ProgramMainTable = ({ data }: { data: PrognameType[] }) => {
+
+
+const ProgramMainTable = ({ data,  handleCreateData}: { data: PrognameType[], handleCreateData: handleCreateDataType}) => {
     const table = data.map((record) => {
-        return (
-
-
-
-
-            <tr key={record.ProgramName}>
-                
-                <td><Link to={`/program/${record.ProgramName}`}>{record.ProgramName} </Link></td>
-                <td>{record.program_status}</td>
-                <td>{record.PostDateTime}</td>
-                <td>{record.Material}</td>
-            </tr>
-        );
+        return <TableRow key={record.ProgramName} data={record} handleCreateData = {handleCreateData}/>;
     });
-    return <>
-    <table><tbody>{table}</tbody></table>
-    </>;
+    return (
+        <>
+            <table>
+                <tbody>{table}</tbody>
+            </table>
+        </>
+    );
 };
 
 export default ProgramMainTable;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
     
-const Login: React.FC = () => {
+const Login = () => {
 // "user@omzit.ru"
 // "StrongPass1!"
   const [email, setEmail] = useState('');

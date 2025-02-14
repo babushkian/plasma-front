@@ -5,17 +5,17 @@ import { useDispatch,  useSelector } from "react-redux";
 import {AddDispatch} from "../../store/store"
 import {dateDiapazonActions} from "../../store/date_diapazon.slice"
 import {convertDateToString} from "../../utils/convert_time"
+import {DateDiapazonType} from "../../pages/MainScreen/MainScreen.types"
 
 
+interface IDateDiapazonProps {
+    setDates: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
+    defultDates: DateDiapazonType
+}
 
-// interface IDateDiapazonProps {
-//     onSubmit: (dates: { startDate: Date | null; endDate: Date | null }) => void;
-//     setParentDates: (dates: { startDate: Date | null; endDate: Date | null }) => void;
-// }
-
-export const DateDiapazon = () => {    
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+export const DateDiapazon = ({defultDates, setDates}:IDateDiapazonProps) => {    
+    const [startDate, setStartDate] = useState(defultDates.startDate);
+    const [endDate, setEndDate] = useState(defultDates.endDate);
     const [error, setError] = useState<string>("");
 
     
@@ -36,6 +36,7 @@ export const DateDiapazon = () => {
     const handleStartDate = (date: Date | null) => {
         if (date instanceof Date) {
             setStartDate(date);
+            setDates({startDate: date, endDate})
             compareDates(date, endDate, true);
             dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
@@ -44,6 +45,7 @@ export const DateDiapazon = () => {
     const handleEndDate = (date: Date | null) => {
         if (date instanceof Date) {
             setEndDate(date);
+            setDates({startDate, endDate: date})
             compareDates(date, startDate, false);
             dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
@@ -60,6 +62,7 @@ export const DateDiapazon = () => {
                         maxDate={endDate || undefined}
                     />
                 </div>
+
                 <div className={`date-picker-container ${error ? "error" : ""}`}>
                     <label>Окончание</label>
                     <DatePickerComponent
