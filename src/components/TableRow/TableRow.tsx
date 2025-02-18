@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { PrognameType} from "../../pages/MainScreen/MainScreen.types";
-import { handleSelectType } from "../../pages/MainScreen/MainScreen.types";
+import { PrognameType} from "../../pages/Techman/Techman.types";
+import { handleSelectType } from "../../pages/Techman/Techman.types";
 
 const TableRow = ({ data, handleSelect }: { data: PrognameType; handleSelect: handleSelectType }) => {
     return (

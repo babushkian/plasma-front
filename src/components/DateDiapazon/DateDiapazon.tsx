@@ -5,7 +5,7 @@ import { useDispatch,  useSelector } from "react-redux";
 import {AddDispatch} from "../../store/store"
 import {dateDiapazonActions} from "../../store/date_diapazon.slice"
 import {convertDateToString} from "../../utils/convert_time"
-import {DateDiapazonType} from "../../pages/MainScreen/MainScreen.types"
+import {DateDiapazonType} from "../../pages/Techman/Techman.types"
 
 
 interface IDateDiapazonProps {

@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +6,7 @@ import axios from "axios";
 import "./index.css";
 // import App from './App.tsx'
 import Navbar from "./layouts/NavBar/NavBar.tsx";
-import MainScreen from "./pages/MainScreen/MainScreen";
+import Techman from "./pages/Techman/Techman.tsx";
 import Details from "./pages/Details/Details.tsx";
 import Login from "./pages/Login/Login";
 
@@ -14,13 +14,18 @@ import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
+import Logist from "./pages/Logist/Logist.tsx";
+// import Master from "./pages/Master/Master.tsx";
+import { getProgramsAndDoers } from "./utils/requests.ts";
+
+const LazyMaster = lazy(() => import("./pages/Master/Master"));
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <Navbar />,
         children: [
-            { path: "/", element: <MainScreen /> },
+            { path: "/", element: <Techman /> },
             { path: "/login", element: <Login /> },
             {
                 path: "/program/:programName",
@@ -32,6 +37,23 @@ const router = createBrowserRouter([
                     const { data } = await axios.get(path);
                     return data;
                 },
+            },
+
+            { path: "/logist", element: <Logist /> },
+
+            {
+                path: "/master",
+                element: (
+                    <Suspense fallback={<div>Загрузка...</div>}>
+                        <LazyMaster />
+                    </Suspense>
+                ),
+                loader: getProgramsAndDoers,
+                errorElement: (
+                    <div className="errormessage">
+                        Не удалось загрузить страницу
+                    </div>
+                ),
             },
         ],
     },

@@ -3,14 +3,14 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
-import { PrognameType } from "./MainScreen.types";
+import { PrognameType } from "./Techman.types";
 import { AddDispatch, RootState } from "../../store/store";
 import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { convertDateToString, convertStringToDate } from "../../utils/convert_time";
-import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./MainScreen.types";
+import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./Techman.types";
 import { createDaraRequest, ICreateData } from "../../utils/requests";
-import styles from "./MainScreen.module.css";
+import styles from "./Techman.module.css";
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
 
@@ -22,7 +22,7 @@ const actionmap: Record<ProgramStatus, string> = {
     [ProgramStatus.CREATED]: "изменить",
 };
 
-const MainScreen = () => {
+const Techman = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
@@ -31,13 +31,13 @@ const MainScreen = () => {
     const [selectedData, setSelectedData] = useState<CreateDataObject>({}); // массив для отправки на сервер
     const [selectedQty, setSelectedQty] = useState<number>(0);
 
-    const dispatch = useDispatch<AddDispatch>();
+    // const dispatch = useDispatch<AddDispatch>();
 
     const [loading, setLoading] = useState(false);
     const [showTable, setShowTable] = useState(false);
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
-    const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
+    // const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
 
     // TODO:  вставить данные из глобального состояния
     /*загружаем заные о програмах */
@@ -66,10 +66,8 @@ const MainScreen = () => {
 
     /* оправлем данные программы для обновления статуса */
     const handleCreateData: handleCreateDataType = async () => {
-
         const createRecords = Object.values(selectedData)
         createDaraRequest(createRecords);
-        
         setSelectedData({})
         loadData();
     };
@@ -91,17 +89,16 @@ const MainScreen = () => {
         setSelectedQty(Object.keys(selectedData).length);
     }, [selectedData]);
 
-    const dispatchDiapazon = () => {
-        dispatch(
-            dateDiapazonActions.setDiapazon({
-                startDate: convertDateToString(new Date(2025, 0, 1)),
-                endDate: convertDateToString(new Date(2025, 1, 15)),
-            })
-        );
-    };
+    // глобальное хранилице
+    // const dispatchDiapazon = () => {
+    //     dispatch(
+    //         dateDiapazonActions.setDiapazon({
+    //             startDate: convertDateToString(new Date(2025, 0, 1)),
+    //             endDate: convertDateToString(new Date(2025, 1, 15)),
+    //         })
+    //     );
+    // };
 
-    //------------------------------
-    // не работает получение данных из хранилища
     return (
         <>
             <h2>Главное меню</h2>
@@ -137,4 +134,4 @@ const MainScreen = () => {
     );
 };
 
-export default MainScreen;
+export default Techman;

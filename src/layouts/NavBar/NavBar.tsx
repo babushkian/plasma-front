@@ -10,15 +10,20 @@ const Navbar: React.FC = () => {
         <nav>
             <ul className={styles.navbar}>
                 <li>
-                    <Link className={styles.navlink} to="/">Главный экран</Link>
+                    <Link className={styles.navlink} to="/">Техник</Link>
                 </li>
+                <li>
+                    <Link className={styles.navlink} to="/master">Мастер</Link>
+                </li>
+
+                <li>
+                    <Link className={styles.navlink} to="/logist">Логист</Link>
+                </li>
+ 
                 <li>
                     <Link className={styles.navlink} to="/login">Логин</Link>
                 </li>
-                <li>
-                    <Link className={styles.navlink} to="/details">Детали задания</Link>
-                </li>
-
+ 
             </ul>
         </nav>
         <Outlet/>

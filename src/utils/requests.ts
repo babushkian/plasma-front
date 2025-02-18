@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import { ProgramStatus } from "../pages/MainScreen/MainScreen.types";
-import { BASE_URL, URL_CREATE_PROGRAM_DATA } from "./urls";
+import { ProgramStatus } from "../pages/Techman/Techman.types";
+import { BASE_URL, URL_CREATE_PROGRAM_DATA, GET_MASTER_PROGRAMS_AND_DOERS } from "./urls";
 
 export interface ICreateData {
     program_status: ProgramStatus;
@@ -21,3 +21,16 @@ export const createDaraRequest = async (params: ICreateData[]) => {
         
     }
 };
+
+export const getProgramsAndDoers = async () => {
+    try {
+    const path = `${BASE_URL}/${GET_MASTER_PROGRAMS_AND_DOERS}`;
+    const { data } = await axios.get(path);
+    console.log(data)
+    return data;
+    } catch (error) {
+        if (error instanceof Error )
+            console.error("Ошибка при запросе программ для распределения:", error);
+
+    }
+}
