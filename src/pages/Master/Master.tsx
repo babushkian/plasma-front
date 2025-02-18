@@ -53,8 +53,6 @@ type AssignedProgramType = Record<number, AssignProgramRequestType>;
 
 const Master = () => {
     const data = useLoaderData() as ResponseType;
-    console.log("Загрузка данных мастера");
-    console.log(data);
     const [programsData, setProgramsData] = useState<ProgramType[] | null>(null);
     const [doers, setDoers] = useState<DoerType[]>([]);
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
@@ -67,8 +65,7 @@ const Master = () => {
         }
     }, [data]);
 
-    console.log(assignedPrograms);
-    const handleDoerAssing = (programId: number, doerId: number) => {
+    const handleDoerAssign = (programId: number, doerId: number) => {
         if (doerId === 0) {
             if (Object.keys(assignedPrograms).includes(programId.toString())) {
                 //исключаем объект из списка распределенных, если у него выбрали пустого работника
@@ -86,6 +83,10 @@ const Master = () => {
     };
 
     const handleAssignPrograms = () => {
+        //если фамилии не выбраны, запрос не посылаем
+        if (Object.keys(assignedPrograms).length===0){
+            return
+        }        
         const programs = Object.values(assignedPrograms);
         assignProgramsRequest(programs);
         // сброс заполненных работников и перезагрузка страницы
@@ -114,7 +115,7 @@ const Master = () => {
                                     <DoersSelect
                                         rowId={row.id}
                                         doers={doers}
-                                        assignHandler={handleDoerAssing}
+                                        assignHandler={handleDoerAssign}
                                     ></DoersSelect>
                                 </td>
                             </tr>
