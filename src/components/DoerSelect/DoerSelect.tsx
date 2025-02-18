@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DoerType } from "../../pages/Master/Master";
+import { DoerType } from "../../pages/Master/Master.types";
 
 type DoerSelectPropsType = {
     rowId: number;

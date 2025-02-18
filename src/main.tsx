@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import axios from "axios";
 
 import "./index.css";
-// import App from './App.tsx'
+
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Details from "./pages/Details/Details.tsx";
@@ -14,11 +14,13 @@ import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
-import Logist from "./pages/Logist/Logist.tsx";
-// import Master from "./pages/Master/Master.tsx";
 import { getProgramsAndDoers } from "./utils/requests.ts";
 
 const LazyMaster = lazy(() => import("./pages/Master/Master"));
+const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
+
+const ErrorPage = () => <div className="errormessage">Не удалось загрузить страницу</div>;
+const LoadingPlaceholder = () => <div>Загрузка...</div>;
 
 const router = createBrowserRouter([
     {
@@ -39,21 +41,25 @@ const router = createBrowserRouter([
                 },
             },
 
-            { path: "/logist", element: <Logist /> },
+            {
+                path: "/logist",
+                element: (
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                        <LazyLogist />
+                    </Suspense>
+                ),
+                errorElement: <ErrorPage />,
+            },
 
             {
                 path: "/master",
                 element: (
-                    <Suspense fallback={<div>Загрузка...</div>}>
+                    <Suspense fallback={<LoadingPlaceholder />}>
                         <LazyMaster />
                     </Suspense>
                 ),
                 loader: getProgramsAndDoers,
-                errorElement: (
-                    <div className="errormessage">
-                        Не удалось загрузить страницу
-                    </div>
-                ),
+                errorElement: <ErrorPage />,
             },
         ],
     },

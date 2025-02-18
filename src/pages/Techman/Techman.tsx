@@ -1,11 +1,11 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 
-import { useDispatch, useSelector } from "react-redux";
+//import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
 import { PrognameType } from "./Techman.types";
-import { AddDispatch, RootState } from "../../store/store";
-import { dateDiapazonActions } from "../../store/date_diapazon.slice";
+// import { AddDispatch, RootState } from "../../store/store";
+// import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { convertDateToString, convertStringToDate } from "../../utils/convert_time";
 import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./Techman.types";
@@ -16,11 +16,6 @@ const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/Pr
 
 axios.defaults.withCredentials = true;
 
-// сопоставление действия над запистью с ее статусом
-const actionmap: Record<ProgramStatus, string> = {
-    [ProgramStatus.NEW]: "создать",
-    [ProgramStatus.CREATED]: "изменить",
-};
 
 const Techman = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
