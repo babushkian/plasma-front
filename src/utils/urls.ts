@@ -5,5 +5,9 @@ export const URL_GET_PROGRAM_PARTS = "techman/get_program_parts"
 
 export const URL_CREATE_PROGRAM_DATA = "techman/create_data"
 
-// получение всех нераспределенных заданий и фамилий раюотников для распределения
+/**
+* получение всех нераспределенных заданий и фамилий раюотников для распределения
+ */
 export const GET_MASTER_PROGRAMS_AND_DOERS =  "master/get_programs_for_assignment_and_doers"
+
+export const POST_MASTER_ASSIGN_PROGRAMS =  "master/assign_program"

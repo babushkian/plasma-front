@@ -13,3 +13,7 @@
     font-weight: bold;
 }
 
+.active {
+    color: rgb(93, 8, 204);
+    text-decoration: underline;
+}

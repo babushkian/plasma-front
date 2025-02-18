@@ -1,27 +1,27 @@
 import React from "react";
+
 import styles from "./NavBar.module.css"
 
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet} from "react-router-dom";
 
 const Navbar: React.FC = () => {
-
     return (
         <>
         <nav>
             <ul className={styles.navbar}>
                 <li>
-                    <Link className={styles.navlink} to="/">Техник</Link>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/">Техник</NavLink>
                 </li>
                 <li>
-                    <Link className={styles.navlink} to="/master">Мастер</Link>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/master">Мастер</NavLink>
                 </li>
 
                 <li>
-                    <Link className={styles.navlink} to="/logist">Логист</Link>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/logist">Логист</NavLink>
                 </li>
  
                 <li>
-                    <Link className={styles.navlink} to="/login">Логин</Link>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
                 </li>
  
             </ul>

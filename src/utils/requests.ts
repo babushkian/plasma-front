@@ -1,13 +1,17 @@
 import axios from "axios";
 
 import { ProgramStatus } from "../pages/Techman/Techman.types";
-import { BASE_URL, URL_CREATE_PROGRAM_DATA, GET_MASTER_PROGRAMS_AND_DOERS } from "./urls";
+import { BASE_URL, URL_CREATE_PROGRAM_DATA, GET_MASTER_PROGRAMS_AND_DOERS, POST_MASTER_ASSIGN_PROGRAMS } from "./urls";
 
 export interface ICreateData {
     program_status: ProgramStatus;
     ProgramName: string;
 }
 
+/**
+ * Записывает новые программы для резки в нашу базу
+ * @param params 
+ */
 export const createDaraRequest = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
@@ -22,6 +26,25 @@ export const createDaraRequest = async (params: ICreateData[]) => {
     }
 };
 
+
+export const assignProgramsRequest = async (params:{ id: number; fio_doer_id: number }[] ) => {
+    try {
+        // Отправка POST-запроса на сервер с использованием axios
+        console.log(params)
+        const response = await axios.post(`${BASE_URL}/${POST_MASTER_ASSIGN_PROGRAMS}`, params );
+        console.log("Ответ сервера: ", response);
+    } catch (error) {
+        if (error instanceof Error )
+            console.error("Ошибка при запросе на создание программ:", error);
+        
+    }
+};
+
+
+
+/**
+* Запрос получает список программ, готовых к распределению и список работников
+*/
 export const getProgramsAndDoers = async () => {
     try {
     const path = `${BASE_URL}/${GET_MASTER_PROGRAMS_AND_DOERS}`;

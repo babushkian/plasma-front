@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
+import { assignProgramsRequest } from "../../utils/requests";
+
 export type ProgramType = {
     ProgramName: string;
     RepeatIDProgram: string;
@@ -53,8 +56,9 @@ const Master = () => {
     console.log("Загрузка данных мастера");
     console.log(data);
     const [programsData, setProgramsData] = useState<ProgramType[] | null>(null);
-    const [doers, setDoers] = useState<DoerType[] | null>(null);
+    const [doers, setDoers] = useState<DoerType[]>([]);
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (data.programs !== undefined) {
@@ -68,8 +72,10 @@ const Master = () => {
         if (doerId === 0) {
             if (Object.keys(assignedPrograms).includes(programId.toString())) {
                 //исключаем объект из списка распределенных, если у него выбрали пустого работника
-                setAssignedPrograms((oldState)=> {const { [programId]: _, ...newState } = oldState;
-                return newState;});
+                setAssignedPrograms((oldState) => {
+                    const { [programId]: _, ...newState } = oldState;
+                    return newState;
+                });
             } else {
                 return;
             }
@@ -79,11 +85,19 @@ const Master = () => {
         }
     };
 
+    const handleAssignPrograms = () => {
+        const programs = Object.values(assignedPrograms);
+        assignProgramsRequest(programs);
+        // сброс заполненных работников и перезагрузка страницы
+        setAssignedPrograms({});
+        navigate(0);
+    };
+
     return (
         <>
             <h2>Рабочее место мастера</h2>
             <div>
-                <button>Отправить в работу</button>
+                <button onClick={handleAssignPrograms}>Отправить в работу</button>
             </div>
             <table>
                 <tbody>
@@ -93,9 +107,9 @@ const Master = () => {
                                 <td>{row.ProgramName}</td>
                                 <td>{row.MachineName}</td>
                                 <td>
-                                    {" "}
-                                    {Math.round(row.SheetLength)} x {Math.round(row.SheetWidth)} x {row.Thickness}{" "}
+                                    {Math.round(row.SheetLength)} x {Math.round(row.SheetWidth)} x {row.Thickness}
                                 </td>
+                                <td>{row.fio_doer_id}</td>
                                 <td>
                                     <DoersSelect
                                         rowId={row.id}
