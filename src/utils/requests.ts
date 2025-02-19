@@ -56,7 +56,7 @@ export const getProgramsAndDoers = async () => {
 export const getDoers = async () => {
     try {
         const path = `${BASE_URL}/${MASTER_GET_DOERS}`;
-        const { data } = await axios.get<DoerType>(path);
+        const { data } = await axios.get<DoerType[]>(path);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
