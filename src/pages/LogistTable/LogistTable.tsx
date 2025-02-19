@@ -5,6 +5,7 @@ import { ProgramAndFioType } from "../Logist/Logist";
 import { masterGetDetailsByProgramId } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
+import QtyInput from "../../components/QtyInput/QtyInput"
 
 const LogistTable = () => {
     const { state }: { state: ProgramAndFioType } = useLocation();
@@ -32,12 +33,11 @@ const LogistTable = () => {
         loader();
     }, []);
 
+    const setQty:(rowId:number, qty:number)=> void  = (rowId, qty)=> console.log(rowId, qty)
+
     // столбцы, которые нужно выводить в таблице
     const fields = [
         "id",
-        "wo_number_id",
-        "program_id",
-        "MachineName",
         "PartName",
         "QtyInProcess",
         "part_status",
@@ -55,6 +55,7 @@ const LogistTable = () => {
                             {fields.map((header) => (
                                 <th>{header}</th>
                             ))}
+                            <th>действие</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,7 +65,7 @@ const LogistTable = () => {
                                     {fields.map((header) => (
                                         <td>{(row as Record<string, string | number | boolean | null>)[header]}</td>
                                     ))}
-                                    <td>{row.fio_doer_id}</td>
+                                    <td> <QtyInput rowId={row.id} applyQty={setQty}> </QtyInput></td>
                                 </tr>
                             );
                         })}

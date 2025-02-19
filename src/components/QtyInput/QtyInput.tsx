@@ -1,32 +1,23 @@
 import React, { useState } from "react";
 
 
-type DoerSelectPropsType = {
+type SetQtyType = {
     rowId: number;
-    doers: DoerType[];
-    assignHandler: (programId: number, doerId: number )=>void
+    applyQty: (rowId:number, qty:number)=> void
 }
 
-const QtyInput = ({rowId, doers, assignHandler}:DoerSelectPropsType) => {
-    const [selectedDoer, setSelectedDoer] = useState<number>(0);
-    const doersList = doers.map((doer) => {
-        return (
-            <option key={doer.id} value={doer.id}>
-                {" "}
-                {doer.fio_doer}{" "}
-            </option>
-        );
-    });
+const QtyInput = ({rowId,  applyQty}:SetQtyType) => {
+    const [qty, setQty] = useState<number>(0);
 
-    const hadleSelectDoer = (event: React.ChangeEvent<HTMLSelectElement>)=> {
-        const doerId = Number.parseInt(event.target.value)
-        setSelectedDoer(doerId)
-        assignHandler(rowId, doerId)
+    const hadleSetQty = (event: React.ChangeEvent<HTMLInputElement>)=> {
+        const newValue = Number.parseInt(event.target.value)
+        setQty( newValue)
+        applyQty(rowId, newValue)
     }
 
     return (
         <>
-            <select value={selectedDoer} onChange={hadleSelectDoer}>{doersList}</select>
+            <input  value={qty} onChange={(e)=>hadleSetQty(e)} />
         </>
     );
 };
