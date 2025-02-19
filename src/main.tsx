@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import axios from "axios";
 
 import "./index.css";
-
+import LogistTable from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Details from "./pages/Details/Details.tsx";
@@ -22,57 +22,61 @@ const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
 const ErrorPage = () => <div className="errormessage">Не удалось загрузить страницу</div>;
 const LoadingPlaceholder = () => <div>Загрузка...</div>;
 
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Navbar />,
-        children: [
-            { path: "/", element: <Techman /> },
-            { path: "/login", element: <Login /> },
-            {
-                path: "/program/:programName",
-                element: <Details />,
-                errorElement: <div className="errormessage">Страница не найдена</div>,
-                loader: async ({ params }) => {
-                    const path = `${BASE_URL}/${URL_GET_PROGRAM_PARTS}/${params.programName}`;
-                    console.log(path);
-                    const { data } = await axios.get(path);
-                    return data;
+const router = createBrowserRouter(
+    [
+        {
+            path: "/",
+            element: <Navbar />,
+            children: [
+                { path: "/", element: <Techman /> },
+                { path: "/login", element: <Login /> },
+                {
+                    path: "/program/:programName",
+                    element: <Details />,
+                    errorElement: <ErrorPage />,
+                    loader: async ({ params }) => {
+                        const path = `${BASE_URL}/${URL_GET_PROGRAM_PARTS}/${params.programName}`;
+                        console.log(path);
+                        const { data } = await axios.get(path);
+                        return data;
+                    },
                 },
-            },
 
-            {
-                path: "/logist",
-                element: (
-                    <Suspense fallback={<LoadingPlaceholder />}>
-                        <LazyLogist />
-                    </Suspense>
-                ),
-                errorElement: <ErrorPage />,
-            },
+                {
+                    path: "/logist",
+                    element: (
+                        <Suspense fallback={<LoadingPlaceholder />}>
+                            <LazyLogist />
+                        </Suspense>
+                    ),
+                    errorElement: <ErrorPage />,
+                },
+                { path: "/logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
 
-            {
-                path: "/master",
-                element: (
-                    <Suspense fallback={<LoadingPlaceholder />}>
-                        <LazyMaster />
-                    </Suspense>
-                ),
-                loader: getProgramsAndDoers,
-                errorElement: <ErrorPage />,
-            },
-        ],
-    },
-], {
-    future: {
-      v7_relativeSplatPath: true,
-    },
-  });
+                {
+                    path: "/master",
+                    element: (
+                        <Suspense fallback={<LoadingPlaceholder />}>
+                            <LazyMaster />
+                        </Suspense>
+                    ),
+                    loader: getProgramsAndDoers,
+                    errorElement: <ErrorPage />,
+                },
+            ],
+        },
+    ],
+    {
+        future: {
+            v7_relativeSplatPath: true,
+        },
+    }
+);
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>
-            <RouterProvider router={router}   future={{v7_startTransition: true,}} />
+            <RouterProvider router={router} future={{ v7_startTransition: true }} />
         </Provider>
     </StrictMode>
 );

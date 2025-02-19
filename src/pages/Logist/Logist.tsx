@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
-import { ProgramType, DoerType } from "../Master/Master.types";
+import { ProgramType} from "../Master/Master.types";
 
-type ProgramAndFioType = ProgramType & { doerFio: string };
+export type ProgramAndFioType = ProgramType & { doerFio: string };
 
 const Logist = () => {
     const [data, setData] = useState<ProgramAndFioType[]>([]);
@@ -57,11 +58,12 @@ const Logist = () => {
                         {data?.map((row) => {
                             return (
                                 <tr key={row.id}>
-                                    <td>{row.ProgramName}</td>
+                                    <td><Link to={`/logist/${row.ProgramName}`} state={row}> {row.ProgramName} </Link></td>
                                     <td>{row.MachineName}</td>
                                     <td>
                                         {Math.round(row.SheetLength)} x {Math.round(row.SheetWidth)} x {row.Thickness}
                                     </td>
+                                    <td>{row.fio_doer_id}</td>
                                     <td>{row.doerFio}</td>
                                 </tr>
                             );

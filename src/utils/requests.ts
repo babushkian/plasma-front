@@ -4,12 +4,16 @@ import { ProgramStatus } from "../pages/Techman/Techman.types";
 import {
     BASE_URL,
     URL_CREATE_PROGRAM_DATA,
-    GET_MASTER_PROGRAMS_AND_DOERS,
+    MASTER_GET_PROGRAMS_AND_DOERS,
     POST_MASTER_ASSIGN_PROGRAMS,
     LOGIST_GET_PROGRAMS,
     MASTER_GET_DOERS,
+    MASTER_GET_PARTS_BY_PROGRAM_ID,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
+
+
+import { MasterProgramPartsRecordType} from "../pages/LogistTable/LogistTable.types"
 
 export interface ICreateData {
     program_status: ProgramStatus;
@@ -44,14 +48,13 @@ export const assignProgramsRequest = async (params: { id: number; fio_doer_id: n
 export const getProgramsAndDoers = async () => {
     console.log("Запрос программ и работников");
     try {
-        const path = `${BASE_URL}/${GET_MASTER_PROGRAMS_AND_DOERS}`;
+        const path = `${BASE_URL}/${MASTER_GET_PROGRAMS_AND_DOERS}`;
         const { data } = await axios.get<ResponseType>(path);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для распределения:", error);
     }
 };
-
 
 export const getDoers = async () => {
     try {
@@ -63,13 +66,27 @@ export const getDoers = async () => {
     }
 };
 
-
 export const logistGetPrograms = async () => {
     try {
-        const {data} = await axios.get<ProgramType[]>(`${BASE_URL}/${LOGIST_GET_PROGRAMS}`) 
-        return data
+        const { data } = await axios.get<ProgramType[]>(`${BASE_URL}/${LOGIST_GET_PROGRAMS}`);
+        return data;
     } catch (error) {
         console.error("Error fetching protected data:", error);
+        return;
+    }
+};
+
+export const masterGetDetailsByProgramId: (program_id: number) => Promise<MasterProgramPartsRecordType[] | undefined> = async (
+    program_id
+) => {
+    try {
+        const { data } = await axios.get<MasterProgramPartsRecordType[]>(`${BASE_URL}/${MASTER_GET_PARTS_BY_PROGRAM_ID}`, {
+            params: { program_id },
+        });
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error("Ошибка получения деталей по идентификатору программы:", error);
         return;
     }
 };

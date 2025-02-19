@@ -31,13 +31,13 @@ const Details = () => {
     const tableBody = data.map((record, index) => {
         return (
             <tr key={index}>
-                {Object.keys(record).map((cellData, cellindex) => (
+                {(Object.keys(record) as Array<keyof IProgramPartsRecord>).map((cellData, cellindex) => (
                     <td key={cellindex}> {record[cellData]}</td>
                 ))}
             </tr>
         );
     });
-    return <table><tbody>{tableBody}</tbody></table>
+    return <table> <tbody>{tableBody}</tbody></table>
 };
 
 export default Details;
