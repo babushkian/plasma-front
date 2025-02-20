@@ -9,11 +9,11 @@ import {
     LOGIST_GET_PROGRAMS,
     MASTER_GET_DOERS,
     MASTER_GET_PARTS_BY_PROGRAM_ID,
+    LOGIST_CALCULATE_PARTS,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
-
-import { MasterProgramPartsRecordType} from "../pages/LogistTable/LogistTable.types"
+import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
 
 export interface ICreateData {
     program_status: ProgramStatus;
@@ -76,17 +76,29 @@ export const logistGetPrograms = async () => {
     }
 };
 
-export const masterGetDetailsByProgramId: (program_id: number) => Promise<MasterProgramPartsRecordType[] | undefined> = async (
-    program_id
-) => {
+export const masterGetDetailsByProgramId: (
+    program_id: number
+) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id) => {
     try {
-        const { data } = await axios.get<MasterProgramPartsRecordType[]>(`${BASE_URL}/${MASTER_GET_PARTS_BY_PROGRAM_ID}`, {
-            params: { program_id },
-        });
+        const { data } = await axios.get<MasterProgramPartsRecordType[]>(
+            `${BASE_URL}/${MASTER_GET_PARTS_BY_PROGRAM_ID}`,
+            {
+                params: { program_id },
+            }
+        );
         console.log(data);
         return data;
     } catch (error) {
         console.error("Ошибка получения деталей по идентификатору программы:", error);
         return;
+    }
+};
+
+export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number }>) => Promise<void> = async (params) => {
+    try {
+        const result = await axios.post(`${BASE_URL}/${LOGIST_CALCULATE_PARTS}`, params);
+        console.log(result)
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при отправке фактического количества деталей:", error);
     }
 };

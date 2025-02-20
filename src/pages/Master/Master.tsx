@@ -24,6 +24,14 @@ const Master = () => {
         }
     }, [data]);
 
+    /**
+     * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на 
+     * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется 
+     * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
+     * @param programId идентификатор программы, которой будет присвоен работник
+     * @param doerId  идентификатор работника
+     * @returns
+     */
     const handleDoerAssign = (programId: number, doerId: number) => {
         if (doerId === 0) {
             if (Object.keys(assignedPrograms).includes(programId.toString())) {
@@ -41,13 +49,13 @@ const Master = () => {
         }
     };
 
-    const handleAssignPrograms = () => {
+    const handleAssignPrograms =  async () => {
         //если фамилии не выбраны, запрос не посылаем
-        if (Object.keys(assignedPrograms).length===0){
-            return
-        }        
+        if (Object.keys(assignedPrograms).length === 0) {
+            return;
+        }
         const programs = Object.values(assignedPrograms);
-        assignProgramsRequest(programs);
+        await assignProgramsRequest(programs);
         // сброс заполненных работников и перезагрузка страницы
         setAssignedPrograms({});
         navigate(0);
