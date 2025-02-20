@@ -23,13 +23,18 @@ const Logist = () => {
             const doersMap = doers.map((entry) => [entry.id.toString(), entry.fio_doer]);
             const doersDict = Object.fromEntries(doersMap);
             // добавляем имя исполнителя в каждую запись
-            setData(
-                responseData.map((item) => ({
-                    ...item,
-                    doerFio:
-                        doersDict[item.id.toString()] !== undefined ? doersDict[item.id.toString()] : "ошибоный индекс",
-                }))
-            );
+
+            const fioData = responseData.map((item) => {
+                let doerFio = "ошибоный индекс";
+                if (item.fio_doer_id !== null) {
+                    doerFio =
+                        doersDict[item.fio_doer_id.toString()] !== undefined
+                            ? doersDict[item.fio_doer_id.toString()]
+                            : "ошибоный индекс";
+                }
+                return { ...item, doerFio };
+            });
+            setData(fioData);
             setLoading(false);
             setLoadError(false);
             setShowTable(true);
@@ -39,8 +44,9 @@ const Logist = () => {
         }
     };
 
- 
-    useEffect(() => {loader()}, []);
+    useEffect(() => {
+        loader();
+    }, []);
 
     return (
         <>
