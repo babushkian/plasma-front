@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
-import { assignProgramsRequest } from "../../utils/requests";
+import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramType, ResponseType } from "./Master.types";
 
 const blancDoerOption: DoerType = { fio_doer: "", position: "", id: 0 };
@@ -15,7 +14,7 @@ const Master = () => {
     const [programsData, setProgramsData] = useState<ProgramType[] | null>(null);
     const [doers, setDoers] = useState<DoerType[]>([]);
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
-    const navigate = useNavigate();
+    
 
     useEffect(() => {
         if (data.programs !== undefined) {
@@ -58,8 +57,10 @@ const Master = () => {
         await assignProgramsRequest(programs);
         // сброс заполненных работников и перезагрузка страницы
         setAssignedPrograms({});
-        navigate(0);
-    };
+        const data  = await getProgramsAndDoers()
+        if (data?.programs !== undefined) {
+            setProgramsData(data.programs);        
+    }}
 
     return (
         <>
