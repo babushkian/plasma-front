@@ -4,10 +4,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import axios from "axios";
 
 import "./index.css";
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 import LogistTable from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
@@ -21,6 +21,16 @@ import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import { getProgramsAndDoers } from "./utils/requests.ts";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+//локализация
+import { ruRU } from "@mui/x-data-grid/locales";
+import { ruRU as coreruRU } from "@mui/material/locale";
+
+const theme = createTheme(
+    {},
+    ruRU, // x-data-grid translations
+    coreruRU // core translations
+);
 
 const LazyMaster = lazy(() => import("./pages/Master/Master"));
 const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
@@ -83,7 +93,9 @@ const router = createBrowserRouter(
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>
-            <RouterProvider router={router} future={{ v7_startTransition: true }} />
+            <ThemeProvider theme={theme}>
+                <RouterProvider router={router} future={{ v7_startTransition: true }} />
+            </ThemeProvider>
         </Provider>
     </StrictMode>
 );

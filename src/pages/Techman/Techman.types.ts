@@ -5,7 +5,9 @@ export const enum ProgramStatus {
     CREATED = "создана"
 }
 
-export type PrognameType = { ProgramName: string, program_status: ProgramStatus, PostDateTime: string, Material: string};
+export type PrognameType = { ProgramName: string, program_status: ProgramStatus, PostDateTime: string, Material: string,
+    id?:string, checked?: boolean
+};
 
 export type DateDiapazonType = {
     startDate: Date;

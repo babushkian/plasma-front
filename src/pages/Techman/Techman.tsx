@@ -1,4 +1,6 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect, lazy, Suspense, useRef } from "react";
+
+
 
 //import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -13,11 +15,18 @@ import { createDaraRequest, ICreateData } from "../../utils/requests";
 import styles from "./Techman.module.css";
 import { Box, TextField, Typography, Button, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridRowsProp, GridColDef,  GridRenderCellParams  } from "@mui/x-data-grid";
+import { CheckBox } from "@mui/icons-material";
+
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
 
 axios.defaults.withCredentials = true;
+type columnsType = {
+    field: string;
+    headerName: string;
+    [key: string]: string | number | boolean | null;
+};
 
 const Techman = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
@@ -27,10 +36,34 @@ const Techman = () => {
     type CreateDataObject = Record<string, ICreateData>;
     const [selectedData, setSelectedData] = useState<CreateDataObject>({}); // массив для отправки на сервер
     const [selectedQty, setSelectedQty] = useState<number>(0);
+    const columns = useRef<columnsType[]>([]);
+
+    const createColumns = () => {
+        const colBuild: columnsType[] = [];
+        for (const colname in data[0]) {
+            colBuild.push({ field: colname, headerName: colname, flex:1 } satisfies columnsType);
+        }
+
+        colBuild.push({
+            field: 'actions',
+            headerName: 'Выбрать для загрузки',
+            width: 150,
+            renderCell: (params: GridRenderCellParams<PrognameType>) => (
+                <>
+                <input type="checkbox" onChange={()=>handleSelect(params)} checked={params.row.checked}/>
+                {/* <CheckBox checked= {params.row.checked} > </CheckBox> */}
+            
+            </>
+            ),
+          })
+        return colBuild;
+    };
 
     // const dispatch = useDispatch<AddDispatch>();
-
+    // свидетельствует о том, что данные загружаются
     const [loading, setLoading] = useState(false);
+    // свидетельствует о том, что данные получены с сервера, можно их обработать
+    const [loaded, setLoaded] = useState(false);
     const [showTable, setShowTable] = useState(false);
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
@@ -41,6 +74,7 @@ const Techman = () => {
     const loadData = async () => {
         setShowTable(false);
         setLoading(true);
+        setLoaded(false);
         // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
         await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
 
@@ -54,7 +88,7 @@ const Techman = () => {
             setData(response.data);
             console.log("данные с сревера:", response.data);
             setLoading(false);
-            setShowTable(true);
+            setLoaded(true);
         } catch (error) {
             console.error("Error fetching protected data:", error);
             return;
@@ -69,23 +103,35 @@ const Techman = () => {
         loadData();
     };
 
-    const handleSelect: handleSelectType = (props) => {
+    const handleSelect = (props:GridRenderCellParams<PrognameType>) => {
+        console.log(data[0].checked)
         console.log("выбираем запись", props);
-        setSelectedData((prev) => {
-            // если имя программы уже есть среди выделенных записей, его надо удалить
-            if (Object.keys(prev).includes(props.ProgramName)) {
-                console.log("надо удалить запись");
-                return Object.fromEntries(Object.entries(prev).filter(([key]) => key !== props.ProgramName));
-            }
-            // а если не встречается - добавить
-            return { ...prev, [props.ProgramName]: props };
-        });
+        console.log("старое значение", props.row.checked, "новое значение", !props.row.checked);
+        setData((prevRows) =>
+            prevRows.map((row) =>
+              row.id === props.id ? { ...row, active: !row.checked} : row
+            )
+          );
+
     };
+
+    function getRowId(row:PrognameType):string {
+        return row.ProgramName;
+      }
 
     useEffect(() => {
         setSelectedQty(Object.keys(selectedData).length);
     }, [selectedData]);
 
+
+    //если появились данные, нужно сформировать колонки таблицы
+    useEffect(() => {
+        if (loaded) {
+            columns.current = createColumns();
+            setData((prev) => prev.map(item=>{return  {...item, id: item.ProgramName, checked: true }}))
+            setShowTable(true);
+        }
+    }, [loaded]);
     // глобальное хранилице
     // const dispatchDiapazon = () => {
     //     dispatch(
@@ -119,8 +165,8 @@ const Techman = () => {
                     </Button>
                 </Stack>
                 {showTable && (
-                    <div style={{ height: 500, width: "100%" }}>
-                        <DataGrid rows={rows} columns={columns} />
+                    <div style={{ height: "500px", width: "100%" }}>
+                        <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} />
                     </div>
                 )}
 
@@ -128,20 +174,15 @@ const Techman = () => {
                     <button type="button" onClick={loadData}>
                         Получить данные
                     </button>
-                    <button type="button" onClick={handleCreateData}>
+                    <button type="button" onClick={()=>handleCreateData}>
                         Загрузить выбранные записи
                     </button>
                     {selectedQty}
                 </div>
 
-                <div></div>
 
-                {loading && <div>Загрузка...</div>}
-                {showTable && (
-                    <Suspense fallback={<div>Загрузка...</div>}>
-                        <ProgramMainTable data={data} handleSelect={handleSelect} />
-                    </Suspense>
-                )}
+
+
             </Box>
         </>
     );
