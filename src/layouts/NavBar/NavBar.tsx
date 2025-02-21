@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
         <nav>
             <ul className={styles.navbar}>
                 <li>
-                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/">Техник</NavLink>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/">Технолог</NavLink>
                 </li>
                 <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/master">Мастер</NavLink>
@@ -22,6 +22,10 @@ const Navbar: React.FC = () => {
  
                 <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
+                </li>
+
+                <li>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>
                 </li>
  
             </ul>

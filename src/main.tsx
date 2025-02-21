@@ -3,15 +3,18 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import axios from "axios";
 
-// надо на material ui переходить
-
-
 import "./index.css";
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 import LogistTable from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Details from "./pages/Details/Details.tsx";
 import Login from "./pages/Login/Login";
+import TestLayout from "./pages/TestLayout/TestLayout.tsx";
 
 import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
@@ -31,6 +34,7 @@ const router = createBrowserRouter(
             path: "/",
             element: <Navbar />,
             children: [
+                { path: "/test", element: <TestLayout /> },
                 { path: "/", element: <Techman /> },
                 { path: "/login", element: <Login /> },
                 {

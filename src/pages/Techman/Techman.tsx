@@ -11,11 +11,13 @@ import { convertDateToString, convertStringToDate } from "../../utils/convert_ti
 import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./Techman.types";
 import { createDaraRequest, ICreateData } from "../../utils/requests";
 import styles from "./Techman.module.css";
+import { Box, TextField, Typography, Button, Stack } from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
 
 axios.defaults.withCredentials = true;
-
 
 const Techman = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
@@ -61,9 +63,9 @@ const Techman = () => {
 
     /* оправлем данные программы для обновления статуса */
     const handleCreateData: handleCreateDataType = async () => {
-        const createRecords = Object.values(selectedData)
+        const createRecords = Object.values(selectedData);
         createDaraRequest(createRecords);
-        setSelectedData({})
+        setSelectedData({});
         loadData();
     };
 
@@ -96,35 +98,51 @@ const Techman = () => {
 
     return (
         <>
-            <h2>Главное меню</h2>
-            <DateDiapazon defultDates={dates} setDates={setDates} />
-            {/*работа с глобальным хранилищем*/}
-            {/* <div>
-                <p>Начальная дата: {startDateState}</p>
-                <p>Конечная дата: {endDateState}</p>
-            </div> */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
+                <Typography variant="h4">Загрузка программ</Typography>
+                <DateDiapazon defultDates={dates} setDates={setDates} />
+                <Grid container spacing={2} justifyContent="center">
+                    <Grid>
+                        <Typography align="center">Начальная дата</Typography>
+                        <TextField size="small" variant="outlined" type="date"></TextField>
+                    </Grid>
+                    <Grid>
+                        <Typography align="center">Конечная дата</Typography>
+                        <TextField size="small" type="date"></TextField>
+                    </Grid>
+                </Grid>
+                <Stack spacing={2} direction="row">
+                    <Button variant="contained">Получить данные</Button>
 
-            <div className={styles["flex_container"]}>
-                <button type="button" onClick={loadData}>
-                    Получить данные
-                </button>
-                <button type="button" onClick={handleCreateData}>Загрузить выбранные записи</button>
-                {selectedQty}
-            </div>
+                    <Button variant="contained" disabled>
+                        Отправить данные
+                    </Button>
+                </Stack>
+                {showTable && (
+                    <div style={{ height: 500, width: "100%" }}>
+                        <DataGrid rows={rows} columns={columns} />
+                    </div>
+                )}
 
-            <div>
-                {/*работа с глобальным хранилищем*/}
-                {/* <button type="button" onClick={dispatchDiapazon}>
-                    Обновление состояния
-                </button> */}
-            </div>
+                <div className={styles["flex_container"]}>
+                    <button type="button" onClick={loadData}>
+                        Получить данные
+                    </button>
+                    <button type="button" onClick={handleCreateData}>
+                        Загрузить выбранные записи
+                    </button>
+                    {selectedQty}
+                </div>
 
-            {loading && <div>Загрузка...</div>}
-            {showTable && (
-                <Suspense fallback={<div>Загрузка...</div>}>
-                    <ProgramMainTable data={data} handleSelect={handleSelect} />
-                </Suspense>
-            )}
+                <div></div>
+
+                {loading && <div>Загрузка...</div>}
+                {showTable && (
+                    <Suspense fallback={<div>Загрузка...</div>}>
+                        <ProgramMainTable data={data} handleSelect={handleSelect} />
+                    </Suspense>
+                )}
+            </Box>
         </>
     );
 };
