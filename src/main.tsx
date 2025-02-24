@@ -25,11 +25,13 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 //локализация
 import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
+import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
 
 const theme = createTheme(
     {},
     ruRU, // x-data-grid translations
-    coreruRU // core translations
+    coreruRU, // core translations
+    dateruRU, // date-pickers
 );
 
 const LazyMaster = lazy(() => import("./pages/Master/Master"));

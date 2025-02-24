@@ -121,22 +121,11 @@ const Techman = () => {
     //     );
     // };
 
-    const dateEvent = (e:ChangeEvent<HTMLInputElement>) =>{console.log(e.target.value, typeof e.target.value,)}
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h4">Загрузка программ</Typography>
                 <DateDiapazon defultDates={dates} setDates={setDates} />
-                <Grid container spacing={2} justifyContent="center">
-                    <Grid>
-                        <Typography align="center">Начальная дата</Typography>
-                        <TextField size="small" variant="outlined" type="date"></TextField>
-                    </Grid>
-                    <Grid>
-                        <Typography align="center">Конечная дата</Typography>
-                        <TextField size="small" type="date" onChange={dateEvent}></TextField>
-                    </Grid>
-                </Grid>
                 <Stack spacing={2} direction="row">
                     <Button variant="contained" onClick={loadData}>
                         Получить данные
