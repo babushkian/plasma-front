@@ -1,6 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useRef } from "react";
-
-
+import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent } from "react";
 
 //import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -8,54 +6,40 @@ import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
 import { PrognameType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
-import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
+// import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
+import { DateDiapazon } from "../../components/DateDiapazon/MaterialDiapazon";
 import { convertDateToString, convertStringToDate } from "../../utils/convert_time";
 import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./Techman.types";
-import { createDaraRequest, ICreateData } from "../../utils/requests";
+import { createDataRequest, ICreateData } from "../../utils/requests";
 import styles from "./Techman.module.css";
-import { Box, TextField, Typography, Button, Stack } from "@mui/material";
+import { Box, TextField, Typography, Button, Stack, Checkbox } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { DataGrid, GridRowsProp, GridColDef,  GridRenderCellParams  } from "@mui/x-data-grid";
-import { CheckBox } from "@mui/icons-material";
-
+import { DataGrid, GridRowsProp, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
 
 axios.defaults.withCredentials = true;
-type columnsType = {
-    field: string;
-    headerName: string;
-    [key: string]: string | number | boolean | null;
-};
 
 const Techman = () => {
     const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
 
-    type CreateDataObject = Record<string, ICreateData>;
-    const [selectedData, setSelectedData] = useState<CreateDataObject>({}); // массив для отправки на сервер
-    const [selectedQty, setSelectedQty] = useState<number>(0);
-    const columns = useRef<columnsType[]>([]);
+    const columns = useRef<GridColDef[]>([]);
 
     const createColumns = () => {
-        const colBuild: columnsType[] = [];
+        const colBuild: GridColDef[] = [];
         for (const colname in data[0]) {
-            colBuild.push({ field: colname, headerName: colname, flex:1 } satisfies columnsType);
+            colBuild.push({ field: colname, headerName: colname, flex: 1 } satisfies GridColDef);
         }
-
         colBuild.push({
-            field: 'actions',
-            headerName: 'Выбрать для загрузки',
+            field: "actions",
+            headerName: "Выбрать для загрузки",
             width: 150,
             renderCell: (params: GridRenderCellParams<PrognameType>) => (
-                <>
-                <input type="checkbox" onChange={()=>handleSelect(params)} checked={params.row.checked}/>
-                {/* <CheckBox checked= {params.row.checked} > </CheckBox> */}
-            
-            </>
+                <Checkbox checked={params.row.checked} onChange={() => handleSelect(params)} />
             ),
-          })
+        });
         return colBuild;
     };
 
@@ -77,7 +61,6 @@ const Techman = () => {
         setLoaded(false);
         // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
         await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
-
         try {
             const response = await axios.get<PrognameType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
@@ -96,39 +79,35 @@ const Techman = () => {
     };
 
     /* оправлем данные программы для обновления статуса */
-    const handleCreateData: handleCreateDataType = async () => {
-        const createRecords = Object.values(selectedData);
-        createDaraRequest(createRecords);
-        setSelectedData({});
+    const handleCreateData = async () => {
+        console.log("Вызов работает")
+        const createRecords: ICreateData[] = data
+            .filter((item) => item.checked === true)
+            .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
+        console.log("Надо проконтролировать, что что-то создалось")
+        console.log(createRecords)
+        await createDataRequest(createRecords);
         loadData();
     };
 
-    const handleSelect = (props:GridRenderCellParams<PrognameType>) => {
-        console.log(data[0].checked)
-        console.log("выбираем запись", props);
-        console.log("старое значение", props.row.checked, "новое значение", !props.row.checked);
-        setData((prevRows) =>
-            prevRows.map((row) =>
-              row.id === props.id ? { ...row, active: !row.checked} : row
-            )
-          );
-
+    const handleSelect = (props: GridRenderCellParams<PrognameType>) => {
+        setData((prevRows) => prevRows.map((row) => (row.id === props.id ? { ...row, checked: !row.checked } : row)));
     };
 
-    function getRowId(row:PrognameType):string {
+    function getRowId(row: PrognameType): string {
         return row.ProgramName;
-      }
-
-    useEffect(() => {
-        setSelectedQty(Object.keys(selectedData).length);
-    }, [selectedData]);
+    }
 
 
     //если появились данные, нужно сформировать колонки таблицы
     useEffect(() => {
         if (loaded) {
             columns.current = createColumns();
-            setData((prev) => prev.map(item=>{return  {...item, id: item.ProgramName, checked: true }}))
+            setData((prev) =>
+                prev.map((item) => {
+                    return { ...item, id: item.ProgramName, checked: false };
+                })
+            );
             setShowTable(true);
         }
     }, [loaded]);
@@ -142,6 +121,7 @@ const Techman = () => {
     //     );
     // };
 
+    const dateEvent = (e:ChangeEvent<HTMLInputElement>) =>{console.log(e.target.value, typeof e.target.value,)}
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -154,35 +134,25 @@ const Techman = () => {
                     </Grid>
                     <Grid>
                         <Typography align="center">Конечная дата</Typography>
-                        <TextField size="small" type="date"></TextField>
+                        <TextField size="small" type="date" onChange={dateEvent}></TextField>
                     </Grid>
                 </Grid>
                 <Stack spacing={2} direction="row">
-                    <Button variant="contained">Получить данные</Button>
+                    <Button variant="contained" onClick={loadData}>
+                        Получить данные
+                    </Button>
 
-                    <Button variant="contained" disabled>
+                    <Button variant="contained" onClick={() => {handleCreateData()}}>
                         Отправить данные
                     </Button>
                 </Stack>
                 {showTable && (
                     <div style={{ height: "500px", width: "100%" }}>
-                        <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} />
+                        {/* параметр getRowId нужен если в нет столбца с явным id, для его динамического создания можно использовать функцию */}
+                        {/* <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} /> */}
+                        <DataGrid rows={data} columns={columns.current} density="compact" />
                     </div>
                 )}
-
-                <div className={styles["flex_container"]}>
-                    <button type="button" onClick={loadData}>
-                        Получить данные
-                    </button>
-                    <button type="button" onClick={()=>handleCreateData}>
-                        Загрузить выбранные записи
-                    </button>
-                    {selectedQty}
-                </div>
-
-
-
-
             </Box>
         </>
     );

@@ -24,7 +24,7 @@ export interface ICreateData {
  * Записывает новые программы для резки в нашу базу
  * @param params
  */
-export const createDaraRequest = async (params: ICreateData[]) => {
+export const createDataRequest = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
         const response = await axios.post(`${BASE_URL}/${URL_CREATE_PROGRAM_DATA}`, params);
