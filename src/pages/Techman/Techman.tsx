@@ -15,16 +15,14 @@ import styles from "./Techman.module.css";
 import { Box, TextField, Typography, Button, Stack, Checkbox } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { DataGrid, GridRowsProp, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-
-const ProgramMainTable = lazy(() => import("../../components/ProgramMainTable/ProgramMainTable"));
-
+import dayjs, { Dayjs } from "dayjs";
 axios.defaults.withCredentials = true;
 
 const Techman = () => {
-    const defaultDates: DateDiapazonType = { startDate: new Date(2025, 1, 10), endDate: new Date(2025, 1, 15) };
+    const defaultDates: DateDiapazonType = { startDate: (dayjs().subtract(1, "month")).toDate(), endDate: dayjs().toDate() };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
-
+    const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
     const columns = useRef<GridColDef[]>([]);
 
     const createColumns = () => {
@@ -80,24 +78,34 @@ const Techman = () => {
 
     /* оправлем данные программы для обновления статуса */
     const handleCreateData = async () => {
-        console.log("Вызов работает")
+        console.log("Вызов работает");
         const createRecords: ICreateData[] = data
             .filter((item) => item.checked === true)
             .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
-        console.log("Надо проконтролировать, что что-то создалось")
-        console.log(createRecords)
+        console.log("Надо проконтролировать, что что-то создалось");
+        console.log(createRecords);
         await createDataRequest(createRecords);
         loadData();
     };
 
     const handleSelect = (props: GridRenderCellParams<PrognameType>) => {
-        setData((prevRows) => prevRows.map((row) => (row.id === props.id ? { ...row, checked: !row.checked } : row)));
+        setData((prevRows) =>
+            prevRows.map((row) => {
+                if (row.id === props.id) {
+                    return { ...row, checked: !row.checked };
+                }
+                return row;
+            })
+        );
     };
 
     function getRowId(row: PrognameType): string {
         return row.ProgramName;
     }
 
+    useEffect(() => {
+        setSelectedPrograms(data.reduce((sum, item) => sum + Number(item.checked), 0));
+    }, [data]);
 
     //если появились данные, нужно сформировать колонки таблицы
     useEffect(() => {
@@ -131,10 +139,17 @@ const Techman = () => {
                         Получить данные
                     </Button>
 
-                    <Button variant="contained" onClick={() => {handleCreateData()}}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            handleCreateData();
+                        }}
+                        disabled={!Boolean(selectedPrograms).valueOf()}
+                    >
                         Отправить данные
                     </Button>
                 </Stack>
+                {selectedPrograms}
                 {showTable && (
                     <div style={{ height: "500px", width: "100%" }}>
                         {/* параметр getRowId нужен если в нет столбца с явным id, для его динамического создания можно использовать функцию */}
