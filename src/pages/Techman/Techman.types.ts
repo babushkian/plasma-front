@@ -1,4 +1,5 @@
 import { ICreateData } from "../../utils/requests";
+import { Dayjs } from "dayjs";
 
 export const enum ProgramStatus {
     NEW = "новая",
@@ -10,8 +11,8 @@ export type PrognameType = { ProgramName: string, program_status: ProgramStatus,
 };
 
 export type DateDiapazonType = {
-    startDate: Date;
-    endDate: Date;
+    startDate: Dayjs;
+    endDate: Dayjs;
 }
 
 export type handleCreateDataType = (params: ICreateData[]) => void;

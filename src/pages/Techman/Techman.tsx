@@ -19,7 +19,7 @@ import dayjs, { Dayjs } from "dayjs";
 axios.defaults.withCredentials = true;
 
 const Techman = () => {
-    const defaultDates: DateDiapazonType = { startDate: (dayjs().subtract(1, "month")).toDate(), endDate: dayjs().toDate() };
+    const defaultDates: DateDiapazonType = { startDate: (dayjs().subtract(1, "month")), endDate: dayjs() };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
@@ -62,8 +62,8 @@ const Techman = () => {
         try {
             const response = await axios.get<PrognameType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
-                    start_date: convertDateToString(dates.startDate),
-                    end_date: convertDateToString(dates.endDate),
+                    start_date: dates.startDate.format("YYYY-MM-DD"),
+                    end_date: dates.endDate.format("YYYY-MM-DD"),
                 },
             });
             setData(response.data);
@@ -113,7 +113,7 @@ const Techman = () => {
             columns.current = createColumns();
             setData((prev) =>
                 prev.map((item) => {
-                    return { ...item, id: item.ProgramName, checked: false };
+                    return { ...item, id: item.ProgramName, checked: false, PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY") };
                 })
             );
             setShowTable(true);

@@ -43,7 +43,7 @@ export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
         console.log("обрабатываемая начальная дата",date)
         if (dayjs.isDayjs(date)) {            
             setStartDate(date);
-            setDates({startDate: date.toDate(), endDate:endDate.toDate()})
+            setDates({startDate: date, endDate:endDate})
             compareDates(date, endDate, true);
             //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
@@ -53,7 +53,7 @@ export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
         console.log("обрабатываемая конечная дата", date)
         if (dayjs.isDayjs(date)) {            
             setEndDate(date);
-            setDates({startDate:startDate.toDate(), endDate: date.toDate()})
+            setDates({startDate:startDate, endDate: date})
             compareDates(date, startDate, false);
             //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
