@@ -1,15 +1,35 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Link as MuiLink } from '@mui/material';
+import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 
-export type ProgramAndFioType = ProgramType & { doerFio: string };
+export type ProgramAndFioType = ProgramType & { doerFio: string; dimensions: string };
 
 const Logist = () => {
     const [data, setData] = useState<ProgramAndFioType[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
+
+    const columnFields: (keyof ProgramAndFioType)[] = ["ProgramName", "MachineName", "dimensions", "doerFio"];
+    const columns: GridColDef[] = columnFields.map((columnname) => {
+        let colTemplate: GridColDef = {
+            field: columnname,
+            headerName: columnname,
+            flex: 1,
+        };
+        if (columnname==="ProgramName") {
+            colTemplate = {...colTemplate, 
+                renderCell: (params) =><MuiLink component= {Link} state={params.row} to={`/logist/${params.row.ProgramName}`}>{params.row.ProgramName}</MuiLink>
+            }
+        }
+
+        return colTemplate
+    });
 
     // нужно получить данные о работниках и соединить дба запроса в одну структуру
     const loader = async () => {
@@ -32,7 +52,11 @@ const Logist = () => {
                             ? doersDict[item.fio_doer_id.toString()]
                             : "ошибоный индекс";
                 }
-                return { ...item, doerFio };
+                const dimensions = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
+                    item.Thickness
+                }`;
+
+                return { ...item, doerFio, dimensions };
             });
             setData(fioData);
             setLoading(false);
@@ -50,33 +74,23 @@ const Logist = () => {
 
     return (
         <>
-            <h2>Рабочее место логиста</h2>
-            {loadError && <div>Ошибка загрузки</div>}
-            {showTable && (
-                <table>
-                    <tbody>
-                        {data?.map((row) => {
-                            return (
-                                <tr key={row.id}>
-                                    <td>
-                                        <Link to={`/logist/${row.ProgramName}`} state={row}>
-                                            {" "}
-                                            {row.ProgramName}{" "}
-                                        </Link>
-                                    </td>
-                                    <td>{row.MachineName}</td>
-                                    <td>
-                                        {Math.round(row.SheetLength)} x {Math.round(row.SheetWidth)} x {row.Thickness}
-                                    </td>
-                                    <td>{row.fio_doer_id}</td>
-                                    <td>{row.doerFio}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            )}
+{showTable && (        
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
+                <Typography variant="h5">Рабочее место логиста</Typography>
+
+                {loadError && <div>Ошибка загрузки</div>}
+
+                {showTable && (
+                    <div style={{ height: 600, width: "100%" }}>
+                        <DataGrid rows={data} columns={columns} />
+                    </div>
+                )}
+
+                
+                
+            </Box>
+)}
         </>
     );
-};
+}
 export default Logist;

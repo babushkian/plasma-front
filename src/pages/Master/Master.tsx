@@ -21,6 +21,7 @@ const Master = () => {
         headerName: columnname,
         flex: 1,
     }));
+    
     columns.push({
         field: "действие",
         headerName: "действие",
