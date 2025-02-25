@@ -16,7 +16,7 @@ import dayjs from "dayjs";
 axios.defaults.withCredentials = true;
 
 const Techman = () => {
-    const defaultDates: DateDiapazonType = { startDate: dayjs().subtract(1, "month"), endDate: dayjs() };
+    const defaultDates: DateDiapazonType = { startDate: dayjs().subtract(14, "day"), endDate: dayjs() };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
@@ -72,6 +72,16 @@ const Techman = () => {
             return;
         }
     };
+    useEffect(() => {
+        const temp = async () => {
+            await new Promise<void>((resolve) => setTimeout(() => resolve(), 200));
+            
+        
+        };
+        loadData();
+        temp();
+        
+    }, []);
 
     /* оправлем данные программы для обновления статуса */
     const handleCreateData = async () => {
@@ -96,7 +106,6 @@ const Techman = () => {
         );
     };
 
-    
     function getRowId(row: PrognameType): string {
         return row.ProgramName;
     }
@@ -131,10 +140,9 @@ const Techman = () => {
     //         })
     //     );
     // };
-    const rowChange = (newSelectionModel: GridRowSelectionModel)=>{
-        console.log(newSelectionModel)
-
-    }
+    const rowChange = (newSelectionModel: GridRowSelectionModel) => {
+        console.log(newSelectionModel);
+    };
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -163,11 +171,10 @@ const Techman = () => {
                             rows={data}
                             columns={columns.current}
                             density="compact"
-                            checkboxSelection
-                            disableRowSelectionOnClick
+                            // checkboxSelection
+                            // disableRowSelectionOnClick
                             slots={{ toolbar: GridToolbar }}
-                            onRowSelectionModelChange = {rowChange}
-                            
+                            // onRowSelectionModelChange={rowChange}
                         />
                     </div>
                 )}

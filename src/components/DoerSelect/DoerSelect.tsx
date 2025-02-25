@@ -1,33 +1,32 @@
-import React, { useState } from "react";
 import { DoerType } from "../../pages/Master/Master.types";
-
+import { Select, SelectChangeEvent, MenuItem } from "@mui/material";
 type DoerSelectPropsType = {
+    selectValue: number;
     rowId: number;
     doers: DoerType[];
     assignHandler: (programId: number, doerId: number) => void;
 };
 
-const DoerSelect = ({ rowId, doers, assignHandler }: DoerSelectPropsType) => {
-    const [selectedDoer, setSelectedDoer] = useState<number>(0);
-    const doersList = doers.map((doer) => {
-        return (
-            <option key={doer.id} value={doer.id}>
-                {doer.fio_doer}
-            </option>
-        );
-    });
-
-    const hadleSelectDoer = (event: React.ChangeEvent<HTMLSelectElement>) => {
+const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectPropsType) => {
+    const hadleSelectDoer = (event: SelectChangeEvent) => {
         const doerId = Number.parseInt(event.target.value);
-        setSelectedDoer(doerId);
         assignHandler(rowId, doerId);
     };
 
     return (
         <>
-            <select value={selectedDoer} onChange={hadleSelectDoer}>
-                {doersList}
-            </select>
+            <Select
+                variant="filled"
+                sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
+                onChange={hadleSelectDoer}
+                value={selectValue.toString()}
+            >
+                {doers.map((doer) => (
+                    <MenuItem value={doer.id} key={doer.id}>
+                        {doer.fio_doer}
+                    </MenuItem>
+                ))}
+            </Select>
         </>
     );
 };

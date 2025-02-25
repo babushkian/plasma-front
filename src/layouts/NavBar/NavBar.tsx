@@ -20,13 +20,13 @@ const Navbar: React.FC = () => {
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/logist">Логист</NavLink>
                 </li>
  
-                <li>
+                {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
-                </li>
+                </li> */}
 
-                <li>
+                {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>
-                </li>
+                </li> */}
  
             </ul>
         </nav>

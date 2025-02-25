@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
@@ -7,13 +7,15 @@ import DoersSelect from "../../components/DoerSelect/DoerSelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramType, ResponseType } from "./Master.types";
 
-const blancDoerOption: DoerType = { fio_doer: "", position: "", id: 0 };
+const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
 
 type AssignProgramRequestType = { id: number; fio_doer_id: number };
 type AssignedProgramType = Record<number, AssignProgramRequestType>;
 
 const Master = () => {
+    
     const columnFields: (keyof ProgramType)[] = ["id", "ProgramName", "MachineName"];
+    
     const columns: GridColDef[] = columnFields.map((columnname) => ({
         field: columnname,
         headerName: columnname,
@@ -23,12 +25,13 @@ const Master = () => {
         field: "действие",
         headerName: "действие",
         flex: 1,
-        renderCell: (params) => <DoersSelect rowId={params.row.id} doers={doers} assignHandler={handleDoerAssign} />,
+        renderCell: (params) => <DoersSelect selectValue={assignedPrograms[params.row.id]?.fio_doer_id?? 0}  rowId={params.row.id} doers={doers.current} assignHandler={handleDoerAssign} />,
     });
 
     const data = useLoaderData() as ResponseType;
     const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
-    const [doers, setDoers] = useState<DoerType[]>([]);
+    // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
+    const doers = useRef<DoerType[]>([])
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
 
     /**Когда данные загружаются, из надо подогнать под конкретную таблицу, а именно выделить
@@ -47,13 +50,13 @@ const Master = () => {
                     return acc;
                 })
             );
-            setDoers([blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))]);
+            //setDoers([blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))]);
+            doers.current = [blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))]
         }
     }, [data]);
 
-    useEffect(() => {
-        console.log(assignedPrograms);
-    }, [assignedPrograms]);
+    useEffect(()=>{console.log(assignedPrograms)}, [assignedPrograms])
+
 
     /**
      * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
@@ -110,7 +113,6 @@ const Master = () => {
                 </Button>
                 {programsData !== null && (
                     <div style={{ height: 600, width: "100%" }}>
-                        console.log(programsData)
                         <DataGrid rows={programsData} columns={columns} />
                     </div>
                 )}
