@@ -7,19 +7,16 @@ import { PrognameType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 // import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
-import { DateDiapazon } from "../../components/DateDiapazon/MaterialDiapazon";
-import { convertDateToString, convertStringToDate } from "../../utils/convert_time";
-import { DateDiapazonType, ProgramStatus, handleCreateDataType, handleSelectType } from "./Techman.types";
+import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
+import { DateDiapazonType } from "./Techman.types";
 import { createDataRequest, ICreateData } from "../../utils/requests";
-import styles from "./Techman.module.css";
-import { Box, TextField, Typography, Button, Stack, Checkbox } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import { DataGrid, GridRowsProp, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import dayjs, { Dayjs } from "dayjs";
+import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridRowSelectionModel } from "@mui/x-data-grid";
+import dayjs from "dayjs";
 axios.defaults.withCredentials = true;
 
 const Techman = () => {
-    const defaultDates: DateDiapazonType = { startDate: (dayjs().subtract(1, "month")), endDate: dayjs() };
+    const defaultDates: DateDiapazonType = { startDate: dayjs().subtract(1, "month"), endDate: dayjs() };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
@@ -99,6 +96,7 @@ const Techman = () => {
         );
     };
 
+    
     function getRowId(row: PrognameType): string {
         return row.ProgramName;
     }
@@ -113,7 +111,12 @@ const Techman = () => {
             columns.current = createColumns();
             setData((prev) =>
                 prev.map((item) => {
-                    return { ...item, id: item.ProgramName, checked: false, PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY") };
+                    return {
+                        ...item,
+                        id: item.ProgramName,
+                        checked: false,
+                        PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY"),
+                    };
                 })
             );
             setShowTable(true);
@@ -128,11 +131,14 @@ const Techman = () => {
     //         })
     //     );
     // };
+    const rowChange = (newSelectionModel: GridRowSelectionModel)=>{
+        console.log(newSelectionModel)
 
+    }
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h4">Загрузка программ</Typography>
+                <Typography variant="h5">Загрузка программ</Typography>
                 <DateDiapazon defultDates={dates} setDates={setDates} />
                 <Stack spacing={2} direction="row">
                     <Button variant="contained" onClick={loadData}>
@@ -149,12 +155,20 @@ const Techman = () => {
                         Отправить данные
                     </Button>
                 </Stack>
-                {selectedPrograms}
                 {showTable && (
-                    <div style={{ height: "500px", width: "100%" }}>
+                    <div style={{ height: "600px", width: "100%" }}>
                         {/* параметр getRowId нужен если в нет столбца с явным id, для его динамического создания можно использовать функцию */}
                         {/* <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} /> */}
-                        <DataGrid rows={data} columns={columns.current} density="compact" />
+                        <DataGrid
+                            rows={data}
+                            columns={columns.current}
+                            density="compact"
+                            checkboxSelection
+                            disableRowSelectionOnClick
+                            slots={{ toolbar: GridToolbar }}
+                            onRowSelectionModelChange = {rowChange}
+                            
+                        />
                     </div>
                 )}
             </Box>

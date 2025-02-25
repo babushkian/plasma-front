@@ -79,9 +79,9 @@ const TestLayout = () => {
 
                     <Grid size={5}>
                         {" "}
-                        <Button variant="contained">Всех уволить!</Button>
+                        <Button variant="contained">отправить</Button>
                         <Button variant="contained" color="success" size="small">
-                            Всех уволить!
+                            заправить
                         </Button>
                     </Grid>
                 </Grid>

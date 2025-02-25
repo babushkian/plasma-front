@@ -1,5 +1,3 @@
-import { ProgramType, DoerType } from "./Master.types";
-
 export type ProgramType = {
     ProgramName: string;
     RepeatIDProgram: string;
