@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { ProgramStatus } from "../pages/Techman/Techman.types";
+import { ICreateData } from "../pages/Techman/Techman.types";
 import {
     BASE_URL,
     URL_CREATE_PROGRAM_DATA,
@@ -14,11 +14,6 @@ import {
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
-
-export interface ICreateData {
-    program_status: ProgramStatus;
-    ProgramName: string;
-}
 
 /**
  * Записывает новые программы для резки в нашу базу

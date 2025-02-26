@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { PrognameType, ProgramStatus } from "../../pages/Techman/Techman.types";
 import TableRow from "../TableRow/TableRow";
 import {handleSelectType} from "../../pages/Techman/Techman.types"
-import { ICreateData } from "../../utils/requests";
+import { ICreateData } from "../../pages/Techman/Techman.types";
 // import styles from "./ProgramMainTable.module.css"
 
 

@@ -62,7 +62,7 @@ const LogistTable = () => {
     };
 
     // столбцы, которые нужно выводить в таблице
-    const fields = ["id", "PartName", "QtyInProcess", "qty_fact", "part_status", "fio_doer_id"];
+    const fields = ["id", "PartName","WONumber", "QtyInProcess", "qty_fact", "part_status", "fio_doer_id"];
 
     return (
         <>
