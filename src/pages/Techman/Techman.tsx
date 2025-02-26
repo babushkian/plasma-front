@@ -15,8 +15,12 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridRowSelecti
 import dayjs from "dayjs";
 axios.defaults.withCredentials = true;
 
+type PrognameAnaIdType = Exclude<PrognameType, undefined> & { id: string; checked: boolean };
 const Techman = () => {
-    const defaultDates: DateDiapazonType = { startDate: dayjs().subtract(14, "day"), endDate: dayjs() };
+    const defaultDates: DateDiapazonType = {
+        startDate: dayjs().subtract(3, "day"),
+        endDate: dayjs().subtract(2, "day"),
+    };
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     const [data, setData] = useState<PrognameType[]>([]);
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
@@ -48,7 +52,26 @@ const Techman = () => {
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
     // const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
 
-    // TODO:  вставить данные из глобального состояния
+    //если появились данные, нужно сформировать колонки таблицы
+    const processData: (data: PrognameType[]) => PrognameAnaIdType[] | undefined = (data) => {
+        if (loaded) {
+            columns.current = createColumns();
+            console.log("приступаем к обработке запроса:");
+            const enriched = data.map((item) => {
+                console.log("обработка запроса:", item);
+                return {
+                    ...item,
+                    id: item.ProgramName,
+                    checked: false,
+                    PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY"),
+                } satisfies PrognameAnaIdType;
+            });
+            if (enriched !== undefined) {
+                return enriched;
+            }
+        }
+    };
+
     /*загружаем заные о програмах */
     const loadData = async () => {
         setShowTable(false);
@@ -63,24 +86,25 @@ const Techman = () => {
                     end_date: dates.endDate.format("YYYY-MM-DD"),
                 },
             });
-            setData(response.data);
-            console.log("данные с сревера:", response.data);
-            setLoading(false);
-            setLoaded(true);
+            if (response !== undefined) {
+                const processedRequest = processData(response.data);
+                setData(processedRequest);
+                console.log("данные с сревера:", response.data);
+                setLoading(false);
+                setLoaded(true);
+                setShowTable(true);
+            }
         } catch (error) {
             console.error("Error fetching protected data:", error);
             return;
         }
     };
+
     useEffect(() => {
         const temp = async () => {
             await new Promise<void>((resolve) => setTimeout(() => resolve(), 200));
-            
-        
         };
         loadData();
-        temp();
-        
     }, []);
 
     /* оправлем данные программы для обновления статуса */
@@ -110,27 +134,15 @@ const Techman = () => {
         return row.ProgramName;
     }
 
+    /**Когда прищедшие с сервера данные добработаны, позволяет таблице отображаться */
     useEffect(() => {
-        setSelectedPrograms(data.reduce((sum, item) => sum + Number(item.checked), 0));
+        if (data !== undefined) {
+            setSelectedPrograms(data.reduce((sum, item) => sum + Number(item.checked), 0));
+        }
+        console.log("данные:");
+        console.log(data);
     }, [data]);
 
-    //если появились данные, нужно сформировать колонки таблицы
-    useEffect(() => {
-        if (loaded) {
-            columns.current = createColumns();
-            setData((prev) =>
-                prev.map((item) => {
-                    return {
-                        ...item,
-                        id: item.ProgramName,
-                        checked: false,
-                        PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY"),
-                    };
-                })
-            );
-            setShowTable(true);
-        }
-    }, [loaded]);
     // глобальное хранилице
     // const dispatchDiapazon = () => {
     //     dispatch(
@@ -140,9 +152,16 @@ const Techman = () => {
     //         })
     //     );
     // };
+
+    /**
+     * Сигнализирует, что количество выделенных строк в таблице изменилось.
+     * Работает только если включить опцию выделения рядов через чекбоксы checkboxSelection
+     * @param newSelectionModel
+     */
     const rowChange = (newSelectionModel: GridRowSelectionModel) => {
         console.log(newSelectionModel);
     };
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -171,6 +190,7 @@ const Techman = () => {
                             rows={data}
                             columns={columns.current}
                             density="compact"
+                            // getRowId={getRowId}
                             // checkboxSelection
                             // disableRowSelectionOnClick
                             slots={{ toolbar: GridToolbar }}
