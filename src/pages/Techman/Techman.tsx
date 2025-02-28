@@ -17,7 +17,9 @@ import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from "@m
 import {
     DataGrid,
     GridColDef,
+    GridColType,
     GridRenderCellParams,
+    ValueOptions,
     GridToolbar,
     GridRowSelectionModel,
     GridSingleSelectColDef,
@@ -26,9 +28,22 @@ import {
 import dayjs from "dayjs";
 axios.defaults.withCredentials = true;
 
-type PrognameAnaIdType = Exclude<PrognameType, undefined> & { id: string; checked: boolean };
+type PrognameAndIdType = Exclude<PrognameType, undefined> & { id: string; checked: boolean };
 
-const blancUser = null;
+const blancOption = "---";
+
+type ProgNameKeysType = keyof PrognameAndIdType;
+const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
+    PostDateTime: "string",
+    ProgramName: "string",
+    program_status: "string",
+    UserName: "singleSelect",
+    Material: "string",
+};
+
+
+
+type selecOptionsType = { [key in  ProgNameKeysType]: string[] } | undefined;
 
 /**
  * Сам компонент
@@ -45,38 +60,29 @@ const Techman = () => {
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
     const columns = useRef<GridColDef[]>([]);
-    const userOptions = useRef<string[]>([]);
-    const [filterValue, setFilterValue] = useState(blancUser);
+    const userOptions = useRef<selecOptionsType>(undefined);
+    const [filterValue, setFilterValue] = useState(blancOption);
 
-    const columnFields: (keyof PrognameAnaIdType)[] = [
-        "PostDateTime",
-        "ProgramName",
-        "program_status",
-        "UserName",
-        "Material",
-    ];
     const createColumns = () => {
-        const colBuild: GridColDef[] = columnFields.map((columnname) => {
+        const colBuild: GridColDef[] = Object.entries(columnDict).map(([columnname, type]) => {
             console.log("опции для выбора", userOptions.current);
-            let colDef: GridColDef;
-            if (columnname === "UserName") {
-                colDef = {
-                    field: columnname,
-                    headerName: columnname,
-                    flex: 1,
-                    type: "singleSelect",
-                    // type: "string",
-                    valueOptions: userOptions.current,
-                };
-            } else {
-                colDef = {
-                    field: columnname,
-                    headerName: columnname,
-                    flex: 1,
-                };
-            }
+            const colName = columnname as keyof typeof columnDict
+            let colDef: GridColDef = {
+                field: colName,
+                headerName: colName,
+                flex: 1,
+                type: type as GridColType,                
+            } satisfies GridColDef;
 
-            return colDef satisfies GridColDef;
+            if (type === "singleSelect") {
+                colDef = {
+                    ...colDef,
+                    type: 'singleSelect',
+                    valueOptions: userOptions.current ? userOptions.current[colName]:[] ,
+                  } as GridSingleSelectColDef;
+            
+            }
+            return colDef;
         });
 
         colBuild.push({
@@ -104,13 +110,19 @@ const Techman = () => {
     //если появились данные, нужно сформировать колонки таблицы
     const processData: (data: PrognameType[]) => ProcessedPrognameType[] = (data) => {
         if (loaded) {
-            const options: string[] = [blancUser];
+            const tableOptions: selecOptionsType = {};
             const enriched = data.map((item) => {
-                // console.log(item.UserName)
-                if (!options.includes(item.UserName)) {
-                    options.push(item.UserName);
-                    console.log(options);
-                }
+                (Object.keys(columnDict) as ProgNameKeysType[]).forEach((key) => {
+                    if (columnDict[key] === "singleSelect") {
+                        if (tableOptions[key] === undefined) {
+                            tableOptions[key] = [blancOption, item[key]];
+                        } else {
+                            if (!tableOptions[key].includes(item[key])) {
+                                tableOptions[key].push(item[key]);
+                            }
+                        }
+                    }
+                });
                 return {
                     ...item,
                     id: item.ProgramName,
@@ -118,7 +130,8 @@ const Techman = () => {
                     PostDateTime: dayjs(item.PostDateTime).format("DD.MM.YYYY"),
                 };
             });
-            userOptions.current = options;
+            console.log("список опций для селекта", tableOptions);
+            userOptions.current = tableOptions;
             return enriched;
         }
         return [];
@@ -211,7 +224,7 @@ const Techman = () => {
 
     const handleFilterChange = (e: SelectChangeEvent) => {
         const value = e.target.value;
-        if (value === blancUser) {
+        if (value === blancOption) {
             apiRef.current.setFilterModel({
                 items: [],
             });
@@ -254,16 +267,30 @@ const Techman = () => {
                 </Stack>
                 {showTable && (
                     <div style={{ height: "700px", width: "100%" }}>
-                        <FormControl variant="outlined" style={{ marginBottom: "16px", minWidth: 200 }}>
-                            <InputLabel>Пользователь</InputLabel>
-                            <Select value={filterValue} label="Filter" onChange={handleFilterChange}>
-                                {userOptions.current.map((item) => (
-                                    <MenuItem key={item} value={item}>
-                                        {item}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        {/* <Stack spacing={2} direction="row">
+                            <FormControl variant="outlined" style={{ marginBottom: "16px", minWidth: 200 }}>
+                                <InputLabel>Пользователь</InputLabel>
+                                <Select value={filterValue} label="Filter" onChange={handleFilterChange}>
+                                    {userOptions.current["UserName"].map((item) => (
+                                        <MenuItem key={item} value={item}>
+                                            {item}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                </FormControl>
+                                <FormControl variant="outlined" style={{ marginBottom: "16px", minWidth: 200 }}>
+                                <InputLabel>Статус</InputLabel>
+                                <Select  label="Filter2" >
+                                <MenuItem key={1} value={"новая"}>
+                                новая
+                                </MenuItem>
+                                <MenuItem key={1} value={"старая"}>
+                                старая
+                                </MenuItem>
+
+                                </Select>
+                           </FormControl>
+                        </Stack> */}
                         {/* параметр getRowId нужен если в нет столбца с явным id, для его динамического создания можно использовать функцию */}
                         {/* <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} /> */}
                         <DataGrid

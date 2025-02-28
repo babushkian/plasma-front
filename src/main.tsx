@@ -14,6 +14,7 @@ import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Details from "./pages/Details/Details.tsx";
 import Login from "./pages/Login/Login";
+import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
 import TestLayout from "./pages/TestLayout/TestLayout.tsx";
 
 import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
@@ -31,7 +32,7 @@ const theme = createTheme(
     {},
     ruRU, // x-data-grid translations
     coreruRU, // core translations
-    dateruRU, // date-pickers
+    dateruRU // date-pickers
 );
 
 const LazyMaster = lazy(() => import("./pages/Master/Master"));
@@ -80,6 +81,12 @@ const router = createBrowserRouter(
                         </Suspense>
                     ),
                     loader: getProgramsAndDoers,
+                    errorElement: <ErrorPage />,
+                },
+                {
+                    path: "/loadbystatus",
+                    element: <PartsByStatuses />,
+
                     errorElement: <ErrorPage />,
                 },
             ],

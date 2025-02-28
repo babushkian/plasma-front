@@ -10,6 +10,7 @@ import {
     MASTER_GET_DOERS,
     MASTER_GET_PARTS_BY_PROGRAM_ID,
     LOGIST_CALCULATE_PARTS,
+    MASTER_GET_PARTS_BY_STATUSES,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
@@ -96,4 +97,23 @@ export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при отправке фактического количества деталей:", error);
     }
+};
+
+
+
+export const getPartsByStatuses = async () => {
+    
+        const params={include_program_statuses:["создана", "распределена"]}
+        try {
+            const { data } = await axios.get<MasterProgramPartsRecordType[]>(
+                `${BASE_URL}/${MASTER_GET_PARTS_BY_STATUSES}`,
+                {
+                    params: params,
+                }
+            );
+            return data;
+        } catch (error) {
+            console.error("Ошибка получения деталей по идентификатору программы:", error);
+            return;
+        }
 };
