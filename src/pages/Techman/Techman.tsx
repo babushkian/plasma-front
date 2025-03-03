@@ -11,7 +11,7 @@ import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { DateDiapazonType } from "./Techman.types";
 import { createDataRequest } from "../../utils/requests";
 import { ICreateData } from "./Techman.types";
-import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { Box, Typography, Button, Stack, Checkbox, TextField } from "@mui/material";
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from "@mui/material";
 
 import {
@@ -33,54 +33,64 @@ type PrognameAndIdType = Exclude<PrognameType, undefined> & { id: string; checke
 const blancOption = "---";
 
 type ProgNameKeysType = keyof PrognameAndIdType;
+
+// колонки, которые будут отображаться в таблице
 const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
     PostDateTime: "string",
     ProgramName: "string",
-    program_status: "string",
+    program_status: "singleSelect",
     UserName: "singleSelect",
     Material: "string",
 };
 
-
-
-type selecOptionsType = { [key in  ProgNameKeysType]: string[] } | undefined;
+// структура, формирующая опуии для авпадающих списков для полей типа "singleSelect"
+type selecOptionsType = Partial<{ [key in ProgNameKeysType]: string[] }> | undefined;
 
 /**
  * Сам компонент
  * @returns
  */
 const Techman = () => {
+    // даты определяющие за какой период сказивать данные. Выставляемые по умолчанию при загрузке станицы
     const defaultDates: DateDiapazonType = {
-        startDate: dayjs().subtract(2, "day"),
-        endDate: dayjs().subtract(1, "day"),
+        startDate: dayjs().subtract(7, "day"),
+        endDate: dayjs(),
     };
+    // интерфейс для управления таблицей
     const apiRef = useGridApiRef();
+    // диапазон дат, за который будут загружаться данные
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
+    //данные пришедшие из запроса в первоначальном виде
     const [rawData, setRawData] = useState<PrognameType[]>([]);
+    // данные, обработанные для отображения в таблице
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
+    // список программ, выделенных для загрузки в нашу таблицу из сигмы
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
+    // стабильная переменная для храенеия данных о столбцах таблицы]
     const columns = useRef<GridColDef[]>([]);
+    // пользователи, хранимые в выпадающем списке для фильтрации
     const userOptions = useRef<selecOptionsType>(undefined);
-    const [filterValue, setFilterValue] = useState(blancOption);
+    // список значений выставленных в выпадающих фильтрах, по которым фильтруется таблица
+
+    const [filterValue, setFilterValue] = useState<Partial<Record<ProgNameKeysType, string>>>({});
+    const [noData, setNoData] = useState(false);
 
     const createColumns = () => {
         const colBuild: GridColDef[] = Object.entries(columnDict).map(([columnname, type]) => {
             console.log("опции для выбора", userOptions.current);
-            const colName = columnname as keyof typeof columnDict
+            const colName = columnname as keyof typeof columnDict;
             let colDef: GridColDef = {
                 field: colName,
                 headerName: colName,
                 flex: 1,
-                type: type as GridColType,                
-            } satisfies GridColDef;
+                type: type as GridColType,
+            };
 
             if (type === "singleSelect") {
                 colDef = {
                     ...colDef,
-                    type: 'singleSelect',
-                    valueOptions: userOptions.current ? userOptions.current[colName]:[] ,
-                  } as GridSingleSelectColDef;
-            
+                    valueOptions: userOptions.current ? userOptions.current[colName] : [],
+                } as GridSingleSelectColDef;
             }
             return colDef;
         });
@@ -102,20 +112,24 @@ const Techman = () => {
     const [loading, setLoading] = useState(false);
     // свидетельствует о том, что данные получены с сервера, можно их обработать
     const [loaded, setLoaded] = useState(false);
+    // можно показывать таблицу
     const [showTable, setShowTable] = useState(false);
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
     // const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
 
     //если появились данные, нужно сформировать колонки таблицы
+    // Добавляем к исходным данным колокии
     const processData: (data: PrognameType[]) => ProcessedPrognameType[] = (data) => {
         if (loaded) {
             const tableOptions: selecOptionsType = {};
             const enriched = data.map((item) => {
                 (Object.keys(columnDict) as ProgNameKeysType[]).forEach((key) => {
+                    // формируем опции для ыпадающих списков
                     if (columnDict[key] === "singleSelect") {
                         if (tableOptions[key] === undefined) {
                             tableOptions[key] = [blancOption, item[key]];
+                            setFilterValue((prev) => ({ ...prev, [key]: blancOption }));
                         } else {
                             if (!tableOptions[key].includes(item[key])) {
                                 tableOptions[key].push(item[key]);
@@ -123,6 +137,7 @@ const Techman = () => {
                         }
                     }
                 });
+                // возвращаем данные с добавлением колонок id и checked
                 return {
                     ...item,
                     id: item.ProgramName,
@@ -142,6 +157,7 @@ const Techman = () => {
         setShowTable(false);
         setLoading(true);
         setLoaded(false);
+        setNoData(false);
         // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
         await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
         try {
@@ -164,21 +180,25 @@ const Techman = () => {
         }
     };
 
+    // первоначальная загрузка данных
     useEffect(() => {
         loadData();
     }, []);
 
     useEffect(() => {
-        if (loaded) {
+        if (loaded && rawData.length > 0) {
             setData(processData(rawData));
             columns.current = createColumns();
             setShowTable(true);
+        } else if (loaded && rawData.length === 0) {
+            setNoData(true);
         }
     }, [loaded, rawData]);
 
+
+
     /* оправлем данные программы для обновления статуса */
     const handleCreateData = async () => {
-        console.log("Вызов работает");
         const createRecords: ICreateData[] = data
             .filter((item) => item.checked === true)
             .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
@@ -188,6 +208,7 @@ const Techman = () => {
         loadData();
     };
 
+    //обработка выбора строк с помощью чекбокса
     const handleSelect = (props: GridRenderCellParams<PrognameType>) => {
         setData((prevRows) =>
             prevRows.map((row) => {
@@ -199,17 +220,11 @@ const Techman = () => {
         );
     };
 
-    function getRowId(row: PrognameType): string {
-        return row.ProgramName;
-    }
-
-    /**Когда прищедшие с сервера данные добработаны, позволяет таблице отображаться */
+    /**Считает количество выделенных чекбоксами строк*/
     useEffect(() => {
-        if (data !== undefined) {
+        if (data?.length > 0) {
             setSelectedPrograms(data.reduce((sum, item) => sum + Number(item.checked), 0));
         }
-        console.log("данные:");
-        console.log(data);
     }, [data]);
 
     // глобальное хранилице
@@ -222,7 +237,7 @@ const Techman = () => {
     //     );
     // };
 
-    const handleFilterChange = (e: SelectChangeEvent) => {
+    const handleFilterChange = (e: SelectChangeEvent, filterField: string) => {
         const value = e.target.value;
         if (value === blancOption) {
             apiRef.current.setFilterModel({
@@ -230,10 +245,15 @@ const Techman = () => {
             });
         } else {
             apiRef.current.setFilterModel({
-                items: [{ field: "UserName", operator: "is", value: value }],
+                items: [{ field: filterField, operator: "is", value: value }],
             });
         }
-        setFilterValue(value);
+        setFilterValue((prev) => {
+            const a = Object.keys(prev).map((key) => [key, blancOption]);
+            const b = Object.fromEntries(a);
+            b[filterField] = value;
+            return b;
+        });
     };
 
     /**
@@ -265,44 +285,54 @@ const Techman = () => {
                         Отправить данные
                     </Button>
                 </Stack>
+                {noData && <Typography variant="h6">Данные за указанный период отсутствуют.</Typography>}
                 {showTable && (
-                    <div style={{ height: "700px", width: "100%" }}>
-                        {/* <Stack spacing={2} direction="row">
-                            <FormControl variant="outlined" style={{ marginBottom: "16px", minWidth: 200 }}>
+                    <div style={{ height: "600px", width: "100%" }}>
+                        <Stack spacing={2} direction="row" sx={{ pb: 2,  px:1}}>
+                            <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Пользователь</InputLabel>
-                                <Select value={filterValue} label="Filter" onChange={handleFilterChange}>
+                                <Select
+                                    value={filterValue["UserName"]}
+                                    label="Filter"
+                                    onChange={(e) => handleFilterChange(e, "UserName")}
+                                >
                                     {userOptions.current["UserName"].map((item) => (
                                         <MenuItem key={item} value={item}>
                                             {item}
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                </FormControl>
-                                <FormControl variant="outlined" style={{ marginBottom: "16px", minWidth: 200 }}>
+                            </FormControl>
+                            <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Статус</InputLabel>
-                                <Select  label="Filter2" >
-                                <MenuItem key={1} value={"новая"}>
-                                новая
-                                </MenuItem>
-                                <MenuItem key={1} value={"старая"}>
-                                старая
-                                </MenuItem>
-
+                                <Select
+                                    label="Filter2"
+                                    value={filterValue["program_status"]}
+                                    onChange={(e) => handleFilterChange(e, "program_status")}
+                                >
+                                    {userOptions.current["program_status"].map((item) => (
+                                        <MenuItem key={item} value={item}>
+                                            {item}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
-                           </FormControl>
-                        </Stack> */}
-                        {/* параметр getRowId нужен если в нет столбца с явным id, для его динамического создания можно использовать функцию */}
-                        {/* <DataGrid rows={data} columns={columns.current} density="compact" getRowId={getRowId} /> */}
+                            </FormControl>
+                            <TextField sx={"flex:1"} placeholder="поиск по всей таблице" />
+                            <Button variant="outlined">Найти</Button>
+                            <Button variant="outlined" color="error">
+                                сбросить
+                            </Button>
+                        </Stack>
+
                         <DataGrid
                             rows={data}
                             columns={columns.current}
                             density="compact"
-                            // getRowId={getRowId}
                             // checkboxSelection
                             // disableRowSelectionOnClick
+                            // onRowSelectionModelChange={rowChange}
                             slots={{ toolbar: GridToolbar }}
                             apiRef={apiRef}
-                            // onRowSelectionModelChange={rowChange}
                         />
                     </div>
                 )}
