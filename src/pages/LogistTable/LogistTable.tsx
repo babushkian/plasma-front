@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { ProgramAndFioType } from "../Logist/Logist";
+import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
@@ -11,7 +11,7 @@ type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
 const LogistTable = () => {
-    const { state }: { state: ProgramAndFioType } = useLocation();
+    const { state }: { state: ProgramExtendedType } = useLocation();
     const navigate = useNavigate();
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loading, setLoading] = useState(false);

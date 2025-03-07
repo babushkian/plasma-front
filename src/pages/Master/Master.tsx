@@ -1,41 +1,33 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
-import { DoerType, ProgramType, ResponseType } from "./Master.types";
+import { DoerType, ProgramType, ProgramExtendedType, ResponseType, AssignProgramRequestType } from "./Master.types";
 
 const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
 
-type AssignProgramRequestType = { id: number; fio_doer_id: number };
 type AssignedProgramType = Record<number, AssignProgramRequestType>;
 
+const doersToString = (_: never, row: ProgramExtendedType): string => {
+    const a = row.doerFio;
+    console.log(row.doerFio);
+    return row.doerFio.map((item) => item.fio_doer).join(", ");
+};
+const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "dimensions", "program_priority"];
+
 const Master = () => {
-    
-    const columnFields: (keyof ProgramType)[] = ["id", "ProgramName", "MachineName"];
-    
-    const columns: GridColDef[] = columnFields.map((columnname) => ({
-        field: columnname,
-        headerName: columnname,
-        flex: 1,
-    }));
-    
-    columns.push({
-        field: "действие",
-        headerName: "действие",
-        flex: 1,
-        renderCell: (params) => <DoersSelect selectValue={assignedPrograms[params.row.id]?.fio_doer_id?? 0}  rowId={params.row.id} doers={doers.current} assignHandler={handleDoerAssign} />,
-    });
+    const columns = useRef<GridColDef[]>([]);
 
     const data = useLoaderData() as ResponseType;
     const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
-    const doers = useRef<DoerType[]>([])
+    const doers = useRef<DoerType[]>([]);
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
 
-    /**Когда данные загружаются, из надо подогнать под конкретную таблицу, а именно выделить
+    /**Когда данные загружаются, их надо подогнать под конкретную таблицу, а именно выделить
      * из пришедшего с сервера объекта только нужные имена столбцов для отображения их в таблице.
      * заполняет переменную programsData
      * необходимые колонки берет из columnFields
@@ -44,46 +36,88 @@ const Master = () => {
         if (data.programs !== undefined) {
             setProgramsData(
                 data.programs.map((item) => {
-                    const acc = columnFields.reduce<Partial<ProgramType>>((acc, field) => {
+                    const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
                         acc[field] = item[field];
                         return acc;
                     }, {});
-                    return acc;
+                    row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
+                    row["dimensions"] = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
+                        item.Thickness
+                    }`;
+
+                    return row;
                 })
             );
-            //setDoers([blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))]);
-            doers.current = [blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))]
+
+            doers.current = [blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
         }
     }, [data]);
 
-    useEffect(()=>{console.log(assignedPrograms)}, [assignedPrograms])
-
+    useEffect(() => {
+        console.log(assignedPrograms);
+    }, [assignedPrograms]);
 
     /**
      * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
      * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      * @param programId идентификатор программы, которой будет присвоен работник
-     * @param doerId  идентификатор работника
+     * @param doerId  массив идентификаторов работников
      * @returns
      */
-    const handleDoerAssign = (programId: number, doerId: number) => {
-        if (doerId === 0) {
-            // выбрана пустая опция работника
-            if (Object.keys(assignedPrograms).includes(programId.toString())) {
-                //исключаем объект из списка распределенных, если у него выбрали пустого работника
-                setAssignedPrograms((oldState) => {
-                    const { [programId]: _, ...newState } = oldState;
-                    return newState;
-                });
-            } else {
-                return;
-            }
-        } else {
-            const newItem: AssignProgramRequestType = { id: programId, fio_doer_id: doerId };
-            setAssignedPrograms((oldState) => ({ ...oldState, [programId]: newItem }));
-        }
-    };
+
+    const handleDoerAssign = useCallback(
+        (programId: number, doerIds: number[]) => {
+            // if (doerId.length === 0) {
+            //     // не выбрано ни одной опции
+            //     if (Object.keys(assignedPrograms).includes(programId.toString())) {
+            //         //исключаем объект из списка распределенных, если у него выбрали пустого работника
+            //         setAssignedPrograms((oldState) => {
+            //             const { [programId]: _, ...newState } = oldState;
+            //             return newState;
+            //         });
+            //     } else {
+            //         return;
+            //     }
+            // } else {
+                console.log("текущее состояние, ", assignedPrograms[programId])
+                console.log("изменения:",  doerIds)
+                const newItem: AssignProgramRequestType = { id: programId, fio_doers_ids: doerIds };
+                setAssignedPrograms((oldState) => ({ ...oldState, [programId]: newItem }));
+            // }
+        },
+        [assignedPrograms]
+    );
+
+    const createColumns = useCallback(() => {
+        const clmns: GridColDef[] = columnFields.map((columnname) => {
+            const col: GridColDef = {
+                field: columnname,
+                headerName: columnname,
+                flex: 1,
+            };
+            return col;
+        });
+        clmns.push({
+            field: "действие",
+            headerName: "действие",
+            flex: 1,
+            renderCell: (params) => (
+                <DoersSelect
+                    selectValue={assignedPrograms[params.row.id]?.fio_doers_ids ?? []}
+                    rowId={params.row.id}
+                    doers={doers.current}
+                    assignHandler={handleDoerAssign}
+                />
+            ),
+        });
+
+        return clmns;
+    }, [assignedPrograms, handleDoerAssign]);
+
+    useEffect(() => {
+        columns.current = createColumns();
+    }, [programsData, createColumns]);
 
     const handleAssignPrograms = async () => {
         //если фамилии не выбраны, запрос не посылаем
@@ -114,7 +148,7 @@ const Master = () => {
                 </Button>
                 {programsData !== null && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={programsData} columns={columns} />
+                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => 'auto'}  />
                     </div>
                 )}
             </Box>

@@ -15,6 +15,7 @@ import {
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
+import { AssignProgramRequestType } from "../pages/Master/Master.types";
 
 /**
  * Записывает новые программы для резки в нашу базу
@@ -30,7 +31,7 @@ export const createDataRequest = async (params: ICreateData[]) => {
     }
 };
 
-export const assignProgramsRequest = async (params: { id: number; fio_doer_id: number }[]) => {
+export const assignProgramsRequest = async (params: AssignProgramRequestType[]) => {
     try {
         await axios.post(`${BASE_URL}/${POST_MASTER_ASSIGN_PROGRAMS}`, params);
     } catch (error) {

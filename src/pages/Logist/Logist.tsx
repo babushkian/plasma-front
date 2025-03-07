@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Link as MuiLink } from '@mui/material';
+import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
@@ -22,13 +22,18 @@ const Logist = () => {
             headerName: columnname,
             flex: 1,
         };
-        if (columnname==="ProgramName") {
-            colTemplate = {...colTemplate, 
-                renderCell: (params) =><MuiLink component= {Link} state={params.row} to={`/logist/${params.row.ProgramName}`}>{params.row.ProgramName}</MuiLink>
-            }
+        if (columnname === "ProgramName") {
+            colTemplate = {
+                ...colTemplate,
+                renderCell: (params) => (
+                    <MuiLink component={Link} state={params.row} to={`/logist/${params.row.ProgramName}`}>
+                        {params.row.ProgramName}
+                    </MuiLink>
+                ),
+            };
         }
 
-        return colTemplate
+        return colTemplate;
     });
 
     // нужно получить данные о работниках и соединить дба запроса в одну структуру
@@ -74,23 +79,20 @@ const Logist = () => {
 
     return (
         <>
-{showTable && (        
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">Рабочее место логиста</Typography>
+            {showTable && (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
+                    <Typography variant="h5">Рабочее место логиста</Typography>
 
-                {loadError && <div>Ошибка загрузки</div>}
+                    {loadError && <div>Ошибка загрузки</div>}
 
-                {showTable && (
-                    <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={data} columns={columns} />
-                    </div>
-                )}
-
-                
-                
-            </Box>
-)}
+                    {showTable && (
+                        <div style={{ height: 600, width: "100%" }}>
+                            <DataGrid rows={data} columns={columns} />
+                        </div>
+                    )}
+                </Box>
+            )}
         </>
     );
-}
+};
 export default Logist;
