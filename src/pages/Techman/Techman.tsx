@@ -3,7 +3,7 @@ import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent } from 
 //import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
-import { PrognameType, ProcessedPrognameType } from "./Techman.types";
+import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 // import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
@@ -28,7 +28,7 @@ import {
 import dayjs from "dayjs";
 axios.defaults.withCredentials = true;
 
-type PrognameAndIdType = Exclude<PrognameType, undefined> & { id: string; checked: boolean };
+type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
 
 const blancOption = "---";
 
@@ -61,7 +61,7 @@ const Techman = () => {
     // диапазон дат, за который будут загружаться данные
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
     //данные пришедшие из запроса в первоначальном виде
-    const [rawData, setRawData] = useState<PrognameType[]>([]);
+    const [rawData, setRawData] = useState<TechProgramType[]>([]);
     // данные, обработанные для отображения в таблице
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
     // список программ, выделенных для загрузки в нашу таблицу из сигмы
@@ -120,7 +120,7 @@ const Techman = () => {
 
     //если появились данные, нужно сформировать колонки таблицы
     // Добавляем к исходным данным колокии
-    const processData: (data: PrognameType[]) => ProcessedPrognameType[] = (data) => {
+    const processData: (data: TechProgramType[]) => ProcessedPrognameType[] = (data) => {
         if (loaded) {
             const tableOptions: selecOptionsType = {};
             const enriched = data.map((item) => {
@@ -161,7 +161,7 @@ const Techman = () => {
         // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
         await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
         try {
-            const response = await axios.get<PrognameType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
+            const response = await axios.get<TechProgramType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
                     start_date: dates.startDate.format("YYYY-MM-DD"),
                     end_date: dates.endDate.format("YYYY-MM-DD"),
@@ -209,7 +209,7 @@ const Techman = () => {
     };
 
     //обработка выбора строк с помощью чекбокса
-    const handleSelect = (props: GridRenderCellParams<PrognameType>) => {
+    const handleSelect = (props: GridRenderCellParams<TechProgramType>) => {
         setData((prevRows) =>
             prevRows.map((row) => {
                 if (row.id === props.id) {

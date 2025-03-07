@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { PrognameType} from "../../pages/Techman/Techman.types";
+import { TechProgramType} from "../../pages/Techman/Techman.types";
 import { handleSelectType } from "../../pages/Techman/Techman.types";
 
-const TableRow = ({ data, handleSelect }: { data: PrognameType; handleSelect: handleSelectType }) => {
+const TableRow = ({ data, handleSelect }: { data: TechProgramType; handleSelect: handleSelectType }) => {
     return (
         <tr>
             <td>

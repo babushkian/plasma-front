@@ -7,15 +7,15 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 
-export type ProgramAndFioType = ProgramType & { doerFio: string; dimensions: string };
+export type ProgramAndFioType = ProgramType & { dimensions: string };
 
 const Logist = () => {
     const [data, setData] = useState<ProgramAndFioType[]>([]);
-    const [loading, setLoading] = useState(false);
+
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
 
-    const columnFields: (keyof ProgramAndFioType)[] = ["ProgramName", "MachineName", "dimensions", "doerFio"];
+    const columnFields: (keyof ProgramAndFioType)[] = ["ProgramName", "dimensions", "program_status"];
     const columns: GridColDef[] = columnFields.map((columnname) => {
         let colTemplate: GridColDef = {
             field: columnname,
@@ -36,39 +36,24 @@ const Logist = () => {
         return colTemplate;
     });
 
-    // нужно получить данные о работниках и соединить дба запроса в одну структуру
     const loader = async () => {
         setShowTable(false);
-        setLoading(true);
         const responseData = await logistGetPrograms();
-        const doers = await getDoers();
 
-        if (responseData !== undefined && doers !== undefined) {
+        if (responseData !== undefined) {
             // делаем словарь, где ключи - идентификаторы исполнителей, а значения - имена исполнителей
-            const doersMap = doers.map((entry) => [entry.id.toString(), entry.fio_doer]);
-            const doersDict = Object.fromEntries(doersMap);
-            // добавляем имя исполнителя в каждую запись
 
             const fioData = responseData.map((item) => {
-                let doerFio = "ошибоный индекс";
-                if (item.fio_doer_id !== null) {
-                    doerFio =
-                        doersDict[item.fio_doer_id.toString()] !== undefined
-                            ? doersDict[item.fio_doer_id.toString()]
-                            : "ошибоный индекс";
-                }
                 const dimensions = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
                     item.Thickness
                 }`;
 
-                return { ...item, doerFio, dimensions };
+                return { ...item, dimensions };
             });
             setData(fioData);
-            setLoading(false);
             setLoadError(false);
             setShowTable(true);
         } else {
-            setLoading(false);
             setLoadError(true);
         }
     };
@@ -79,19 +64,17 @@ const Logist = () => {
 
     return (
         <>
-            {showTable && (
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                    <Typography variant="h5">Рабочее место логиста</Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
+                <Typography variant="h5">Рабочее место логиста</Typography>
 
-                    {loadError && <div>Ошибка загрузки</div>}
+                {loadError && <div>Ошибка загрузки</div>}
 
-                    {showTable && (
-                        <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns} />
-                        </div>
-                    )}
-                </Box>
-            )}
+                {showTable && (
+                    <div style={{ height: 600, width: "100%" }}>
+                        <DataGrid rows={data} columns={columns} />
+                    </div>
+                )}
+            </Box>
         </>
     );
 };

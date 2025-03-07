@@ -16,7 +16,7 @@ const doersToString = (_: never, row: ProgramExtendedType): string => {
     console.log(row.doerFio);
     return row.doerFio.map((item) => item.fio_doer).join(", ");
 };
-const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "dimensions", "program_priority"];
+const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "program_status",  "dimensions", "program_priority"];
 
 const Master = () => {
     const columns = useRef<GridColDef[]>([]);

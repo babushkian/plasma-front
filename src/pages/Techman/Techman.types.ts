@@ -5,14 +5,15 @@ export const enum ProgramStatus {
     CREATED = "создана",
 }
 
-export type PrognameType = {
+export type TechProgramType = {
     ProgramName: string;
     program_status: ProgramStatus;
     UserName: string;
     PostDateTime: string;
     Material: string;
 };
-export type ProcessedPrognameType = PrognameType & { id: string; checked: boolean };
+
+export type ProcessedPrognameType = TechProgramType & { id: string; checked: boolean };
 
 export type DateDiapazonType = {
     startDate: Dayjs;

@@ -85,6 +85,7 @@ const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectProp
                     <MenuItem value={doer.id} key={doer.id} style={getStyles(doer.id, localValue, theme)}>
                         <Checkbox checked={localValue.includes(doer.id)} />
                         <ListItemText primary={doer.fio_doer} />
+                        
                     </MenuItem>
                 ))}
             </Select>
