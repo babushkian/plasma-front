@@ -17,6 +17,9 @@ const Navbar: React.FC = () => {
                 </li>
 
                 <li>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/operator">Оператор</NavLink>
+                </li>
+                <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/logist">Логист</NavLink>
                 </li>
  
@@ -28,9 +31,9 @@ const Navbar: React.FC = () => {
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>
                 </li> */}
  
-                <li>
+                {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/loadbystatus">Загрузка по статусу</NavLink>
-                </li>
+                </li> */}
 
             </ul>
         </nav>

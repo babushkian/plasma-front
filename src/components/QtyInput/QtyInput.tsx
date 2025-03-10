@@ -8,13 +8,14 @@ type SetQtyType = {
 
 const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
     const [qty, setQty] = useState<number>(initialQty);
-
     const hadleSetQty = (event: React.ChangeEvent<HTMLInputElement>) => {
         // если удалить из строки ввода всё, там появляется NaN, что приводит к ошибке
         // В этом случае нужно принудительно заменять NaN на 0
         const converted = Number.parseInt(event.target.value);
         const newValue = !isNaN(converted) ? converted : 0;
         setQty(newValue);
+        console.log("изменяем значение")
+        console.log("ромер ряда(id)", rowId, typeof rowId, "новое значение", newValue)
         applyQty(rowId, newValue);
     };
 

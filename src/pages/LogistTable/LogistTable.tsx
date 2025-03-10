@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 import { ProgramExtendedType } from "../Master/Master.types";
 
@@ -14,25 +14,30 @@ import QtyInput from "../../components/QtyInput/QtyInput";
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
+// столбцы, отображаемые в таблице
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     "id",
     "ProgramName",
     "program_status",
     "QtyInProcess",
+    "qty_fact",
     "WONumber",
 ];
 
 const LogistTable = () => {
+    // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
+    // так как у деталей такой информции нет
     const { state }: { state: ProgramExtendedType } = useLocation();
-    const navigate = useNavigate();
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
+    // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
 
+    /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
@@ -44,9 +49,14 @@ const LogistTable = () => {
         }
     };
 
+    /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
         loader();
     }, []);
+
+    useEffect(() => {
+        console.log("изменился фрейм:", data);
+    }, [data]);
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -73,8 +83,13 @@ const LogistTable = () => {
         columns.current = createColumns();
     }, [data, createColumns]);
 
+    
     const setQty: (programId: number, qty: number) => void = (programId, qty) => {
+        console.log("весь фрейм:", data);
+        console.log("пераметры: ", programId, qty);
         const dataIndex = data.findIndex((item) => programId === item.id);
+        console.log("индекс строки", dataIndex, "значение", qty);
+
         if (data[dataIndex].qty_fact === qty) {
             return;
         } else {
@@ -82,6 +97,7 @@ const LogistTable = () => {
             setFactQty((prev) => ({ ...prev, [programId]: { id: programId, qty_fact: qty } }));
         }
     };
+
 
     const sendQty: () => Promise<void> = async () => {
         if (Object.keys(factQty).length === 0) {
@@ -93,8 +109,9 @@ const LogistTable = () => {
 
         setFactQty(() => ({}));
         loader();
-        //navigate(0);  перезагрузка страницы
     };
+
+    const showData = () => console.log(data);
 
     // столбцы, которые нужно выводить в таблице
     const fields = ["id", "PartName", "WONumber", "QtyInProcess", "qty_fact", "part_status", "fio_doer_id"];
@@ -115,34 +132,11 @@ const LogistTable = () => {
                         <div style={{ height: 600, width: "100%" }}>
                             <DataGrid rows={data} columns={columns.current} />
                         </div>
-                        {/* <table>
-                            <thead>
-                                <tr>
-                                    {fields.map((header, index) => (
-                                        <th key={index}>{header}</th>
-                                    ))}
-                                    <th>действие</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data?.map((row) => {
-                                    return (
-                                        <tr key={row.PK_PIP}>
-                                            {fields.map((header) => (
-                                                <td key={header}>
-                                                    {(row as Record<string, string | number | boolean | null>)[header]}
-                                                </td>
-                                            ))}
-                                            <td>
-                                                <QtyInput rowId={row.id} initialQty={row.qty_fact} applyQty={setQty} />
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table> */}
                     </>
                 )}
+                <Button variant="contained" onClick={showData} disabled={false}>
+                    вывести данные
+                </Button>
             </Box>
         </>
     );

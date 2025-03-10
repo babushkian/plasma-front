@@ -16,6 +16,7 @@ import Details from "./pages/Details/Details.tsx";
 import Login from "./pages/Login/Login";
 import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
 import TestLayout from "./pages/TestLayout/TestLayout.tsx";
+import Operator from "./pages/Operator/Operator.tsx";
 
 import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
@@ -38,8 +39,9 @@ const theme = createTheme(
 const LazyMaster = lazy(() => import("./pages/Master/Master"));
 const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
 
-const ErrorPage = () => <div className="errormessage">Не удалось загрузить страницу</div>;
-const LoadingPlaceholder = () => <div>Загрузка...</div>;
+
+export const ErrorPage = () => <div className="errormessage">Не удалось загрузить страницу</div>;
+export const LoadingPlaceholder = () => <div>Загрузка...</div>;
 
 const router = createBrowserRouter(
     [
@@ -89,6 +91,7 @@ const router = createBrowserRouter(
 
                     errorElement: <ErrorPage />,
                 },
+                { path: "/operator", element: <Operator /> },
             ],
         },
     ],
