@@ -42,8 +42,8 @@ const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectProp
 
     const doersNameList = getDoersNames(doers);
 
-    //    const doersNameList = useMemo(()=> preMemo(doers), [doers])
-    console.log(doersNameList);
+    
+    
     const hadleSelectDoer = (event: SelectChangeEvent) => {
         const eventValue: number[] = event.target.value;
 

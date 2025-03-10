@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLoaderData } from "react-router-dom";
-
+import { useLoaderData, Link } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
@@ -11,11 +11,7 @@ const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
 
 type AssignedProgramType = Record<number, AssignProgramRequestType>;
 
-const doersToString = (_: never, row: ProgramExtendedType): string => {
-    const a = row.doerFio;
-    console.log(row.doerFio);
-    return row.doerFio.map((item) => item.fio_doer).join(", ");
-};
+
 const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "program_status",  "dimensions", "program_priority"];
 
 const Master = () => {
@@ -91,12 +87,22 @@ const Master = () => {
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
-            const col: GridColDef = {
+            let colTemplate: GridColDef = {
                 field: columnname,
                 headerName: columnname,
                 flex: 1,
             };
-            return col;
+            if (columnname === "ProgramName") {
+                colTemplate = {
+                    ...colTemplate,
+                    renderCell: (params) => (
+                        <MuiLink component={Link} state={params.row} to={`/parts/${params.row.ProgramName}`}>
+                            {params.row.ProgramName}
+                        </MuiLink>
+                    ),
+                };
+            }
+            return colTemplate;
         });
         clmns.push({
             field: "действие",

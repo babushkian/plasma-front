@@ -28,6 +28,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
 import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
+import PartsList from "./pages/PartsList/PartsList.tsx";
 
 const theme = createTheme(
     {},
@@ -92,6 +93,7 @@ const router = createBrowserRouter(
                     errorElement: <ErrorPage />,
                 },
                 { path: "/operator", element: <Operator /> },
+                { path: "/parts/:programName", element: <PartsList />, errorElement: <ErrorPage /> },
             ],
         },
     ],

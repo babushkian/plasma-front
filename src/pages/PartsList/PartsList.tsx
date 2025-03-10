@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation} from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -8,8 +8,7 @@ import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
-import { MasterProgramPartsRecordType } from "./LogistTable.types";
-import QtyInput from "../../components/QtyInput/QtyInput";
+import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
@@ -24,7 +23,7 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     "WONumber",
 ];
 
-const LogistTable = () => {
+const PartsList = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
     const { state }: { state: ProgramExtendedType } = useLocation();
@@ -52,21 +51,11 @@ const LogistTable = () => {
     /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
         loader();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const setQty = useCallback(
-        (rowId: number, qty: number) => {
-            const dataIndex = data.findIndex((item) => rowId === item.id);
-            if (data[dataIndex].qty_fact === qty) {
-                return;
-            } else {
-                // добвляем элемент в массив
-                setFactQty((prev) => ({ ...prev, [rowId]: { id: rowId, qty_fact: qty } }));
-            }
-        },
-        [data]
-    );
+    useEffect(() => {
+        console.log("изменился фрейм:", data);
+    }, [data]);
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -77,20 +66,29 @@ const LogistTable = () => {
             };
             return col;
         });
-        clmns.push({
-            field: "действие",
-            headerName: "действие",
-            flex: 1,
-            renderCell: (params) => (
-                <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
-            ),
-        });
+
         return clmns;
-    }, [setQty]);
+    }, []);
 
     useEffect(() => {
         columns.current = createColumns();
     }, [data, createColumns]);
+
+    
+    const setQty: (programId: number, qty: number) => void = (programId, qty) => {
+        console.log("весь фрейм:", data);
+        console.log("пераметры: ", programId, qty);
+        const dataIndex = data.findIndex((item) => programId === item.id);
+        console.log("индекс строки", dataIndex, "значение", qty);
+
+        if (data[dataIndex].qty_fact === qty) {
+            return;
+        } else {
+            // добвляем элемент в массив
+            setFactQty((prev) => ({ ...prev, [programId]: { id: programId, qty_fact: qty } }));
+        }
+    };
+
 
     const sendQty: () => Promise<void> = async () => {
         if (Object.keys(factQty).length === 0) {
@@ -104,14 +102,14 @@ const LogistTable = () => {
         loader();
     };
 
-    // столбцы, которые нужно выводить в таблице
-    const fields = ["id", "PartName", "WONumber", "QtyInProcess", "qty_fact", "part_status", "fio_doer_id"];
+    const showData = () => console.log(data);
+
 
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Редактирование деталей программы № {state.ProgramName} на странице логиста
+                   Информация о деталях программы № {state.ProgramName} на странице логиста
                 </Typography>
 
                 {loadError && <div>Ошибка загрузки</div>}
@@ -125,9 +123,12 @@ const LogistTable = () => {
                         </div>
                     </>
                 )}
+                <Button variant="contained" onClick={showData} disabled={false}>
+                    вывести данные
+                </Button>
             </Box>
         </>
     );
 };
 
-export default LogistTable;
+export default PartsList;

@@ -16,6 +16,7 @@ const Logist = () => {
     const [showTable, setShowTable] = useState(false);
 
     const columnFields: (keyof ProgramAndFioType)[] = ["ProgramName", "dimensions", "program_status"];
+    
     const columns: GridColDef[] = columnFields.map((columnname) => {
         let colTemplate: GridColDef = {
             field: columnname,
