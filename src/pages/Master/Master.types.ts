@@ -20,6 +20,6 @@ export type ResponseType = {
 };
 export type AssignProgramRequestType = {
     id: number;
-    fio_doers_ids: Array<number>;
+    fio_doers_ids?: Array<number>;
     program_priority?: ProgramPriorityType;
 };

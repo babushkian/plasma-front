@@ -7,18 +7,22 @@ import DoersSelect from "../../components/DoerSelect/DoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramType, ProgramExtendedType, ResponseType, AssignProgramRequestType } from "./Master.types";
-import {ProgramPriorityType} from "../Logist/Logist.types"
+import { ProgramPriorityType } from "../Logist/Logist.types";
 
-const  priorityArray:ProgramPriorityType[] = Object.values(ProgramPriorityType);
-
-
-
+const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 
 const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
 
 type AssignedProgramType = Record<number, AssignProgramRequestType>;
 
-const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "program_status",  "dimensions", "program_priority"];
+const columnFields: (keyof ProgramExtendedType)[] = [
+    "id",
+    "ProgramName",
+    "doerFio",
+    "program_status",
+    "dimensions",
+    "program_priority",
+];
 
 const Master = () => {
     const columns = useRef<GridColDef[]>([]);
@@ -65,28 +69,41 @@ const Master = () => {
      * @returns
      */
 
+    const handlePriorityChange = useCallback((rowId: number, value: ProgramPriorityType) => {
+        const prevItem = assignedPrograms[rowId];
+        console.log("Перед сменой приоритета")
+        console.log(prevItem.fio_doers_ids)
+        const newItem: AssignProgramRequestType = prevItem
+            ? { ...prevItem, program_priority: value }
+            : { id: rowId, program_priority: value };
+        setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
+
+        setProgramsData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    return { ...row, program_priority: value };
+                }
+                return row;
+            })
+        );
+    }, [assignedPrograms])
+
+
     const handleDoerAssign = useCallback(
-        (programId: number, doerIds: number[]) => {
-            // if (doerId.length === 0) {
-            //     // не выбрано ни одной опции
-            //     if (Object.keys(assignedPrograms).includes(programId.toString())) {
-            //         //исключаем объект из списка распределенных, если у него выбрали пустого работника
-            //         setAssignedPrograms((oldState) => {
-            //             const { [programId]: _, ...newState } = oldState;
-            //             return newState;
-            //         });
-            //     } else {
-            //         return;
-            //     }
-            // } else {
-                console.log("текущее состояние, ", assignedPrograms[programId])
-                console.log("изменения:",  doerIds)
-                const newItem: AssignProgramRequestType = { id: programId, fio_doers_ids: doerIds };
-                setAssignedPrograms((oldState) => ({ ...oldState, [programId]: newItem }));
-            // }
+        (rowId: number, doerIds: number[]) => {
+            const prevItem = assignedPrograms[rowId];
+            const newItem: AssignProgramRequestType = prevItem
+                ? { ...prevItem, fio_doers_ids: doerIds }
+                : { id: rowId, fio_doers_ids: doerIds };
+            setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
         },
         [assignedPrograms]
     );
+
+
+    useEffect(()=>console.log(assignedPrograms),
+
+    [assignedPrograms])
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -108,7 +125,14 @@ const Master = () => {
             if (columnname === "program_priority") {
                 colTemplate = {
                     ...colTemplate,
-                    renderCell: (params) => (<PrioritySelect selectedValue={params.value} rowId={params.row.id} priorityOptions={priorityArray} assignHandler={handlePriorityChange}/>),
+                    renderCell: (params) => (
+                        <PrioritySelect
+                            selectedValue={params.value}
+                            rowId={params.row.id}
+                            priorityOptions={priorityArray}
+                            assignHandler={handlePriorityChange}
+                        />
+                    ),
                 };
             }
 
@@ -135,7 +159,6 @@ const Master = () => {
         columns.current = createColumns();
     }, [programsData, createColumns]);
 
-    const handlePriorityChange = () => {console.log("изменился приоритет")}
 
     const handleAssignPrograms = async () => {
         //если фамилии не выбраны, запрос не посылаем
@@ -166,7 +189,7 @@ const Master = () => {
                 </Button>
                 {programsData !== null && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => 'auto'}  />
+                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />
                     </div>
                 )}
             </Box>
