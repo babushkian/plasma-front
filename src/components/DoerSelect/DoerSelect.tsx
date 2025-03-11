@@ -46,15 +46,6 @@ const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectProp
     
     const hadleSelectDoer = (event: SelectChangeEvent) => {
         const eventValue: number[] = event.target.value;
-
-        console.log("состяние селкта", selectValue);
-        console.log(
-            "тип события:",
-            Array.isArray(eventValue) ? "массив" : "не массив",
-            eventValue,
-            eventValue[0],
-            typeof eventValue[0]
-        );
         setLocalValue(eventValue);
         assignHandler(rowId, eventValue);
     };

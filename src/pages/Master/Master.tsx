@@ -4,13 +4,19 @@ import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
+import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramType, ProgramExtendedType, ResponseType, AssignProgramRequestType } from "./Master.types";
+import {ProgramPriorityType} from "../Logist/Logist.types"
+
+const  priorityArray:ProgramPriorityType[] = Object.values(ProgramPriorityType);
+
+
+
 
 const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
 
 type AssignedProgramType = Record<number, AssignProgramRequestType>;
-
 
 const columnFields: (keyof ProgramExtendedType)[] = ["id", "ProgramName", "doerFio", "program_status",  "dimensions", "program_priority"];
 
@@ -18,6 +24,7 @@ const Master = () => {
     const columns = useRef<GridColDef[]>([]);
 
     const data = useLoaderData() as ResponseType;
+
     const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
@@ -48,10 +55,6 @@ const Master = () => {
             doers.current = [blancDoerOption, ...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
         }
     }, [data]);
-
-    useEffect(() => {
-        console.log(assignedPrograms);
-    }, [assignedPrograms]);
 
     /**
      * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
@@ -102,6 +105,13 @@ const Master = () => {
                     ),
                 };
             }
+            if (columnname === "program_priority") {
+                colTemplate = {
+                    ...colTemplate,
+                    renderCell: (params) => (<PrioritySelect selectedValue={params.value} rowId={params.row.id} priorityOptions={priorityArray} assignHandler={handlePriorityChange}/>),
+                };
+            }
+
             return colTemplate;
         });
         clmns.push({
@@ -124,6 +134,8 @@ const Master = () => {
     useEffect(() => {
         columns.current = createColumns();
     }, [programsData, createColumns]);
+
+    const handlePriorityChange = () => {console.log("изменился приоритет")}
 
     const handleAssignPrograms = async () => {
         //если фамилии не выбраны, запрос не посылаем

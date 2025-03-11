@@ -1,7 +1,6 @@
-import {TechProgramType} from "../Techman/Techman.types"
+import { TechProgramType } from "../Techman/Techman.types";
 
 export type LogistProgramType = TechProgramType & {
-    
     RepeatIDProgram: string;
     UsedArea: number;
     ScrapFraction: number;
@@ -27,6 +26,12 @@ export type LogistProgramType = TechProgramType & {
     id: number;
     created_at: string;
     updated_at: string;
-    
 };
-export type ProgramPriorityType = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+// export type ProgramPriorityType = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export enum ProgramPriorityType {
+    LOW = "LOW",
+    MEDIUM = "MEDIUM",
+    HIGH = "HIGH",
+    CRITICAL = "CRITICAL",
+}
