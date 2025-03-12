@@ -4,6 +4,8 @@ import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DoersSelect from "../../components/DoerSelect/DoerSelect";
+import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
+
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramType, ProgramExtendedType, ResponseType, AssignProgramRequestType } from "./Master.types";
@@ -22,6 +24,7 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "program_status",
     "dimensions",
     "program_priority",
+    "doerIds",
 ];
 
 const Master = () => {
@@ -32,6 +35,7 @@ const Master = () => {
     const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
+    const [updatedPrograms, setUpdatedPrograms] = useState<Array<number>>([]);
     const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
 
     /**Когда данные загружаются, их надо подогнать под конкретную таблицу, а именно выделить
@@ -48,10 +52,11 @@ const Master = () => {
                         return acc;
                     }, {});
                     row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
+                    row["doerIds"] = item.fio_doers.map((doer) => doer.id);
                     row["dimensions"] = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
                         item.Thickness
                     }`;
-
+                    
                     return row;
                 })
             );
@@ -64,9 +69,6 @@ const Master = () => {
      * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
      * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
-     * @param programId идентификатор программы, которой будет присвоен работник
-     * @param doerId  массив идентификаторов работников
-     * @returns
      */
 
     const handlePriorityChange = useCallback(
@@ -84,6 +86,7 @@ const Master = () => {
                 : { id: rowId, program_priority: value };
             setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
 
+            if (!updatedPrograms.includes(rowId)) {setUpdatedPrograms((prev)=>[...prev, rowId])}                
             setProgramsData((prev) =>
                 prev!.map((row) => {
                     if (row.id === rowId) {
@@ -93,7 +96,7 @@ const Master = () => {
                 })
             );
         },
-        [assignedPrograms]
+        [assignedPrograms, updatedPrograms]
     );
 
     const handleDoerAssign = useCallback((rowId: number, doerIds: number[]) => {
@@ -110,7 +113,19 @@ const Master = () => {
             ? { ...prevItem, fio_doers_ids: doerIds } // объект уже существует
             : { id: rowId, fio_doers_ids: doerIds }; // создаем новый
         setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
-    }, [assignedPrograms]);
+        if (!updatedPrograms.includes(rowId)) {setUpdatedPrograms((prev)=>[...prev, rowId])}                
+        setProgramsData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    return { ...row, doerIds};
+                }
+                return row;
+            })
+        );
+
+    }, [assignedPrograms, updatedPrograms]);
+
+    useEffect(()=> console.log("измененные ряды:", updatedPrograms),[updatedPrograms])
 
     const showAssinedPrograns = () => console.log("assign:", assignedPrograms);
     useEffect(showAssinedPrograns, [assignedPrograms]);
@@ -145,22 +160,36 @@ const Master = () => {
                     ),
                 };
             }
+            if (columnname === "doerIds") {
+                colTemplate = {
+                    ...colTemplate,
+                    renderCell: (params) => (
+                        <DumbDoerSelect
+                            selectValue={params.row.doerIds}
+                            rowId={params.row.id}
+                            doers={doers.current}
+                            assignHandler={handleDoerAssign}
+                        />
+                    ),
+                }
 
+            }
             return colTemplate;
         });
-        clmns.push({
-            field: "действие",
-            headerName: "действие",
-            flex: 1,
-            renderCell: (params) => (
-                <DoersSelect
-                    selectValue={assignedPrograms[params.row.id]?.fio_doers_ids ?? []}
-                    rowId={params.row.id}
-                    doers={doers.current}
-                    assignHandler={handleDoerAssign}
-                />
-            ),
-        });
+
+        // clmns.push({
+        //     field: "действие",
+        //     headerName: "действие",
+        //     flex: 1,
+        //     renderCell: (params) => (
+        //         <DoersSelect
+        //             selectValue={assignedPrograms[params.row.id]?.fio_doers_ids ?? []}
+        //             rowId={params.row.id}
+        //             doers={doers.current}
+        //             assignHandler={handleDoerAssign}
+        //         />
+        //     ),
+        // });
 
         return clmns;
     }, [assignedPrograms, handleDoerAssign]);

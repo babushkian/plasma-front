@@ -22,21 +22,15 @@ type DoerSelectPropsType = {
     assignHandler: (programId: number, doerIds: Array<number>) => void;
 };
 
-const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectPropsType) => {
+const DumbDoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectPropsType) => {
     // добавление локального состояния решило проблему, когда состояние выбранных селектов в
     // родительском компоненте реагирует на все с задержкой на один такт, из-за чего последний ввод не засчитывается
     const theme = useTheme();
-    const [localValue, setLocalValue] = useState<number[]>(selectValue);
-
-    const getDoersNames = useCallback((doers: DoerType[]) => doers.map((doer) => doer.fio_doer), []);
-
-    const doersNameList = getDoersNames(doers);
-
     
     
     const hadleSelectDoer = (event: SelectChangeEvent) => {
         const eventValue: number[] = event.target.value;
-        setLocalValue(eventValue);
+        console.log(eventValue)
         assignHandler(rowId, eventValue);
     };
 
@@ -51,19 +45,19 @@ const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectProp
                 input={<OutlinedInput label="Name" />}
                 multiple
                 onChange={hadleSelectDoer}
-                value={localValue}
-                renderValue={(localValue) => (
+                value={selectValue}
+                renderValue={(selectValue) => (
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                         {doers
-                            .filter((item) => localValue.includes(item.id))
+                            .filter((item) => selectValue.includes(item.id))
                             .map((item) => <Chip key={item.id} label={item.fio_doer} />)
                         }
                     </Box>
                 )}
             >
                 {doers.map((doer) => (
-                    <MenuItem value={doer.id} key={doer.id} style={getStyles(doer.id, localValue, theme)}>
-                        <Checkbox checked={localValue.includes(doer.id)} />
+                    <MenuItem value={doer.id} key={doer.id} style={getStyles(doer.id, selectValue, theme)}>
+                        <Checkbox checked={selectValue.includes(doer.id)} />
                         <ListItemText primary={doer.fio_doer} />
                         
                     </MenuItem>
@@ -73,4 +67,4 @@ const DoerSelect = ({ selectValue, rowId, doers, assignHandler }: DoerSelectProp
     );
 };
 
-export default DoerSelect;
+export default DumbDoerSelect;

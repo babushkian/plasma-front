@@ -12,7 +12,7 @@ export type DoerType = {
 };
 
 
-export type ProgramExtendedType = ProgramType & { doerFio: string; dimensions: string };
+export type ProgramExtendedType = ProgramType & { doerIds: number[], doerFio: string; dimensions: string };
 
 export type ResponseType = {
     programs: ProgramType[];
