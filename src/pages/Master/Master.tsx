@@ -69,41 +69,51 @@ const Master = () => {
      * @returns
      */
 
-    const handlePriorityChange = useCallback((rowId: number, value: ProgramPriorityType) => {
-        const prevItem = assignedPrograms[rowId];
-        console.log("Перед сменой приоритета")
-        console.log(prevItem.fio_doers_ids)
-        const newItem: AssignProgramRequestType = prevItem
-            ? { ...prevItem, program_priority: value }
-            : { id: rowId, program_priority: value };
-        setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
-
-        setProgramsData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    return { ...row, program_priority: value };
-                }
-                return row;
-            })
-        );
-    }, [assignedPrograms])
-
-
-    const handleDoerAssign = useCallback(
-        (rowId: number, doerIds: number[]) => {
+    const handlePriorityChange = useCallback(
+        (rowId: number, value: ProgramPriorityType) => {
             const prevItem = assignedPrograms[rowId];
+            console.log("Перед сменой приоритета");
+            if (prevItem) {
+                console.log(prevItem.fio_doers_ids);
+            } else {
+                console.log("массив изменений пустой");
+            }
+
             const newItem: AssignProgramRequestType = prevItem
-                ? { ...prevItem, fio_doers_ids: doerIds }
-                : { id: rowId, fio_doers_ids: doerIds };
+                ? { ...prevItem, program_priority: value }
+                : { id: rowId, program_priority: value };
             setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
+
+            setProgramsData((prev) =>
+                prev!.map((row) => {
+                    if (row.id === rowId) {
+                        return { ...row, program_priority: value };
+                    }
+                    return row;
+                })
+            );
         },
         [assignedPrograms]
     );
 
+    const handleDoerAssign = useCallback((rowId: number, doerIds: number[]) => {
+        
+        const prevItem = assignedPrograms[rowId];
+        console.log("Перед изменением работников");
+        if (prevItem) {
+            console.log(prevItem.fio_doers_ids);
+        } else {
+            console.log("массив изменений пустой");
+        }
 
-    useEffect(()=>console.log(assignedPrograms),
+        const newItem: AssignProgramRequestType = prevItem
+            ? { ...prevItem, fio_doers_ids: doerIds } // объект уже существует
+            : { id: rowId, fio_doers_ids: doerIds }; // создаем новый
+        setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
+    }, [assignedPrograms]);
 
-    [assignedPrograms])
+    const showAssinedPrograns = () => console.log("assign:", assignedPrograms);
+    useEffect(showAssinedPrograns, [assignedPrograms]);
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -160,6 +170,7 @@ const Master = () => {
     }, [programsData, createColumns]);
 
 
+
     const handleAssignPrograms = async () => {
         //если фамилии не выбраны, запрос не посылаем
         if (Object.keys(assignedPrograms).length === 0) {
@@ -174,6 +185,7 @@ const Master = () => {
             setProgramsData(data.programs);
         }
     };
+
 
     return (
         <>
@@ -192,6 +204,9 @@ const Master = () => {
                         <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />
                     </div>
                 )}
+                <Button variant="contained" onClick={showAssinedPrograns}>
+                    Показать состояние
+                </Button>
             </Box>
         </>
     );
