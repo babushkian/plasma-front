@@ -1,17 +1,40 @@
 import { useRef, useState, useEffect } from "react";
-import { Box, Checkbox, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
-import { getDoers } from "../../utils/requests";
-import { DoerType } from "../Master/Master.types";
+import {
+    Box,
+    Button,
+    Checkbox,
+    FormControl,
+    InputLabel,
+    ListItemText,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    Typography,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
+
+import { getDoers, getMyPrograms } from "../../utils/requests";
+import { DoerType, ProgramType } from "../Master/Master.types";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
+const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
 
 const Operator = () => {
+    const columns = useRef<GridColDef[]>([]);
     const [doers, setDoers] = useState<DoerType[]>([]);
-    const [currentDoer, setcurrentDoer] = useState<DoerType | null >(null);
+    const [currentDoer, setCurrentDoer] = useState<DoerType | null>(null);
+    const [usersLoaded, setUsersLoaded] = useState(false);
+    const [rawPrograms, setRawPrograms] = useState<ProgramType[] | null>(null);
+    const [showTable, setShowTable] = useState(false);
 
     const load = async () => {
         const response = await getDoers();
         if (response) {
+            console.log("ответ сервера", response);
             setDoers(response);
-            setcurrentDoer(response[0])
+            setCurrentDoer(response[0]);
+            setUsersLoaded(true);
         }
     };
 
@@ -19,36 +42,91 @@ const Operator = () => {
         load();
     }, []);
 
-    useEffect(() => console.log(doers), [doers]);
+    const loadPrograms = async (fio_id: number) => {
+        setShowTable(false);
+        const data = await getMyPrograms(fio_id);
+        if (typeof data !== "undefined") {
+            console.log(data);
+            setRawPrograms(data);
+        }
+    };
 
-    const hadleSelectDoer = ()=>{console.log("выбрали работника")}
+    const createColumns = () => {
+        const clmns: GridColDef[] = columnFields.map((columnname) => {
+            let col: GridColDef = {
+                field: columnname,
+                headerName: columnname,
+                flex: 1,
+            };
+            if (columnname == "ProgramName") {
+                col = {
+                    ...col,
+                    renderCell: (params) => (
+                        <MuiLink component={Link} state={params.row} to={`/operator/${params.row.ProgramName}`}>
+                            {params.row.ProgramName}
+                        </MuiLink>
+                    ),
+                };
+            }
+            return col;
+        });
+        clmns.push({
+            field: "action",
+            headerName: "action",
+            flex: 0.5,
+            renderCell: (params) => <Button>В рабту </Button>,
+        });
+        return clmns;
+    };
+
+    useEffect(() => {
+        if (rawPrograms !== null) {
+            columns.current = createColumns();
+            setShowTable(true);
+        }
+    }, [rawPrograms]);
+
+    useEffect(() => {
+        if (currentDoer) {
+            loadPrograms(currentDoer?.id);
+        }
+    }, [currentDoer]);
+
+    const hadleSelectDoer = (event) => {
+        console.log("выбрали работника:", event.target.value);
+        setCurrentDoer(doers.filter((item) => item.id == event.target.value)[0]);
+    };
 
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место оператора</Typography>
-                
-                <FormControl sx={{ m: 1, width: 300 }}>
-                    <InputLabel id="master-program-doers">Работник</InputLabel>
-                    <Select
-                        labelId="master-program-doers"
-                        // sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
-                        input={<OutlinedInput label="Name" />}
-                        
-                        onChange={hadleSelectDoer}
-                        value={currentDoer}
-                        
-                        
-                    >
-                        {doers.map((doer) => (
-                            <MenuItem value={doer.id} key={doer.id} >
-
-                                {doer.fio_doer}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-               
+                {usersLoaded && (
+                    <>
+                        <FormControl sx={{ m: 1, width: 300 }}>
+                            <InputLabel id="master-program-doers">Работник</InputLabel>
+                            <Select
+                                labelId="master-program-doers"
+                                // sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
+                                input={<OutlinedInput label="Name" />}
+                                onChange={hadleSelectDoer}
+                                value={currentDoer.id}
+                                displayEmpty={true}
+                            >
+                                {doers.map((doer) => (
+                                    <MenuItem value={doer.id} key={doer.id}>
+                                        {doer.fio_doer}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </>
+                )}
+                {showTable && (
+                    <div style={{ height: 600, width: "100%" }}>
+                        <DataGrid rows={rawPrograms} columns={columns.current} />
+                    </div>
+                )}
             </Box>
         </>
     );

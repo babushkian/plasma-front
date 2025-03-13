@@ -17,6 +17,7 @@ import Login from "./pages/Login/Login";
 import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
 import TestLayout from "./pages/TestLayout/TestLayout.tsx";
 import Operator from "./pages/Operator/Operator.tsx";
+import OperatorParts from "./pages/Operator/OperatorParts.tsx";
 
 import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
@@ -99,6 +100,7 @@ const router = createBrowserRouter(
                     errorElement: <ErrorPage />,
                 },
                 { path: "/operator", element: <Operator /> },
+                { path: "/operator/:programName", element: <OperatorParts /> },
                 { path: "/parts/:programName", element: <PartsList />, errorElement: <ErrorPage /> },
             ],
         },

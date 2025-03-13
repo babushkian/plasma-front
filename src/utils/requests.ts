@@ -11,6 +11,7 @@ import {
     MASTER_GET_PARTS_BY_PROGRAM_ID,
     LOGIST_CALCULATE_PARTS,
     MASTER_GET_PARTS_BY_STATUSES,
+    OPERATOR_GET_MY_PROGRAMS,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
@@ -74,13 +75,13 @@ export const logistGetPrograms = async () => {
 };
 
 export const masterGetDetailsByProgramId: (
-    program_id: number
-) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id) => {
+    program_id: number, doer_id?: number
+) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id, doer_id) => {
     try {
         const { data } = await axios.get<MasterProgramPartsRecordType[]>(
             `${BASE_URL}/${MASTER_GET_PARTS_BY_PROGRAM_ID}`,
             {
-                params: { program_id },
+                params: { program_id, doer_id },
             }
         );
         //console.log(data);
@@ -117,4 +118,19 @@ export const getPartsByStatuses = async () => {
             console.error("Ошибка получения деталей по идентификатору программы:", error);
             return;
         }
+};
+
+export const getMyPrograms = async (fio_id:number) => {
+    try {
+        const { data } = await axios.get<ProgramType[]>(
+            `${BASE_URL}/${OPERATOR_GET_MY_PROGRAMS}`,
+            {
+                params: {fio_id},
+            }
+        );
+        return data;
+    } catch (error) {
+        console.error("Ошибка получения программ по идентификатору исполнителя:", error);
+        return;
+    }
 };
