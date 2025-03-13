@@ -12,9 +12,16 @@ const Navbar: React.FC = () => {
                 <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/">Технолог</NavLink>
                 </li>
-                <li>
+                {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/master">Мастер</NavLink>
+                </li> */}
+                <li>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/simple_master">Простой мастер</NavLink>
                 </li>
+                {/* <li>
+                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/simple_master">Продвинутый мастер</NavLink>
+                </li> */}
+
 
                 <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/operator">Оператор</NavLink>

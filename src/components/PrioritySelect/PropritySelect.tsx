@@ -1,5 +1,5 @@
+import { memo } from "react";
 import { FormControl, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-
 import { ProgramPriorityType } from "../../pages/Logist/Logist.types";
 
 type PriorityPropsType = {
@@ -9,7 +9,8 @@ type PriorityPropsType = {
     assignHandler: (rowId: number, priorityValue: ProgramPriorityType) => void;
 };
 
-const PrioritySelect = ({ selectedValue, rowId, priorityOptions, assignHandler }: PriorityPropsType) => {
+const PrioritySelect = memo(({ selectedValue, rowId, priorityOptions, assignHandler }: PriorityPropsType) => {
+    //console.log("перерисовка", rowId);
     const onChange = (event: SelectChangeEvent) => {
         assignHandler(rowId, event.target.value as ProgramPriorityType);
         
@@ -24,6 +25,6 @@ const PrioritySelect = ({ selectedValue, rowId, priorityOptions, assignHandler }
         </Select>
         </FormControl>
     );
-};
+});
 
 export default PrioritySelect;

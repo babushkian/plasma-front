@@ -29,7 +29,7 @@ import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
 import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
 import PartsList from "./pages/PartsList/PartsList.tsx";
-
+import SimpleMaster  from "./pages/Master/Master_simple.tsx";
 const theme = createTheme(
     {},
     ruRU, // x-data-grid translations
@@ -37,7 +37,7 @@ const theme = createTheme(
     dateruRU // date-pickers
 );
 
-const LazyMaster = lazy(() => import("./pages/Master/Master"));
+const LazyMaster = lazy(() => import("./pages/Master/Master.tsx"));
 const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
 
 
@@ -86,6 +86,12 @@ const router = createBrowserRouter(
                     loader: getProgramsAndDoers,
                     errorElement: <ErrorPage />,
                 },
+                {
+                    path: "/simple_master",
+                    element: <SimpleMaster />,
+                    errorElement: <ErrorPage />,
+                },
+
                 {
                     path: "/loadbystatus",
                     element: <PartsByStatuses />,
