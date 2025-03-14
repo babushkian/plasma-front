@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
-import { ProgramExtendedType } from "../Master/Master.types";
+import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
@@ -26,7 +26,7 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
 const OperatorParts = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: ProgramExtendedType } = useLocation();
+    const { state }: { state:{ program: ProgramExtendedType, currentDoer:DoerType} } = useLocation();
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
@@ -39,7 +39,7 @@ const OperatorParts = () => {
         setShowTable(false);
         // найти способ добавить сюда идентификатор пользователя
         // нужно его держать в глобальном состоянии
-        const response = await masterGetDetailsByProgramId(state.id);
+        const response = await masterGetDetailsByProgramId(state.program.id);
         if (response !== undefined) {
             setData(response);
             setShowTable(true);
@@ -77,9 +77,9 @@ const OperatorParts = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Редактирование деталей программы № {state.ProgramName} на странице логиста
+                    Редактирование деталей программы № {state.program.ProgramName} на странице логиста
                 </Typography>
-
+                {state.currentDoer.fio_doer}
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>

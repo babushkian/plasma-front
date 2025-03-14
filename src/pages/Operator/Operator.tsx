@@ -14,7 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
-import { getDoers, getMyPrograms } from "../../utils/requests";
+import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
@@ -42,6 +42,10 @@ const Operator = () => {
         load();
     }, []);
 
+    /**
+     * Загрузка программы для отображения в таблице по идентификатору оператора
+     * @param fio_id - идентификатор оператора
+     */
     const loadPrograms = async (fio_id: number) => {
         setShowTable(false);
         const data = await getMyPrograms(fio_id);
@@ -62,7 +66,11 @@ const Operator = () => {
                 col = {
                     ...col,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`/operator/${params.row.ProgramName}`}>
+                        <MuiLink
+                            component={Link}
+                            state={{ program: params.row, currentDoer }}
+                            to={`/operator/${params.row.ProgramName}`}
+                        >
                             {params.row.ProgramName}
                         </MuiLink>
                     ),
@@ -74,10 +82,33 @@ const Operator = () => {
             field: "action",
             headerName: "action",
             flex: 0.5,
-            renderCell: (params) => <Button>В рабту </Button>,
+            renderCell: (params) => {
+                switch (params.row.program_status) {
+                    case "распределена":
+                        return <Button variant="contained" onClick={()=>changeProgramStatus(params.id)} >в работу</Button>;
+                    case "в работе":
+                        return <Button variant="contained" onClick={()=>changeProgramStatus(params.id, "распределена")} >остановить</Button>;
+                    default:
+                        return <p></p>
+                }
+
+               
+            },
         });
         return clmns;
     };
+
+    const changeProgramStatus  = async (rowId:number, new_status?:string) => {
+        const result = await OperatorStartProgram(rowId, new_status)
+        if (result?.msg) {
+            console.log(result)
+            if (currentDoer) {
+                loadPrograms(currentDoer?.id);
+                setShowTable(true);
+            }
+
+        }        
+    }
 
     useEffect(() => {
         if (rawPrograms !== null) {

@@ -5,13 +5,14 @@ import {
     BASE_URL,
     URL_CREATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,
-    POST_MASTER_ASSIGN_PROGRAMS,
+    MASTER_ASSIGN_PROGRAMS,
     LOGIST_GET_PROGRAMS,
     MASTER_GET_DOERS,
     MASTER_GET_PARTS_BY_PROGRAM_ID,
     LOGIST_CALCULATE_PARTS,
     MASTER_GET_PARTS_BY_STATUSES,
     OPERATOR_GET_MY_PROGRAMS,
+    OPERATOR_START_PROGRAM,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
@@ -34,7 +35,7 @@ export const createDataRequest = async (params: ICreateData[]) => {
 
 export const assignProgramsRequest = async (params: AssignProgramRequestType[]) => {
     try {
-        await axios.post(`${BASE_URL}/${POST_MASTER_ASSIGN_PROGRAMS}`, params);
+        await axios.post(`${BASE_URL}/${MASTER_ASSIGN_PROGRAMS}`, params);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на создание программ:", error);
     }
@@ -126,6 +127,22 @@ export const getMyPrograms = async (fio_id:number) => {
             `${BASE_URL}/${OPERATOR_GET_MY_PROGRAMS}`,
             {
                 params: {fio_id},
+            }
+        );
+        return data;
+    } catch (error) {
+        console.error("Ошибка получения программ по идентификатору исполнителя:", error);
+        return;
+    }
+};
+
+
+export const OperatorStartProgram = async (program_id:number, new_status?:string) => {
+    try {
+        const { data } = await axios.get<{msg:string}>(
+            `${BASE_URL}/${OPERATOR_START_PROGRAM}`,
+            {
+                params: {program_id, new_status},
             }
         );
         return data;
