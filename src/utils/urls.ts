@@ -15,6 +15,8 @@ export const MASTER_GET_PARTS_BY_STATUSES = "master/get_parts_by_statuses"
 
 export const OPERATOR_GET_MY_PROGRAMS = "operator/get_my_programs";
 export const OPERATOR_START_PROGRAM = "operator/start_program";
+export const OPERATOR_SET_MY_PARTS = "operator/this_is_my_parts"
+
 
 export const LOGIST_GET_PROGRAMS = "logist/get_programs_for_calculation";
 export const LOGIST_CALCULATE_PARTS = "logist/calculate_parts";

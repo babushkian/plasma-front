@@ -13,6 +13,7 @@ import {
     MASTER_GET_PARTS_BY_STATUSES,
     OPERATOR_GET_MY_PROGRAMS,
     OPERATOR_START_PROGRAM,
+    OPERATOR_SET_MY_PARTS,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
@@ -76,13 +77,14 @@ export const logistGetPrograms = async () => {
 };
 
 export const masterGetDetailsByProgramId: (
-    program_id: number, doer_id?: number
-) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id, doer_id) => {
+    program_id: number,
+    doer_id?: number
+) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id: number, fio_doer_id?: number) => {
     try {
         const { data } = await axios.get<MasterProgramPartsRecordType[]>(
             `${BASE_URL}/${MASTER_GET_PARTS_BY_PROGRAM_ID}`,
             {
-                params: { program_id, doer_id },
+                params: { program_id, fio_doer_id },
             }
         );
         //console.log(data);
@@ -93,42 +95,38 @@ export const masterGetDetailsByProgramId: (
     }
 };
 
-export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number }>) => Promise<void> = async (params) => {
+export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number }>) => Promise<void> = async (
+    params
+) => {
     try {
         const result = await axios.post(`${BASE_URL}/${LOGIST_CALCULATE_PARTS}`, params);
-        console.log(result)
+        console.log(result);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при отправке фактического количества деталей:", error);
     }
 };
 
-
-
 export const getPartsByStatuses = async () => {
-    
-        const params={include_program_statuses:["создана", "распределена"]}
-        try {
-            const { data } = await axios.get<MasterProgramPartsRecordType[]>(
-                `${BASE_URL}/${MASTER_GET_PARTS_BY_STATUSES}`,
-                {
-                    params: params,
-                }
-            );
-            return data;
-        } catch (error) {
-            console.error("Ошибка получения деталей по идентификатору программы:", error);
-            return;
-        }
-};
-
-export const getMyPrograms = async (fio_id:number) => {
+    const params = { include_program_statuses: ["создана", "распределена"] };
     try {
-        const { data } = await axios.get<ProgramType[]>(
-            `${BASE_URL}/${OPERATOR_GET_MY_PROGRAMS}`,
+        const { data } = await axios.get<MasterProgramPartsRecordType[]>(
+            `${BASE_URL}/${MASTER_GET_PARTS_BY_STATUSES}`,
             {
-                params: {fio_id},
+                params: params,
             }
         );
+        return data;
+    } catch (error) {
+        console.error("Ошибка получения деталей по идентификатору программы:", error);
+        return;
+    }
+};
+
+export const getMyPrograms = async (fio_id: number) => {
+    try {
+        const { data } = await axios.get<ProgramType[]>(`${BASE_URL}/${OPERATOR_GET_MY_PROGRAMS}`, {
+            params: { fio_id },
+        });
         return data;
     } catch (error) {
         console.error("Ошибка получения программ по идентификатору исполнителя:", error);
@@ -136,18 +134,28 @@ export const getMyPrograms = async (fio_id:number) => {
     }
 };
 
-
-export const OperatorStartProgram = async (program_id:number, new_status?:string) => {
+export const OperatorStartProgram = async (program_id: number, new_status?: string) => {
     try {
-        const { data } = await axios.get<{msg:string}>(
-            `${BASE_URL}/${OPERATOR_START_PROGRAM}`,
-            {
-                params: {program_id, new_status},
-            }
-        );
+        const { data } = await axios.get<{ msg: string }>(`${BASE_URL}/${OPERATOR_START_PROGRAM}`, {
+            params: { program_id, new_status },
+        });
         return data;
     } catch (error) {
-        console.error("Ошибка получения программ по идентификатору исполнителя:", error);
+        console.error("Ошибка при изменении статуса программы:", error);
         return;
+    }
+};
+
+export const OperatorSetMyPrograms = async (params: {
+    program_id: number;
+    fio_doer_id: number;
+    parts_ids: number[];
+}) => {
+    console.log(JSON.stringify( params))
+    try {
+        // await axios.post(`${BASE_URL}/${MASTER_ASSIGN_PROGRAMS}`, params);
+        await fetch( `${BASE_URL}/${MASTER_ASSIGN_PROGRAMS}`, {method: 'POST', body:JSON.stringify( params)})
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при присвоении деталей оператору:", error);
     }
 };
