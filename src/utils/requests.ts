@@ -153,8 +153,7 @@ export const OperatorSetMyPrograms = async (params: {
 }) => {
     console.log(JSON.stringify( params))
     try {
-        // await axios.post(`${BASE_URL}/${MASTER_ASSIGN_PROGRAMS}`, params);
-        await fetch( `${BASE_URL}/${MASTER_ASSIGN_PROGRAMS}`, {method: 'POST', body:JSON.stringify( params)})
+        await axios.post(`${BASE_URL}/${OPERATOR_SET_MY_PARTS}`, params);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при присвоении деталей оператору:", error);
     }
