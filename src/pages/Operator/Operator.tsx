@@ -103,7 +103,7 @@ const Operator = () => {
         if (result?.msg) {
             console.log(result)
             if (currentDoer) {
-                loadPrograms(currentDoer?.id);
+                loadPrograms(currentDoer.id);
                 setShowTable(true);
             }
 

@@ -10,8 +10,6 @@ import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "..
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 
-
-
 type DoersRecord = Record<number, DoerType>;
 
 type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
@@ -36,13 +34,9 @@ const OperatorParts = () => {
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramPartsProcessedType[]>([]);
-
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
-
-    // список операторов, чтобы указывать, на кого какие детали распределены
-    const [doers, setDoers] = useState<DoersRecord>([]);
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -63,9 +57,7 @@ const OperatorParts = () => {
         }
         const response = await masterGetDetailsByProgramId(state.program.id, state.currentDoer.id);
         if (response !== undefined && responseDoers !== undefined) {
-            console.log("doers");
-            console.log(responseDoers);
-            setDoers(doersProcessed);
+            
             const procesedResponse = response.map((item) => ({
                 ...item,
                 checkBox: {
@@ -78,7 +70,6 @@ const OperatorParts = () => {
                     : "",
             }));
             setData(procesedResponse);
-            setShowTable(true);
         } else {
             setLoadError(true);
         }
@@ -109,7 +100,7 @@ const OperatorParts = () => {
                 <Checkbox
                     checked={params.row.checkBox.checked}
                     disabled={params.row.checkBox.disabled}
-                    onChange={() => processChecked(params.id)}
+                    onChange={() => processChecked(params.id as number)}
                 />
             ),
         });
@@ -117,10 +108,17 @@ const OperatorParts = () => {
         return clmns;
     };
 
+    /**
+     * Обработка выбора детали с помощью чекбокса. Модифицируются данные в таблице.
+     * А именно поле checkBox.checked в редактируемой строке помещается актуальное состояние чекера.
+     * Так же в массив сheckedParts идентификатор записи - это означает, что текущий пользователь работал 
+     * с конкретной строкой таблицы, и содержимое чекера из этой строки скорее всего придется отприть на сервер.
+     * @param rowId  - идентификатор записи, содержащей информацию о конкретной детали
+     */
     const processChecked = (rowId: number) => {
-        // массив рядов, которые чекнул конкретный оператор. 
+        // массив рядов, которые чекнул конкретный оператор.
         // Номера рядов могут повторяться, перед отправкой на сервер будут отсеяны только уникальные значения
-        setCheckedParts(prev =>  [...prev, rowId]);
+        setCheckedParts((prev) => [...prev, rowId]);
         setData((prev) =>
             prev!.map((row) => {
                 if (row.id === rowId) {
@@ -131,28 +129,37 @@ const OperatorParts = () => {
         );
     };
 
-    useEffect(() => {
-        console.log("Выбранные текущим пользователем столбцы");
-        console.log(checkedParts);
-    }, [checkedParts]);
 
+    /**
+     * Создаем столбцы таблицы после того как данные загрузились
+     */
     useEffect(() => {
-        columns.current = createColumns();
-        console.log(data);
+        if (data.length) {
+            columns.current = createColumns();
+            console.log(data);
+            setShowTable(true)
+        }
     }, [data]);
 
     /**
      * Отправляем отмеченные чекбоксом делати на сервер
      */
     const setMyParts = () => {
-        
-        const uniqueProcessedParts = [... (new Set(checkedParts))]
-        console.log(uniqueProcessedParts)
+        const uniqueProcessedParts = [...new Set(checkedParts)];
         // чекбоксы отмеченные галочкой
-        const uniqueCheckedParts = uniqueProcessedParts.filter(part=> data.find(item => item.id===part)!.checkBox.checked=== true)        
-        const props = { program_id: state.program.id, fio_doer_id: state.currentDoer.id, parts_ids: uniqueCheckedParts };
-        console.log("отсылаем на сервер", props);
-        OperatorSetMyPrograms(props);
+        const uniqueCheckedParts = uniqueProcessedParts.filter(
+            (part) => data.find((item) => item.id === part)!.checkBox.checked === true
+        );
+        if (uniqueCheckedParts.length) {
+            const props = {
+                program_id: state.program.id,
+                fio_doer_id: state.currentDoer.id,
+                parts_ids: uniqueCheckedParts,
+            };
+            OperatorSetMyPrograms(props);
+            loader()
+            setShowTable(true)
+        }
     };
 
     return (
