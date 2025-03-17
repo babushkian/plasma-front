@@ -41,7 +41,6 @@ const Navbar: React.FC = () => {
                 {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/loadbystatus">Загрузка по статусу</NavLink>
                 </li> */}
-
             </ul>
         </nav>
         <Outlet/>
