@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
-import { Box, Typography, Button, Stack, Snackbar } from "@mui/material";
+import { Box, Typography, Button, Stack, Snackbar, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 
@@ -14,8 +15,13 @@ const columnFields: (keyof ProgramExtendedType)[] = ["id", "program_priority", "
 
 const Master = () => {
     //const data = useLoaderData() as ResponseType;
+
+    //данные пришедшие с свервера и неподготовленные для отображения в таблице
     const [data, setData] = useState<ResponseType>();
 
+    /**
+     * Загрузка программ и операторов для отображения на странице мастера
+     */
     const loadData = async () => {
         const rawData = await getProgramsAndDoers();
         if (rawData?.programs) {
@@ -24,14 +30,18 @@ const Master = () => {
     };
 
     useEffect(() => {
+        // загрузка данных при загрузке страницы
         loadData();
     }, []);
 
+    // обработанные данные с сервера
     const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
+    //записи в такблице, которые были модифицированы
     const [updatedPrograms, setUpdatedPrograms] = useState<Array<number>>([]);
     const [notification, setNotofication] = useState(false);
+
     /**Когда данные загружаются, их надо подогнать под конкретную таблицу, а именно выделить
      * из пришедшего с сервера объекта только нужные имена столбцов для отображения их в таблице.
      * заполняет переменную programsData
@@ -49,10 +59,8 @@ const Master = () => {
                     }, {});
                     row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
                     row["doerIds"] = item.fio_doers.map((doer) => doer.id);
-                    row["dimensions"] = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
-                        item.Thickness
-                    }`;
-
+                    row["dimensions"] = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x 
+                                        ${item.Thickness}`;
                     return row;
                 })
             );
@@ -61,11 +69,6 @@ const Master = () => {
         }
     }, [data]);
 
-    /**
-     * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
-     * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется
-     * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
-     */
 
     const handlePriorityChange = useCallback(
         (rowId: number, value: ProgramPriorityType) => {
@@ -109,9 +112,9 @@ const Master = () => {
         const programs = programsData
             // рассматриваем только те записи, у которых есть фамилии. Без фамилий приоритет поменять
             // нельзя, поле с исполнителями обязательно при отправке на сервер
-            ?.filter((item) => updatedPrograms.includes(item.id) && item.doerIds.length > 0)
+            ?.filter((item) => updatedPrograms.includes(item.id) && item.doerIds.length)
             .map((item) => {
-                if (item.doerIds.length > 0) {
+                if (item.doerIds.length) {
                     return { id: item.id, fio_doers_ids: item.doerIds, program_priority: item.program_priority };
                 }
             });
@@ -125,11 +128,11 @@ const Master = () => {
         await assignProgramsRequest(programs);
         // сброс заполненных работников и перезагрузка страницы
         setUpdatedPrograms([]);
-        setNotofication(true)
+        setNotofication(true);
         loadData();
     };
 
-    const simple_table = () => {
+    const simple_table = useCallback( () => {
         return programsData?.map((row) => {
             return (
                 <tr key={row.id}>
@@ -156,8 +159,9 @@ const Master = () => {
                 </tr>
             );
         });
-    };
-    const handleClosePopup = ()=> setNotofication(false)
+    },[handleDoerAssign, handlePriorityChange, programsData])
+
+    const handleClosePopup = () => setNotofication(false);
 
     return (
         <>
@@ -171,11 +175,17 @@ const Master = () => {
                 <Snackbar
                     message="Записи обновлены"
                     open={notification}
-                    autoHideDuration={3000}
+                    autoHideDuration={5000}
                     onClose={handleClosePopup}
+                    action={
+                        <IconButton aria-label="close" color="inherit" sx={{ p: 0.5 }} onClick={handleClosePopup}>
+                            <CloseIcon />
+                        </IconButton>
+                    }
                 />
+
                 {programsData !== null && (
-                    <div style={{ height: 600, width: "100%" } }>
+                    <div style={{ height: 600, width: "100%" }}>
                         <table style={{ margin: "0 auto" }}>
                             <tbody>{simple_table()}</tbody>
                         </table>

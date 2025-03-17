@@ -26,6 +26,8 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "dimensions",
     "program_priority",
     "doerIds",
+    "doerIdsWidget",
+    "program_priority_widget",
 ];
 
 const Master = () => {
@@ -151,7 +153,7 @@ const Master = () => {
                     ),
                 };
             }
-            if (columnname === "program_priority") {
+            if (columnname === "program_priority_widget") {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
@@ -164,7 +166,7 @@ const Master = () => {
                     ),
                 };
             }
-            if (columnname === "doerIds") {
+            if (columnname === "doerIdsWidget") {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
