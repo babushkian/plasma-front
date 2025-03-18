@@ -8,16 +8,10 @@ import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
-import {
-    DoerType,
-    ProgramType,
-    ProgramExtendedType,
-    ResponseType,
-    AssignProgramRequestType,
-    changeFieldType,
-} from "./Master.types";
+import { DoerType, ProgramExtendedType, ResponseType, changeFieldType } from "./Master.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
-
+import Notification from "../../components/Notification/Notification"
+        
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
@@ -37,18 +31,15 @@ const Master = () => {
     const [programsData, setProgramsData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
-    //    const [updatedPrograms, setUpdatedPrograms] = useState<Array<number>>([]);
-    // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
-    // актуальное состояние updatedProgramsRef.current , а не замороженное из-за замыкания updatedPrograms
-    //  const updatedProgramsRef = useRef<typeof updatedPrograms>([])
-    //useEffect(()=>{updatedProgramsRef.current = updatedPrograms}, [updatedPrograms])
 
+    // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
+    // актуальное состояние assignedProgramsRef.current , а не замороженное из-за замыкания assignedPrograms
     const [assignedPrograms, setAssignedPrograms] = useState<number[]>([]);
     const assignedProgramsRef = useRef<typeof assignedPrograms>([]);
     useEffect(() => {
         assignedProgramsRef.current = assignedPrograms;
     }, [assignedPrograms]);
-    const [notification, setNotofication] = useState(false); // уведомление, что данные ушли на сервер
+    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
     /**
      * Загрузка программ и операторов для отображения на странице мастера
@@ -98,7 +89,8 @@ const Master = () => {
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
 
-    const handlePriorityChange = useCallback((rowId: number, value: any, field: changeFieldType) => {
+    const handleSelect = useCallback((rowId: number, value: string | number[], field: changeFieldType) => {
+        // изменяем массив модифицированных строк
         if (!assignedProgramsRef.current.includes(rowId)) {
             setAssignedPrograms((prev) => [...prev, rowId]);
         }
@@ -106,30 +98,12 @@ const Master = () => {
         setProgramsData((prev) =>
             prev!.map((row) => {
                 if (row.id === rowId) {
-                    console.log("измененный приоритет:", { ...row, [field]: value })
                     return { ...row, [field]: value };
                 }
                 return row;
             })
         );
     }, []);
-
-    const handleDoerAssign = useCallback((rowId: number, doerIds: number[]) => {
-        if (!assignedProgramsRef.current.includes(rowId)) {
-            setAssignedPrograms((prev) => [...prev, rowId]);
-        }
-        //изменяем данные в таблице
-        setProgramsData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    return { ...row, doerIds };
-                }
-                return row;
-            })
-        );
-    }, []);
-
-    useEffect(() => console.log("измененные ряды:", assignedPrograms), [assignedPrograms]);
 
     /**
      * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
@@ -163,7 +137,7 @@ const Master = () => {
                             selectedValue={params.value}
                             rowId={params.row.id}
                             priorityOptions={priorityArray}
-                            assignHandler={handlePriorityChange}
+                            assignHandler={handleSelect}
                         />
                     ),
                 };
@@ -176,7 +150,7 @@ const Master = () => {
                             selectValue={params.row.doerIds}
                             rowId={params.row.id}
                             doers={doers.current}
-                            assignHandler={handleDoerAssign}
+                            assignHandler={handleSelect}
                         />
                     ),
                 };
@@ -185,7 +159,7 @@ const Master = () => {
         });
 
         return clmns;
-    }, [handleDoerAssign, handlePriorityChange]);
+    }, [handleSelect]);
 
     useEffect(() => {
         if (columns.current.length === 0) {
@@ -203,7 +177,7 @@ const Master = () => {
                     if (item.doerIds.length) {
                         return { id: item.id, fio_doers_ids: item.doerIds, program_priority: item.program_priority };
                     }
-                    return
+                    return;
                 });
             console.log(programs);
             //если фамилии не выбраны, запрос не посылаем
@@ -211,16 +185,16 @@ const Master = () => {
             if (programs.length === 0) {
                 return;
             }
-            
+
             await assignProgramsRequest(programs);
             // сброс заполненных работников и перезагрузка страницы
             setAssignedPrograms([]);
-            setNotofication(true);
+            setNotification(true);
             loadData();
         }
     };
 
-    const handleClosePopup = () => setNotofication(false);
+    const handleClosePopup = () => setNotification(false);
 
     return (
         <>
@@ -235,7 +209,7 @@ const Master = () => {
                         Отправить в работу
                     </Button>
                 </Stack>
-                <Snackbar
+                {/* <Snackbar
                     message="Записи обновлены"
                     open={notification}
                     autoHideDuration={5000}
@@ -245,8 +219,9 @@ const Master = () => {
                             <CloseIcon />
                         </IconButton>
                     }
-                />
+                /> */}
 
+                <Notification value={notification} setValue ={setNotification} />
                 {programsData !== null && (
                     <div style={{ height: 700, width: "100%" }}>
                         <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />
