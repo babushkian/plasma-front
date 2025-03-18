@@ -10,6 +10,7 @@ import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/r
 
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
 import QtyInput from "../../components/QtyInput/QtyInput";
+import Notification from "../../components/Notification/Notification";
 
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
@@ -36,6 +37,7 @@ const LogistTable = () => {
     const [showTable, setShowTable] = useState(false);
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
+    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -98,8 +100,8 @@ const LogistTable = () => {
         }
         const partsQty = Object.values(factQty);
         await logistCalculateParts(partsQty);
+        setNotification(true);
         // сброс заполненных работников и перезагрузка страницы
-
         setFactQty(() => ({}));
         loader();
     };
@@ -113,7 +115,7 @@ const LogistTable = () => {
                 <Typography variant="h5">
                     Редактирование деталей программы № {state.ProgramName} на странице логиста
                 </Typography>
-
+                <Notification value={notification} setValue={setNotification} />
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>

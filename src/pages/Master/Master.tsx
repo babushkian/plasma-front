@@ -1,17 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { IconButton, Link as MuiLink, Snackbar } from "@mui/material";
+import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
-
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
 import { DoerType, ProgramExtendedType, ResponseType, changeFieldType } from "./Master.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
-import Notification from "../../components/Notification/Notification"
-        
+import Notification from "../../components/Notification/Notification";
+
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
@@ -194,34 +192,18 @@ const Master = () => {
         }
     };
 
-    const handleClosePopup = () => setNotification(false);
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место мастера</Typography>
-                <Stack direction={"row"} spacing={2}>
-                    <Button
-                        variant="contained"
-                        onClick={handleAssignPrograms}
-                        disabled={Object.keys(assignedPrograms).length === 0}
-                    >
-                        Отправить в работу
-                    </Button>
-                </Stack>
-                {/* <Snackbar
-                    message="Записи обновлены"
-                    open={notification}
-                    autoHideDuration={5000}
-                    onClose={handleClosePopup}
-                    action={
-                        <IconButton aria-label="close" color="inherit" sx={{ p: 0.5 }} onClick={handleClosePopup}>
-                            <CloseIcon />
-                        </IconButton>
-                    }
-                /> */}
-
-                <Notification value={notification} setValue ={setNotification} />
+                <Button
+                    variant="contained"
+                    onClick={handleAssignPrograms}
+                    disabled={Object.keys(assignedPrograms).length === 0}
+                >
+                    Отправить в работу
+                </Button>
+                <Notification value={notification} setValue={setNotification} />
                 {programsData !== null && (
                     <div style={{ height: 700, width: "100%" }}>
                         <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />

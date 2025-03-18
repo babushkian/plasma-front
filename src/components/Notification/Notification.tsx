@@ -11,7 +11,7 @@ const Notification = ({message="Записи обновлены", value, setValu
         <Snackbar
             message={message}
             open={value}
-            autoHideDuration={5000}
+            autoHideDuration={3000}
             onClose={handleCloseNotification}
             action={
                 <IconButton aria-label="close" color="inherit" sx={{ p: 0.5 }} onClick={handleCloseNotification}>

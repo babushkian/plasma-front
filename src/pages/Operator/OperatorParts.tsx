@@ -5,11 +5,9 @@ import { Box, Typography, Button, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
-
+import Notification from "../../components/Notification/Notification"
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
-
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
-
 type DoersRecord = Record<number, DoerType>;
 
 type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
@@ -37,7 +35,7 @@ const OperatorParts = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
-
+    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
@@ -157,6 +155,7 @@ const OperatorParts = () => {
                 parts_ids: uniqueCheckedParts,
             };
             OperatorSetMyPrograms(props);
+            setNotification(true)
             loader()
             setShowTable(true)
         }
@@ -170,6 +169,7 @@ const OperatorParts = () => {
                 </Typography>
                 {state.currentDoer.fio_doer}
                 {loadError && <div>Ошибка загрузки</div>}
+                <Notification value={notification} setValue ={setNotification} />
                 {showTable && (
                     <>
                         <Button variant="contained" onClick={setMyParts}>

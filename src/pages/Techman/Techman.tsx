@@ -8,6 +8,7 @@ import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 // import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
+import Notification from "../../components/Notification/Notification";
 import { DateDiapazonType } from "./Techman.types";
 import { createDataRequest } from "../../utils/requests";
 import { ICreateData } from "./Techman.types";
@@ -114,6 +115,7 @@ const Techman = () => {
     const [loaded, setLoaded] = useState(false);
     // можно показывать таблицу
     const [showTable, setShowTable] = useState(false);
+    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
     // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
     // const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
@@ -195,8 +197,6 @@ const Techman = () => {
         }
     }, [loaded, rawData]);
 
-
-
     /* оправлем данные программы для обновления статуса */
     const handleCreateData = async () => {
         const createRecords: ICreateData[] = data
@@ -205,6 +205,7 @@ const Techman = () => {
         console.log("Надо проконтролировать, что что-то создалось");
         console.log(createRecords);
         await createDataRequest(createRecords);
+        setNotification(true);
         loadData();
     };
 
@@ -226,16 +227,6 @@ const Techman = () => {
             setSelectedPrograms(data.reduce((sum, item) => sum + Number(item.checked), 0));
         }
     }, [data]);
-
-    // глобальное хранилице
-    // const dispatchDiapazon = () => {
-    //     dispatch(
-    //         dateDiapazonActions.setDiapazon({
-    //             startDate: convertDateToString(new Date(2025, 0, 1)),
-    //             endDate: convertDateToString(new Date(2025, 1, 15)),
-    //         })
-    //     );
-    // };
 
     const handleFilterChange = (e: SelectChangeEvent, filterField: string) => {
         const value = e.target.value;
@@ -285,10 +276,11 @@ const Techman = () => {
                         Отправить данные
                     </Button>
                 </Stack>
+                <Notification value={notification} setValue={setNotification} />
                 {noData && <Typography variant="h6">Данные за указанный период отсутствуют.</Typography>}
                 {showTable && (
                     <div style={{ height: "600px", width: "100%" }}>
-                        <Stack spacing={2} direction="row" sx={{ pb: 2,  px:1}}>
+                        <Stack spacing={2} direction="row" sx={{ pb: 2, px: 1 }}>
                             <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Пользователь</InputLabel>
                                 <Select
