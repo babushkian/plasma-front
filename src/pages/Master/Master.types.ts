@@ -23,3 +23,6 @@ export type AssignProgramRequestType = {
     fio_doers_ids?: Array<number>;
     program_priority?: ProgramPriorityType;
 };
+
+//показывает, какще из полей в таблице мастера повергается изменению
+export type changeFieldType =  "program_priority" | "doerIds"

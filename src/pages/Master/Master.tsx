@@ -1,45 +1,69 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLoaderData, Link } from "react-router-dom";
-import { Link as MuiLink } from "@mui/material";
-import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
+import { Link } from "react-router-dom";
+import { IconButton, Link as MuiLink, Snackbar } from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import DoersSelect from "../../components/DoerSelect/DoerSelect";
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
-import { DoerType, ProgramType, ProgramExtendedType, ResponseType, AssignProgramRequestType } from "./Master.types";
+import {
+    DoerType,
+    ProgramType,
+    ProgramExtendedType,
+    ResponseType,
+    AssignProgramRequestType,
+    changeFieldType,
+} from "./Master.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
-
-//const blancDoerOption: DoerType = { fio_doer: "---", position: "---", id: 0 };
-
-type AssignedProgramType = Record<number, AssignProgramRequestType>;
-
+//колонки, которые будут обображаться в таблице
 const columnFields: (keyof ProgramExtendedType)[] = [
     "id",
     "ProgramName",
-    "doerFio",
     "program_status",
     "dimensions",
     "program_priority",
     "doerIds",
-    "doerIdsWidget",
-    "program_priority_widget",
 ];
 
 const Master = () => {
-    const columns = useRef<GridColDef[]>([]);
-
-    const data = useLoaderData() as ResponseType;
-
-    const [programsData, setProgramsData] = useState<Partial<ProgramType>[] | null>(null);
+    const columns = useRef<GridColDef[]>([]); // стабильная переменная, чтобы хоанить описание столбцов
+    //данные пришедшие с свервера и неподготовленные для отображения в таблице
+    const [data, setData] = useState<ResponseType>();
+    const [programsData, setProgramsData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
-    const [updatedPrograms, setUpdatedPrograms] = useState<Array<number>>([]);
-    //const [assignedPrograms, setAssignedPrograms] = useState<AssignedProgramType>({});
+    //    const [updatedPrograms, setUpdatedPrograms] = useState<Array<number>>([]);
+    // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
+    // актуальное состояние updatedProgramsRef.current , а не замороженное из-за замыкания updatedPrograms
+    //  const updatedProgramsRef = useRef<typeof updatedPrograms>([])
+    //useEffect(()=>{updatedProgramsRef.current = updatedPrograms}, [updatedPrograms])
+
+    const [assignedPrograms, setAssignedPrograms] = useState<number[]>([]);
+    const assignedProgramsRef = useRef<typeof assignedPrograms>([]);
+    useEffect(() => {
+        assignedProgramsRef.current = assignedPrograms;
+    }, [assignedPrograms]);
+    const [notification, setNotofication] = useState(false); // уведомление, что данные ушли на сервер
+
+    /**
+     * Загрузка программ и операторов для отображения на странице мастера
+     */
+    const loadData = async () => {
+        const rawData = await getProgramsAndDoers();
+        if (rawData?.programs) {
+            setData(rawData);
+        }
+    };
+
+    useEffect(() => {
+        // загрузка данных при загрузке страницы
+        loadData();
+    }, []);
 
     /**Когда данные загружаются, их надо подогнать под конкретную таблицу, а именно выделить
      * из пришедшего с сервера объекта только нужные имена столбцов для отображения их в таблице.
@@ -47,7 +71,7 @@ const Master = () => {
      * необходимые колонки берет из columnFields
      * */
     useEffect(() => {
-        if (data.programs !== undefined) {
+        if (data?.programs !== undefined) {
             setProgramsData(
                 data.programs.map((item) => {
                     const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
@@ -74,68 +98,46 @@ const Master = () => {
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
 
-    const handlePriorityChange = useCallback(
-        (rowId: number, value: ProgramPriorityType) => {
-            // const prevItem = assignedPrograms[rowId];
-            // console.log("Перед сменой приоритета");
-            // if (prevItem) {
-            //     console.log(prevItem.fio_doers_ids);
-            // } else {
-            //     console.log("массив изменений пустой");
-            // }
+    const handlePriorityChange = useCallback((rowId: number, value: any, field: changeFieldType) => {
+        if (!assignedProgramsRef.current.includes(rowId)) {
+            setAssignedPrograms((prev) => [...prev, rowId]);
+        }
+        //изменяем данные в таблице
+        setProgramsData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    console.log("измененный приоритет:", { ...row, [field]: value })
+                    return { ...row, [field]: value };
+                }
+                return row;
+            })
+        );
+    }, []);
 
-            // const newItem: AssignProgramRequestType = prevItem
-            //     ? { ...prevItem, program_priority: value }
-            //     : { id: rowId, program_priority: value };
-            // setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
+    const handleDoerAssign = useCallback((rowId: number, doerIds: number[]) => {
+        if (!assignedProgramsRef.current.includes(rowId)) {
+            setAssignedPrograms((prev) => [...prev, rowId]);
+        }
+        //изменяем данные в таблице
+        setProgramsData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    return { ...row, doerIds };
+                }
+                return row;
+            })
+        );
+    }, []);
 
-            if (!updatedPrograms.includes(rowId)) {
-                setUpdatedPrograms((prev) => [...prev, rowId]);
-            }
-            setProgramsData((prev) =>
-                prev!.map((row) => {
-                    if (row.id === rowId) {
-                        return { ...row, program_priority: value };
-                    }
-                    return row;
-                })
-            );
-        },
-        [ updatedPrograms]
-    );
+    useEffect(() => console.log("измененные ряды:", assignedPrograms), [assignedPrograms]);
 
-    const handleDoerAssign = useCallback(
-        (rowId: number, doerIds: number[]) => {
-            // const prevItem = assignedPrograms[rowId];
-            // console.log("Перед изменением работников");
-            // if (prevItem) {
-            //     console.log(prevItem.fio_doers_ids);
-            // } else {
-            //     console.log("массив изменений пустой");
-            // }
-
-            // const newItem: AssignProgramRequestType = prevItem
-            //     ? { ...prevItem, fio_doers_ids: doerIds } // объект уже существует
-            //     : { id: rowId, fio_doers_ids: doerIds }; // создаем новый
-            // setAssignedPrograms((oldState) => ({ ...oldState, [rowId]: newItem }));
-            if (!updatedPrograms.includes(rowId)) {
-                setUpdatedPrograms((prev) => [...prev, rowId]);
-            }
-            setProgramsData((prev) =>
-                prev!.map((row) => {
-                    if (row.id === rowId) {
-                        return { ...row, doerIds };
-                    }
-                    return row;
-                })
-            );
-        },
-        [updatedPrograms]
-    );
-
-    useEffect(() => console.log("измененные ряды:", updatedPrograms), [updatedPrograms]);
-
-
+    /**
+     * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
+     * В эти копопоненты в качестве колбэков передаются функции. Так как колбэки создают
+     * замыкания, если в этих функциях используется состояние, то оно може стать неактуальным.
+     * Если функция не обновится, то она будет обрабатывать ланне на момент создания колбэка,
+     * так что надо быть аккуратнее.
+     */
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let colTemplate: GridColDef = {
@@ -153,7 +155,7 @@ const Master = () => {
                     ),
                 };
             }
-            if (columnname === "program_priority_widget") {
+            if (columnname === "program_priority") {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
@@ -166,7 +168,7 @@ const Master = () => {
                     ),
                 };
             }
-            if (columnname === "doerIdsWidget") {
+            if (columnname === "doerIds") {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
@@ -182,48 +184,43 @@ const Master = () => {
             return colTemplate;
         });
 
-        // clmns.push({
-        //     field: "действие",
-        //     headerName: "действие",
-        //     flex: 1,
-        //     renderCell: (params) => (
-        //         <DoersSelect
-        //             selectValue={assignedPrograms[params.row.id]?.fio_doers_ids ?? []}
-        //             rowId={params.row.id}
-        //             doers={doers.current}
-        //             assignHandler={handleDoerAssign}
-        //         />
-        //     ),
-        // });
-
         return clmns;
     }, [handleDoerAssign, handlePriorityChange]);
 
     useEffect(() => {
         if (columns.current.length === 0) {
             columns.current = createColumns();
-            console.log("----------------");
-            console.log("******************************");
-            console.log("создается заголовок");
-            console.log("----------------");
         }
     }, [programsData, createColumns]);
 
     const handleAssignPrograms = async () => {
-        console.log('Фейковая отправка')
-        //если фамилии не выбраны, запрос не посылаем
-        // if (Object.keys(assignedPrograms).length === 0) {
-        //     return;
-        // }
-        // const programs = Object.values(assignedPrograms);
-        // await assignProgramsRequest(programs);
-        // // сброс заполненных работников и перезагрузка страницы
-        // setAssignedPrograms({});
-        // const data = await getProgramsAndDoers();
-        // if (data?.programs !== undefined) {
-        //     setProgramsData(data.programs);
-        // }
+        if (programsData !== null) {
+            const programs = programsData
+                // рассматриваем только те записи, у которых есть фамилии. Без фамилий приоритет поменять
+                // нельзя, поле с исполнителями обязательно при отправке на сервер
+                ?.filter((item) => assignedPrograms.includes(item.id) && item.doerIds.length)
+                .map((item) => {
+                    if (item.doerIds.length) {
+                        return { id: item.id, fio_doers_ids: item.doerIds, program_priority: item.program_priority };
+                    }
+                    return
+                });
+            console.log(programs);
+            //если фамилии не выбраны, запрос не посылаем
+
+            if (programs.length === 0) {
+                return;
+            }
+            
+            await assignProgramsRequest(programs);
+            // сброс заполненных работников и перезагрузка страницы
+            setAssignedPrograms([]);
+            setNotofication(true);
+            loadData();
+        }
     };
+
+    const handleClosePopup = () => setNotofication(false);
 
     return (
         <>
@@ -233,12 +230,23 @@ const Master = () => {
                     <Button
                         variant="contained"
                         onClick={handleAssignPrograms}
-                        //disabled={Object.keys(assignedPrograms).length === 0}
-                        disabled={Object.keys(updatedPrograms).length === 0}
+                        disabled={Object.keys(assignedPrograms).length === 0}
                     >
                         Отправить в работу
                     </Button>
                 </Stack>
+                <Snackbar
+                    message="Записи обновлены"
+                    open={notification}
+                    autoHideDuration={5000}
+                    onClose={handleClosePopup}
+                    action={
+                        <IconButton aria-label="close" color="inherit" sx={{ p: 0.5 }} onClick={handleClosePopup}>
+                            <CloseIcon />
+                        </IconButton>
+                    }
+                />
+
                 {programsData !== null && (
                     <div style={{ height: 700, width: "100%" }}>
                         <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />

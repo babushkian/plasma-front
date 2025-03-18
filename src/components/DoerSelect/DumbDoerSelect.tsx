@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { DoerType } from "../../pages/Master/Master.types";
+import { DoerType, changeFieldType } from "../../pages/Master/Master.types";
 import { Select, SelectChangeEvent, MenuItem, InputLabel, Checkbox, Box, Chip } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -18,7 +18,7 @@ type DoerSelectPropsType = {
     selectValue: number[];
     rowId: number;
     doers: DoerType[];
-    assignHandler: (programId: number, doerIds: Array<number>) => void;
+    assignHandler: (programId: number, doerIds: Array<number>, field: changeFieldType) => void;
 };
 
 const DumbDoerSelect = memo(
@@ -28,7 +28,7 @@ const DumbDoerSelect = memo(
         const hadleSelectDoer = (event: SelectChangeEvent) => {
             const eventValue: number[] = event.target.value;
             console.log(eventValue);
-            assignHandler(rowId, eventValue);
+            assignHandler(rowId, eventValue, "doerIds");
         };
 
         // нужно сделать выделение опций галочками, чтобы их было видно
