@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
+import { DateDiapazonContext } from "../../context";
 
 // import { useDispatch, useSelector } from "react-redux";
 // import { AddDispatch } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 
-import { DateDiapazonType } from "../../pages/Techman/Techman.types";
 import { Typography, Grid2 } from "@mui/material";
 
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
@@ -14,27 +14,17 @@ import "dayjs/locale/ru";
 dayjs.locale("ru");
 
 
-import { DateDiapazonContext } from "../../context";
 
 
-interface IDateDiapazonProps {
-    setDates: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
-    defultDates: DateDiapazonType;
-}
 
-export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
-    const [startDate, setStartDate] = useState(dayjs(defultDates.startDate));
-    const [endDate, setEndDate] = useState(dayjs(defultDates.endDate));
+export const DateDiapazon = () => {
     const [error, setError] = useState<string>("");
     
-    const {dateDiapazon, setDateDiapazon} = useContext(DateDiapazonContext)
-    console.log("контекст:", dateDiapazon)
-
+    const {dateDiapazon:{startDate, endDate}, setDateDiapazon} = useContext(DateDiapazonContext)
 
 //    const dispatch = useDispatch<AddDispatch>();
 
     function compareDates(date: Dayjs, otherDate: Dayjs | null, greater = true) {
-        
         let result = null;
         if (otherDate) {
             console.log(date.format("YYYY.MM.DD"), otherDate.format("YYYY.MM.DD"))
@@ -50,8 +40,7 @@ export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
     const handleStartDate = (date: Dayjs | null) => {
         console.log("обрабатываемая начальная дата",date)
         if (dayjs.isDayjs(date)) {            
-            setStartDate(date);
-            setDates({startDate: date, endDate:endDate})
+            setDateDiapazon({startDate: date, endDate})
             compareDates(date, endDate, true);
             //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
@@ -60,8 +49,7 @@ export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
     const handleEndDate = (date: Dayjs | null) => {
         console.log("обрабатываемая конечная дата", date)
         if (dayjs.isDayjs(date)) {            
-            setEndDate(date);
-            setDates({startDate:startDate, endDate: date})
+            setDateDiapazon({startDate, endDate: date})
             compareDates(date, startDate, false);
             //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }

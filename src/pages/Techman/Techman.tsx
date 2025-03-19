@@ -27,6 +27,7 @@ import {
     useGridApiRef,
 } from "@mui/x-data-grid";
 import dayjs from "dayjs";
+import { DateDiapazonContext } from "../../context";
 
 
 
@@ -55,15 +56,10 @@ type selecOptionsType = Partial<{ [key in ProgNameKeysType]: string[] }> | undef
  * @returns
  */
 const Techman = () => {
-    // даты определяющие за какой период сказивать данные. Выставляемые по умолчанию при загрузке станицы
-    const defaultDates: DateDiapazonType = {
-        startDate: dayjs().subtract(7, "day"),
-        endDate: dayjs(),
-    };
     // интерфейс для управления таблицей
     const apiRef = useGridApiRef();
     // диапазон дат, за который будут загружаться данные
-    const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
+    const {dateDiapazon} = useContext(DateDiapazonContext)    
     //данные пришедшие из запроса в первоначальном виде
     const [rawData, setRawData] = useState<TechProgramType[]>([]);
     // данные, обработанные для отображения в таблице
@@ -168,8 +164,8 @@ const Techman = () => {
         try {
             const response = await axios.get<TechProgramType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
-                    start_date: dates.startDate.format("YYYY-MM-DD"),
-                    end_date: dates.endDate.format("YYYY-MM-DD"),
+                    start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),
+                    end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
                 },
             });
             if (response.data) {
@@ -263,7 +259,7 @@ const Techman = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Загрузка программ</Typography>
-                <DateDiapazon defultDates={dates} setDates={setDates} />
+                <DateDiapazon />
                 <Stack spacing={2} direction="row">
                     <Button variant="contained" onClick={loadData}>
                         Получить данные
