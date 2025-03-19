@@ -6,4 +6,7 @@ type DateDiapazonContextType = {
     setDateDiapazon: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
 };
 
-export const DateDiapazonContext = createContext<DateDiapazonContextType>(undefined);
+type UserContextType = { currentUserId: number; setCurrentUserId: (arg: number) => void };
+
+export const DateDiapazonContext = createContext<DateDiapazonContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined); // default user id

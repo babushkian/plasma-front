@@ -1,13 +1,15 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
-import Notification from "../../components/Notification/Notification"
+import Notification from "../../components/Notification/Notification";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
+import { UserContext } from "../../context";
+
 type DoersRecord = Record<number, DoerType>;
 
 type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
@@ -28,14 +30,22 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
 const OperatorParts = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: { program: ProgramExtendedType; currentDoer: DoerType } } = useLocation();
+    const { state }: { state: { program: ProgramExtendedType} } = useLocation();
 
+    const userContext = useContext(UserContext);
+    if (!userContext) {
+        throw new Error("не определено начальное значение для конекста пользователя");
+    }
+    const { currentUserId } = userContext;
+    const currentUserName = useRef<string>("")
+    const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramPartsProcessedType[]>([]);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
@@ -50,18 +60,15 @@ const OperatorParts = () => {
                 acc[item.id] = item;
                 return acc;
             }, {});
-
-            //setCurrentDoer(response[0]);
         }
-        const response = await masterGetDetailsByProgramId(state.program.id, state.currentDoer.id);
+        setDoers(doersProcessed)
+        const response = await masterGetDetailsByProgramId(state.program.id, currentUserId);
         if (response !== undefined && responseDoers !== undefined) {
-            
             const procesedResponse = response.map((item) => ({
                 ...item,
                 checkBox: {
                     checked: Boolean(item.done_by_fio_doer_id),
-                    disabled:
-                        item.done_by_fio_doer_id && state.currentDoer.id !== item.done_by_fio_doer_id ? true : false,
+                    disabled: item.done_by_fio_doer_id && currentUserId !== item.done_by_fio_doer_id ? true : false,
                 },
                 done_by_fio: doersProcessed[item.done_by_fio_doer_id]
                     ? doersProcessed[item.done_by_fio_doer_id].fio_doer
@@ -78,6 +85,20 @@ const OperatorParts = () => {
         loader();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const getCurrentUserName = useCallback((currentUserId: number, doers:DoersRecord) => {
+        if (Object.keys(doers).length) {
+            console.log("список операторов:", doers)
+            return doers[currentUserId].fio_doer;
+        }
+        return "";
+    }, []);
+
+    
+    useEffect(()=> {console.log("СПИСОК ПОЛЬЗОВАТЕЛЕЙ ИЗМЕНИЛСЯ!!!")
+        currentUserName.current = getCurrentUserName(currentUserId, doers)
+    }, [currentUserId, doers, getCurrentUserName])
+
 
     const createColumns = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -109,7 +130,7 @@ const OperatorParts = () => {
     /**
      * Обработка выбора детали с помощью чекбокса. Модифицируются данные в таблице.
      * А именно поле checkBox.checked в редактируемой строке помещается актуальное состояние чекера.
-     * Так же в массив сheckedParts идентификатор записи - это означает, что текущий пользователь работал 
+     * Так же в массив сheckedParts идентификатор записи - это означает, что текущий пользователь работал
      * с конкретной строкой таблицы, и содержимое чекера из этой строки скорее всего придется отприть на сервер.
      * @param rowId  - идентификатор записи, содержащей информацию о конкретной детали
      */
@@ -127,15 +148,14 @@ const OperatorParts = () => {
         );
     };
 
-
     /**
      * Создаем столбцы таблицы после того как данные загрузились
      */
     useEffect(() => {
         if (data.length) {
             columns.current = createColumns();
-            console.log(data);
-            setShowTable(true)
+            //console.log(data);
+            setShowTable(true);
         }
     }, [data]);
 
@@ -151,13 +171,13 @@ const OperatorParts = () => {
         if (uniqueCheckedParts.length) {
             const props = {
                 program_id: state.program.id,
-                fio_doer_id: state.currentDoer.id,
+                fio_doer_id: currentUserId,
                 parts_ids: uniqueCheckedParts,
             };
             OperatorSetMyPrograms(props);
-            setNotification(true)
-            loader()
-            setShowTable(true)
+            setNotification(true);
+            loader();
+            setShowTable(true);
         }
     };
 
@@ -167,13 +187,12 @@ const OperatorParts = () => {
                 <Typography variant="h5">
                     Редактирование деталей программы № {state.program.ProgramName} на странице оператора
                 </Typography>
-                {state.currentDoer.fio_doer}
                 {loadError && <div>Ошибка загрузки</div>}
-                <Notification value={notification} setValue ={setNotification} />
+                <Notification value={notification} setValue={setNotification} />
                 {showTable && (
                     <>
                         <Button variant="contained" onClick={setMyParts}>
-                            Подтвердить детали, выполненные оператором {state.currentDoer.fio_doer}
+                            Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
                             <DataGrid rows={data} columns={columns.current} />

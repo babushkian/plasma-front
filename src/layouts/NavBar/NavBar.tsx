@@ -4,19 +4,18 @@ import dayjs from "dayjs";
 import { NavLink, Outlet } from "react-router-dom";
 
 import { DateDiapazonType } from "../../pages/Techman/Techman.types";
-import { DateDiapazonContext } from "../../context";
+import { DateDiapazonContext, UserContext } from "../../context";
 
 const defaultDates: DateDiapazonType = {
     startDate: dayjs().subtract(7, "day"),
     endDate: dayjs(),
 };
 
-
-
-const Navbar: React.FC = () => {    
-    const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates)
+const Navbar: React.FC = () => {
+    const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
+    const [currentUserId, setCurrentUserId] = useState<number>(1);
     return (
-        <>  <DateDiapazonContext.Provider value={{dateDiapazon, setDateDiapazon}} >
+        <>
             <nav>
                 <ul className={styles.navbar}>
                     <li>
@@ -73,7 +72,11 @@ const Navbar: React.FC = () => {
                 </li> */}
                 </ul>
             </nav>
-            <Outlet />
+
+            <DateDiapazonContext.Provider value={{ dateDiapazon, setDateDiapazon }}>
+                <UserContext.Provider value={{ currentUserId, setCurrentUserId }}>
+                    <Outlet />
+                </UserContext.Provider>
             </DateDiapazonContext.Provider>
         </>
     );

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import {
     Box,
     Button,
@@ -14,13 +14,21 @@ import {
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { UserContext } from "../../context";
 
 const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
 
 const Operator = () => {
+
+    const userContext = useContext(UserContext)
+    if (!userContext){
+        throw new Error("не определено начальное значение для конекста пользователя")
+    }
+    const {currentUserId, setCurrentUserId} = userContext
+    console.log("пользователь", currentUserId)
     const columns = useRef<GridColDef[]>([]);
     const [doers, setDoers] = useState<DoerType[]>([]);
     const [currentDoer, setCurrentDoer] = useState<DoerType | null>(null);
@@ -68,7 +76,7 @@ const Operator = () => {
                     renderCell: (params) => (
                         <MuiLink
                             component={Link}
-                            state={{ program: params.row, currentDoer }}
+                            state={{ program: params.row}}
                             to={`/operator/${params.row.ProgramName}`}
                         >
                             {params.row.ProgramName}
@@ -125,7 +133,9 @@ const Operator = () => {
 
     const hadleSelectDoer = (event) => {
         console.log("выбрали работника:", event.target.value);
-        setCurrentDoer(doers.filter((item) => item.id == event.target.value)[0]);
+        const selectedDoer = doers.filter((item) => item.id == event.target.value)[0]
+        setCurrentDoer(selectedDoer);
+        setCurrentUserId(selectedDoer.id)
     };
 
     return (
@@ -141,7 +151,8 @@ const Operator = () => {
                                 // sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
                                 input={<OutlinedInput label="Name" />}
                                 onChange={hadleSelectDoer}
-                                value={currentDoer.id}
+                                //value={currentDoer.id}
+                                value={currentUserId}
                                 displayEmpty={true}
                             >
                                 {doers.map((doer) => (
