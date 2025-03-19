@@ -23,7 +23,6 @@ import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
-import { getProgramsAndDoers } from "./utils/requests.ts";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 //локализация
 import { ruRU } from "@mui/x-data-grid/locales";

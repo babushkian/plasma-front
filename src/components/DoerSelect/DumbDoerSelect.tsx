@@ -34,7 +34,7 @@ const DumbDoerSelect = memo(
         // нужно сделать выделение опций галочками, чтобы их было видно
         // а так же загрузка в селект уже имеющихся выбранных опций
         return (
-            <FormControl sx={{ m: 1, width: 300 }}>
+            <FormControl sx={{ m: 1, width: 265 }}>
                 <InputLabel id="master-program-doers">Name</InputLabel>
                 <Select
                     labelId="master-program-doers"

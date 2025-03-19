@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 // import { useDispatch, useSelector } from "react-redux";
 // import { AddDispatch } from "../../store/store";
@@ -12,7 +12,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/ru";
 dayjs.locale("ru");
-console.log(dayjs());
+
+
+import { DateDiapazonContext } from "../../context";
+
 
 interface IDateDiapazonProps {
     setDates: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
@@ -23,6 +26,10 @@ export const DateDiapazon = ({ defultDates, setDates }: IDateDiapazonProps) => {
     const [startDate, setStartDate] = useState(dayjs(defultDates.startDate));
     const [endDate, setEndDate] = useState(dayjs(defultDates.endDate));
     const [error, setError] = useState<string>("");
+    
+    const {dateDiapazon, setDateDiapazon} = useContext(DateDiapazonContext)
+    console.log("контекст:", dateDiapazon)
+
 
 //    const dispatch = useDispatch<AddDispatch>();
 

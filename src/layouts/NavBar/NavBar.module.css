@@ -6,6 +6,7 @@
     justify-content: start;
     background-color: rgb(212, 209, 203);
     list-style-type: none;
+    margin:0;
 }
 
 .navlink{
