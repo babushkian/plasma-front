@@ -59,9 +59,9 @@ const Navbar: React.FC = () => {
                         </NavLink>
                     </li>
 
-                    {/* <li>
+                    <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
-                </li> */}
+                </li>
 
                     {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>

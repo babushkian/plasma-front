@@ -1,7 +1,6 @@
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import axios from "axios";
 
 import "./index.css";
 import "@fontsource/roboto/300.css";
@@ -12,7 +11,6 @@ import "@fontsource/roboto/700.css";
 import LogistTable from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
-import Details from "./pages/Details/Details.tsx";
 import Login from "./pages/Login/Login";
 import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
 import TestLayout from "./pages/TestLayout/TestLayout.tsx";
@@ -53,18 +51,6 @@ const router = createBrowserRouter(
                 { path: "/test", element: <TestLayout /> },
                 { path: "/", element: <Techman /> },
                 { path: "/login", element: <Login /> },
-                {
-                    path: "/program/:programName",
-                    element: <Details />,
-                    errorElement: <ErrorPage />,
-                    loader: async ({ params }) => {
-                        const path = `${BASE_URL}/${URL_GET_PROGRAM_PARTS}/${params.programName}`;
-                        console.log(path);
-                        const { data } = await axios.get(path);
-                        return data;
-                    },
-                },
-
                 {
                     path: "/logist",
                     element: (

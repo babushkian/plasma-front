@@ -2,6 +2,9 @@ import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useCon
 
 //import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
+
 import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
 import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
@@ -87,12 +90,21 @@ const Techman = () => {
                 flex: 1,
                 type: type as GridColType,
             };
-
             if (type === "singleSelect") {
                 colDef = {
                     ...colDef,
                     valueOptions: userOptions.current ? userOptions.current[colName] : [],
                 } as GridSingleSelectColDef;
+            }
+            if (columnname === "ProgramName") {
+                colDef = {
+                    ...colDef,
+                    renderCell: (params) => (
+                        <MuiLink component={Link} state={params.row} to={`/parts/${params.row.ProgramName}`}>
+                            {params.row.ProgramName}
+                        </MuiLink>
+                    ),
+                };
             }
             return colDef;
         });
@@ -161,8 +173,6 @@ const Techman = () => {
         setLoading(true);
         setLoaded(false);
         setNoData(false);
-        // задержка загрузки данных для того, чтобы отправленные на сервер данные успели обновиться
-        await new Promise<void>((resolve) => setTimeout(() => resolve(), 400));
         try {
             const response = await axios.get<TechProgramType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
                 params: {
@@ -182,6 +192,8 @@ const Techman = () => {
             setLoading(false);
         }
     };
+
+
 
     // первоначальная загрузка данных
     useEffect(() => {
