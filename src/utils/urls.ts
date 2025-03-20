@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { TOKEN_LOCAL_STORAGE_KEY } from "./local-storage";
 export const BASE_URL = "http://192.168.8.163:8000";
+
 
 export const URL_AUTH_LOGIN = "auth/login";
 export const URL_AUTH_LOGOUT = "auth/logout";
@@ -9,6 +10,8 @@ export const URL_AUTH_AUTHENTICATED = "auth/authenticated-route";
 export const URL_GET_PROGRAMS = "techman/get_programs";
 export const URL_GET_PROGRAM_PARTS = "techman/get_program_parts";
 export const URL_CREATE_PROGRAM_DATA = "techman/create_data";
+
+export const USER_ME = "user/me"
 
 /**
  * получение всех нераспределенных заданий и фамилий раюотников для распределения
@@ -30,7 +33,7 @@ const apiClient = axios.create({
     baseURL: BASE_URL,
 });
 
-export const TOKEN_LOCAL_STORAGE_KEY = "token"
+
 
 apiClient.interceptors.request.use(
     (config) => {
@@ -48,13 +51,12 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 401) {            
             // Токен недействителен или истек
             localStorage.removeItem(TOKEN_LOCAL_STORAGE_KEY); // Удаляем токен из хранилища
             // Перенаправляем пользователя на страницу логина
-            const navigate = useNavigate()
-            navigate(URL_AUTH_LOGIN)
-            
+            // const navigate = useNavigate()
+            // navigate(URL_AUTH_LOGIN)   
         }
         return Promise.reject(error);
     }

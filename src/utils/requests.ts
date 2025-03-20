@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { ICreateData } from "../pages/Techman/Techman.types";
+import { ICreateData, TechProgramType } from "../pages/Techman/Techman.types";
 
 import apiClient, {
     BASE_URL,
@@ -15,14 +15,27 @@ import apiClient, {
     OPERATOR_GET_MY_PROGRAMS,
     OPERATOR_START_PROGRAM,
     OPERATOR_SET_MY_PARTS,
+    URL_GET_PROGRAMS,
+    USER_ME,
 } from "./urls";
 import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
 import { AssignProgramRequestType } from "../pages/Master/Master.types";
+import { UserType } from "../pages/Login/Login.types";
 
 
-
+    export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
+        console.log("Запрос программ и работников");
+        try {
+            const { data } = await apiClient.get<TechProgramType[]>(URL_GET_PROGRAMS, {params:dates});
+            return data;
+        } catch (error) {
+            if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+            return Promise.reject(error)
+        }
+    };
+    
 
 
 /**
@@ -32,7 +45,7 @@ import { AssignProgramRequestType } from "../pages/Master/Master.types";
 export const createDataRequest = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const response = await axios.post(`${BASE_URL}/${URL_CREATE_PROGRAM_DATA}`, params);
+        const response = await apiClient.post(URL_CREATE_PROGRAM_DATA, params);
         console.log("Ответ сервера: ", response);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на создание программ:", error);
@@ -156,5 +169,15 @@ export const OperatorSetMyPrograms = async (params: {
         await apiClient.post(OPERATOR_SET_MY_PARTS, params);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при присвоении деталей оператору:", error);
+    }
+};
+
+
+export const getCurrentUser = async () => {
+    try {
+        const { data } = await apiClient.get<UserType>(USER_ME);
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
     }
 };

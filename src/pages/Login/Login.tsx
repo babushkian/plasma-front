@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-const TOKEN_LOCAL_STORAGE_KEY = "token";
+import { getCurrentUser } from "../../utils/requests";
+import { TOKEN_LOCAL_STORAGE_KEY, USER_LOCAL_STORAGE_KEY } from "../../utils/local-storage";
+import { UserType } from "./Login.module.css"
+import { UserContext } from "../../context";
+
 const Login = () => {
-    // "user@omzit.ru"
-    // "StrongPass1!"
+    const {currentUser, setCurrentUser} = useContext(UserContext)
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [autorized, setAutorized] = useState<boolean>(false);
@@ -30,7 +34,6 @@ const Login = () => {
             }
         } catch (error) {
             console.error("Error during login:", error);
-            alert("An error occurred during login. Please try again.");
         }
     };
 
@@ -49,22 +52,19 @@ const Login = () => {
         }
     };
 
-    const handleGetData = async () => {
-        try {
-            // Отправка POST-запроса на сервер с использованием axios
-            const response = await axios.get("http://192.168.8.163:8000/auth/authenticated-route", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            // Проверка успешности логина
-            if (response.status == 200) {
-                console.log(response.data);
+    useEffect(() => {
+        const loadUser = async () => {
+            if (token) {
+                const user = await getCurrentUser();
+                if (user) {
+                    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user));
+                    setCurrentUser(user)
+                }
             }
-        } catch (error) {
-            console.error("Error during login:", error);
-            alert("An error occurred during login. Please try again.");
-        }
-    };
+        };
+        loadUser();
+    }, [token]);
+
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -99,9 +99,6 @@ const Login = () => {
                 <button onClick={() => handleLogin({ username: "dima@mail.ru", password: "1234" })}>
                     Залогиниться дефолтным юзером
                 </button>
-            </div>
-            <div>
-                <button onClick={handleGetData}>Получить данные</button>
             </div>
 
             <div>

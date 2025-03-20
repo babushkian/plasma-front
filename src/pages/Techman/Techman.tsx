@@ -1,8 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useContext } from "react";
 
 //import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
 import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
@@ -13,7 +12,7 @@ import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import Notification from "../../components/Notification/Notification";
 import GlobalFilter from "../../components/GlobalFilter/GlobalFilter";
-import { createDataRequest } from "../../utils/requests";
+import { createDataRequest, getNewPrograms } from "../../utils/requests";
 import { ICreateData } from "./Techman.types";
 import { Box, Typography, Button, Stack, Checkbox, TextField } from "@mui/material";
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from "@mui/material";
@@ -33,8 +32,6 @@ import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context";
 
 
-
-axios.defaults.withCredentials = true;
 
 type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
 
@@ -122,8 +119,6 @@ const Techman = () => {
     };
 
     // const dispatch = useDispatch<AddDispatch>();
-    // свидетельствует о том, что данные загружаются
-    const [loading, setLoading] = useState(false);
     // свидетельствует о том, что данные получены с сервера, можно их обработать
     const [loaded, setLoaded] = useState(false);
     // можно показывать таблицу
@@ -166,32 +161,28 @@ const Techman = () => {
         }
         return [];
     };
-
+    const navigate = useNavigate()
     /*загружаем даные о програмах с сервера*/
     const loadData = async () => {
         setShowTable(false);
-        setLoading(true);
         setLoaded(false);
         setNoData(false);
         try {
-            const response = await axios.get<TechProgramType[]>(`${BASE_URL}/${URL_GET_PROGRAMS}`, {
-                params: {
-                    start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),
-                    end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
-                },
-            });
-            if (response.data) {
-                setRawData(response.data);
-                console.log("данные с сревера:", response.data);
+            const data = await getNewPrograms({ start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),   end_date: dateDiapazon.endDate.format("YYYY-MM-DD")})
+            console.log("может ошибка?", data)
+            if (data) {
+                setRawData(data);
+                console.log("данные с сревера:", data);
                 setLoaded(true);
             }
         } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error('Ошибка авторизации: требуется вход в систему.');
+                navigate("/login")
+            }
             console.error("Error fetching protected data:", error);
-            return;
-        } finally {
-            setLoading(false);
-        }
-    };
+            
+    }}
 
 
 

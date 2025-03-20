@@ -1,17 +1,22 @@
 .navbar {
     padding: 6px 12px;
-    display:flex;
+    display: flex;
     flex-direction: row;
     gap: 30px;
     justify-content: start;
     background-color: rgb(212, 209, 203);
     list-style-type: none;
-    margin:0;
+    margin: 0;
 }
 
-.navlink{
-    flex:1;
+.navlink {
+    flex: 1;
     font-weight: bold;
+}
+.login-container {
+    margin-left: auto;
+    
+    flex-grow: 8;
 }
 
 .active {

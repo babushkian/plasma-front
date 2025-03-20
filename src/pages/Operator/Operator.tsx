@@ -17,13 +17,13 @@ import { Link as MuiLink } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
-import { UserContext } from "../../context";
+import { OperatorSelectContext } from "../../context";
 
 const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
 
 const Operator = () => {
 
-    const userContext = useContext(UserContext)
+    const userContext = useContext(OperatorSelectContext)
     if (!userContext){
         throw new Error("не определено начальное значение для конекста пользователя")
     }

@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { useState } from "react";
 import styles from "./NavBar.module.css";
 import dayjs from "dayjs";
 import { NavLink, Outlet } from "react-router-dom";
 
 import { DateDiapazonType } from "../../pages/Techman/Techman.types";
-import { DateDiapazonContext, UserContext } from "../../context";
+import { DateDiapazonContext, OperatorSelectContext, UserContext } from "../../context";
+import { UserType } from "../../pages/Login/Login.types";
+import { getUserFromStore } from "../../utils/local-storage";
 
 const defaultDates: DateDiapazonType = {
     startDate: dayjs().subtract(7, "day"),
@@ -14,6 +16,8 @@ const defaultDates: DateDiapazonType = {
 const Navbar: React.FC = () => {
     const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
     const [currentUserId, setCurrentUserId] = useState<number>(1);
+    const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);
+    console.log("юзер:", currentUser)
     return (
         <>
             <nav>
@@ -59,8 +63,8 @@ const Navbar: React.FC = () => {
                         </NavLink>
                     </li>
 
-                    <li>
-                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
+                    <li >
+                    <span>{currentUser?.last_name}| {currentUser?.role}</span><NavLink className={({isActive}) => {return [styles["login-container"], isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
                 </li>
 
                     {/* <li>
@@ -74,10 +78,13 @@ const Navbar: React.FC = () => {
             </nav>
 
             <DateDiapazonContext.Provider value={{ dateDiapazon, setDateDiapazon }}>
-                <UserContext.Provider value={{ currentUserId, setCurrentUserId }}>
+                <OperatorSelectContext.Provider value={{ currentUserId, setCurrentUserId }}>
+                    <UserContext.Provider value={{ currentUser, setCurrentUser }}>
                     <Outlet />
-                </UserContext.Provider>
+                    </UserContext.Provider>
+                </OperatorSelectContext.Provider>
             </DateDiapazonContext.Provider>
+            
         </>
     );
 };

@@ -8,7 +8,7 @@ import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
-import { UserContext } from "../../context";
+import { OperatorSelectContext } from "../../context";
 
 type DoersRecord = Record<number, DoerType>;
 
@@ -32,7 +32,7 @@ const OperatorParts = () => {
     // так как у деталей такой информции нет
     const { state }: { state: { program: ProgramExtendedType} } = useLocation();
 
-    const userContext = useContext(UserContext);
+    const userContext = useContext(OperatorSelectContext);
     if (!userContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }

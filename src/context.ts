@@ -6,7 +6,9 @@ type DateDiapazonContextType = {
     setDateDiapazon: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
 };
 
-type UserContextType = { currentUserId: number; setCurrentUserId: (arg: number) => void };
+type OperatorSelectContextType = { currentUserId: number; setCurrentUserId: (arg: number) => void };
 
 export const DateDiapazonContext = createContext<DateDiapazonContextType | undefined>(undefined);
-export const UserContext = createContext<UserContextType | undefined>(undefined); // default user id
+export const OperatorSelectContext = createContext<OperatorSelectContextType | undefined>(undefined); 
+export const UserContext = createContext<OperatorSelectContextType | undefined>(undefined); // default user id
+
