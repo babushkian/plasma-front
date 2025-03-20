@@ -9,7 +9,7 @@ import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 // import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import Notification from "../../components/Notification/Notification";
-import { DateDiapazonType } from "./Techman.types";
+import GlobalFilter from "../../components/GlobalFilter/GlobalFilter";
 import { createDataRequest } from "../../utils/requests";
 import { ICreateData } from "./Techman.types";
 import { Box, Typography, Button, Stack, Checkbox, TextField } from "@mui/material";
@@ -62,8 +62,10 @@ const Techman = () => {
     const {dateDiapazon} = useContext(DateDiapazonContext)    
     //данные пришедшие из запроса в первоначальном виде
     const [rawData, setRawData] = useState<TechProgramType[]>([]);
-    // данные, обработанные для отображения в таблице
+    // данные, обработанные для отображения в таблице(все данные целиком, в том числе и те, которые не показываются)
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
+    // данные после фильтрации(именно они отбражаются в таблице)
+    const [filteredData, setFilteredData] = useState<ProcessedPrognameType[]>([]);
     // список программ, выделенных для загрузки в нашу таблицу из сигмы
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
     // стабильная переменная для храенеия данных о столбцах таблицы]
@@ -153,7 +155,7 @@ const Techman = () => {
         return [];
     };
 
-    /*загружаем заные о програмах */
+    /*загружаем даные о програмах с сервера*/
     const loadData = async () => {
         setShowTable(false);
         setLoading(true);
@@ -188,7 +190,10 @@ const Techman = () => {
 
     useEffect(() => {
         if (loaded && rawData.length > 0) {
-            setData(processData(rawData));
+            
+            const processed = processData(rawData)
+            setData(processed);
+            setFilteredData(processed)
             columns.current = createColumns();
             setShowTable(true);
         } else if (loaded && rawData.length === 0) {
@@ -196,12 +201,13 @@ const Techman = () => {
         }
     }, [loaded, rawData]);
 
-    /* оправлем данные программы для обновления статуса */
+    /**
+     * Отправлем данные программы для загрузки из базы Плазмы в нашу базу.
+     */
     const handleCreateData = async () => {
         const createRecords: ICreateData[] = data
             .filter((item) => item.checked === true)
             .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
-        console.log("Надо проконтролировать, что что-то создалось");
         console.log(createRecords);
         await createDataRequest(createRecords);
         setNotification(true);
@@ -210,6 +216,9 @@ const Techman = () => {
 
     //обработка выбора строк с помощью чекбокса
     const handleSelect = (props: GridRenderCellParams<TechProgramType>) => {
+        
+        // изменение данных в исходной таблице
+        // вообще, данные в ней нужно менять только после изменения значения фильтра (или его сборса)
         setData((prevRows) =>
             prevRows.map((row) => {
                 if (row.id === props.id) {
@@ -218,6 +227,17 @@ const Techman = () => {
                 return row;
             })
         );
+        // обновляем отфильтрованные данные в таблице после нажатия на чекбокс
+        setFilteredData((prevRows) =>
+            prevRows.map((row) => {
+                if (row.id === props.id) {
+                    return { ...row, checked: !row.checked };
+                }
+                return row;
+            })
+        );
+
+
     };
 
     /**Считает количество выделенных чекбоксами строк*/
@@ -308,15 +328,12 @@ const Techman = () => {
                                     ))}
                                 </Select>
                             </FormControl>
-                            <TextField sx={"flex:1"} placeholder="поиск по всей таблице" />
-                            <Button variant="outlined">Найти</Button>
-                            <Button variant="outlined" color="error">
-                                сбросить
-                            </Button>
+                            <GlobalFilter rows = {data} setRows={setData} filteredRows={filteredData} setFilteredRows={setFilteredData}  />
                         </Stack>
 
                         <DataGrid
-                            rows={data}
+                            //rows={data}
+                            rows={filteredData}
                             columns={columns.current}
                             density="compact"
                             // checkboxSelection
