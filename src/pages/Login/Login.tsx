@@ -1,15 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { getCurrentUser } from "../../utils/requests";
 import { saveTokenToStore, saveUserToStore } from "../../utils/local-storage";
 import { UserContext } from "../../context.tsx";
+import { Navigate } from "react-router-dom";
+import {roles, allowedEndpoints} from "../../utils/authorization.ts"
 
 const Login = () => {
     const { currentUser, setCurrentUser } = useContext(UserContext);
+    console.log(allowedEndpoints)
     console.log("пользователь в контексте логина:", currentUser)
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
+    const navigate = useNavigate()
     type loginResponse = { access_token: string; token_type: string };
     type userLoginType = { username: string; password: string };
 
@@ -31,6 +35,7 @@ const Login = () => {
                 if (user) {
                     saveUserToStore(user);
                     setCurrentUser(user);
+                    navigate(allowedEndpoints[roles[user.role]][0]) // переход на дефолтный адрес после логина
                 }
             }
         } catch (error) {

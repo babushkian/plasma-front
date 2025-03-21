@@ -49,14 +49,23 @@ const router = createBrowserRouter(
             element: <Navbar />,
             children: [
                 { path: "/test", element: <TestLayout /> },
-                { path: "/", element: <Techman /> },
+                {
+                    path: "/",
+                    element: (
+                        <PrivateRoute>
+                            <Techman />
+                        </PrivateRoute>
+                    ),
+                },
                 { path: "/login", element: <Login /> },
                 {
                     path: "/logist",
                     element: (
-                        <Suspense fallback={<LoadingPlaceholder />}>
-                            <LazyLogist />
-                        </Suspense>
+                        <PrivateRoute>
+                            <Suspense fallback={<LoadingPlaceholder />}>
+                                <LazyLogist />
+                            </Suspense>
+                        </PrivateRoute>
                     ),
                     errorElement: <ErrorPage />,
                 },
