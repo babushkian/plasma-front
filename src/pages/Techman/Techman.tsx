@@ -29,7 +29,7 @@ import {
     useGridApiRef,
 } from "@mui/x-data-grid";
 import dayjs from "dayjs";
-import { DateDiapazonContext } from "../../context";
+import { DateDiapazonContext } from "../../context.tsx";
 
 
 
@@ -338,7 +338,7 @@ const Techman = () => {
                             //rows={data}
                             rows={filteredData}
                             columns={columns.current}
-                            density="compact"
+                            //density="compact"
                             // checkboxSelection
                             // disableRowSelectionOnClick
                             // onRowSelectionModelChange={rowChange}

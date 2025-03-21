@@ -1,17 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { getCurrentUser } from "../../utils/requests";
-import { TOKEN_LOCAL_STORAGE_KEY, USER_LOCAL_STORAGE_KEY } from "../../utils/local-storage";
-import { UserType } from "./Login.module.css"
-import { UserContext } from "../../context";
+import { saveTokenToStore, saveUserToStore } from "../../utils/local-storage";
+import { UserContext } from "../../context.tsx";
 
 const Login = () => {
-    const {currentUser, setCurrentUser} = useContext(UserContext)
-
+    const { currentUser, setCurrentUser } = useContext(UserContext);
+    console.log("пользователь в контексте логина:", currentUser)
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [autorized, setAutorized] = useState<boolean>(false);
-    const [token, setToken] = useState<string | undefined>(undefined);
 
     type loginResponse = { access_token: string; token_type: string };
     type userLoginType = { username: string; password: string };
@@ -27,51 +24,24 @@ const Login = () => {
             // Проверка успешности логина
             console.log(response);
             if (response.status === 200) {
-                console.log(response.data.access_token);
-                setAutorized(true);
-                setToken(response.data.access_token);
-                localStorage.setItem(TOKEN_LOCAL_STORAGE_KEY, response.data.access_token);
+                const token = response.data.access_token;
+                console.log(token);
+                saveTokenToStore(token);
+                const user = await getCurrentUser();
+                if (user) {
+                    saveUserToStore(user);
+                    setCurrentUser(user);
+                }
             }
         } catch (error) {
             console.error("Error during login:", error);
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            // Отправка POST-запроса на сервер с использованием axios
-            const response = await axios.post("http://192.168.8.163:8000/auth/logout", "", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            console.log(response);
-            setAutorized(false);
-            setToken(undefined);
-            localStorage.removeItem(TOKEN_LOCAL_STORAGE_KEY);
-        } catch (error) {
-            console.error("Error during logout:", error);
-        }
-    };
-
-    useEffect(() => {
-        const loadUser = async () => {
-            if (token) {
-                const user = await getCurrentUser();
-                if (user) {
-                    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user));
-                    setCurrentUser(user)
-                }
-            }
-        };
-        loadUser();
-    }, [token]);
-
-
     const handleSubmit = (event) => {
         event.preventDefault();
         handleLogin({ username, password });
     };
-
-    const label = autorized ? <div>Авторизован</div> : <div>Не авторизован</div>;
 
     return (
         <>
@@ -101,11 +71,9 @@ const Login = () => {
                 </button>
             </div>
 
-            <div>
+            {/* <div>
                 <button onClick={handleLogout}>Разлогиниться</button>
-            </div>
-
-            {label}
+            </div> */}
         </>
     );
 };

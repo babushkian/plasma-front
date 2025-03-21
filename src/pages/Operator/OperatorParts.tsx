@@ -8,7 +8,7 @@ import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
-import { OperatorSelectContext } from "../../context";
+import { OperatorSelectContext } from "../../context.tsx";
 
 type DoersRecord = Record<number, DoerType>;
 
@@ -32,11 +32,11 @@ const OperatorParts = () => {
     // так как у деталей такой информции нет
     const { state }: { state: { program: ProgramExtendedType} } = useLocation();
 
-    const userContext = useContext(OperatorSelectContext);
-    if (!userContext) {
+    const operatorIdContext = useContext(OperatorSelectContext);
+    if (!operatorIdContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }
-    const { currentUserId } = userContext;
+    const { currentUserId } = operatorIdContext;
     const currentUserName = useRef<string>("")
     const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);

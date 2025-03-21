@@ -1,5 +1,5 @@
 import axios from "axios";
-import { TOKEN_LOCAL_STORAGE_KEY } from "./local-storage";
+import { getTokenFromStore, clearStore } from "./local-storage";
 export const BASE_URL = "http://192.168.8.163:8000";
 
 
@@ -37,7 +37,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem(TOKEN_LOCAL_STORAGE_KEY);
+        const token = getTokenFromStore()
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -53,7 +53,7 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {            
             // Токен недействителен или истек
-            localStorage.removeItem(TOKEN_LOCAL_STORAGE_KEY); // Удаляем токен из хранилища
+            clearStore(); // Удаляем токен из хранилища
             // Перенаправляем пользователя на страницу логина
             // const navigate = useNavigate()
             // navigate(URL_AUTH_LOGIN)   

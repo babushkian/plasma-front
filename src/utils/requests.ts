@@ -1,9 +1,6 @@
-import axios from "axios";
-
 import { ICreateData, TechProgramType } from "../pages/Techman/Techman.types";
 
 import apiClient, {
-    BASE_URL,
     URL_CREATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,
     MASTER_ASSIGN_PROGRAMS,
@@ -18,7 +15,7 @@ import apiClient, {
     URL_GET_PROGRAMS,
     USER_ME,
 } from "./urls";
-import { ProgramType, DoerType, ResponseType } from "../pages/Master/Master.types";
+import { ProgramType, ResponseType } from "../pages/Master/Master.types";
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
 import { AssignProgramRequestType } from "../pages/Master/Master.types";
@@ -181,3 +178,14 @@ export const getCurrentUser = async () => {
         if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
     }
 };
+
+
+export const logout =  async () => {
+    try{
+    const response = await apiClient.post("auth/logout", "");
+    return response
+    } catch(error) {
+        if (error instanceof Error) console.error("Ошибка при логауте:", error);
+    }
+
+}

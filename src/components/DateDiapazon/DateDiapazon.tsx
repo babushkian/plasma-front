@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { DateDiapazonContext } from "../../context";
+import { DateDiapazonContext } from "../../context.tsx";
 
 // import { useDispatch, useSelector } from "react-redux";
 // import { AddDispatch } from "../../store/store";

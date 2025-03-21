@@ -1,23 +1,37 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import styles from "./NavBar.module.css";
 import dayjs from "dayjs";
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Button } from "@mui/material";
+import LogoutButton from "../../components/LogoutButton/LogoutButton"
+import { UserContext } from "../../context";
 
-import { DateDiapazonType } from "../../pages/Techman/Techman.types";
-import { DateDiapazonContext, OperatorSelectContext, UserContext } from "../../context";
-import { UserType } from "../../pages/Login/Login.types";
-import { getUserFromStore } from "../../utils/local-storage";
 
-const defaultDates: DateDiapazonType = {
-    startDate: dayjs().subtract(7, "day"),
-    endDate: dayjs(),
-};
 
 const Navbar: React.FC = () => {
-    const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
-    const [currentUserId, setCurrentUserId] = useState<number>(1);
-    const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);
-    console.log("юзер:", currentUser)
+    const { currentUser } = useContext(UserContext);
+    const {pathname} = useLocation()
+    console.log("----------------------")
+    console.log("сейчас мы здесь", location)
+    const login = (
+        <>
+            <Link className={styles["login-container"]} to="/login">
+                <Button size="small" variant="contained">
+                    войти
+                </Button>
+            </Link>
+        </>
+    );
+    const logout = (
+        <>
+            <span>
+                {currentUser?.last_name} | {currentUser?.role}
+            </span>
+            <LogoutButton />
+        </>
+    );
+    const authIidget = !currentUser? pathname==="/login"? <></>:login : logout 
+
     return (
         <>
             <nav>
@@ -63,9 +77,7 @@ const Navbar: React.FC = () => {
                         </NavLink>
                     </li>
 
-                    <li >
-                    <span>{currentUser?.last_name}| {currentUser?.role}</span><NavLink className={({isActive}) => {return [styles["login-container"], isActive?styles.active : ""].join(" ")}} to="/login">Логин</NavLink>
-                </li>
+                    <li>{authIidget}</li>
 
                     {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>
@@ -77,14 +89,8 @@ const Navbar: React.FC = () => {
                 </ul>
             </nav>
 
-            <DateDiapazonContext.Provider value={{ dateDiapazon, setDateDiapazon }}>
-                <OperatorSelectContext.Provider value={{ currentUserId, setCurrentUserId }}>
-                    <UserContext.Provider value={{ currentUser, setCurrentUser }}>
-                    <Outlet />
-                    </UserContext.Provider>
-                </OperatorSelectContext.Provider>
-            </DateDiapazonContext.Provider>
-            
+                        <Outlet />
+
         </>
     );
 };
