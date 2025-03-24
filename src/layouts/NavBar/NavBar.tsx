@@ -11,8 +11,6 @@ import { UserContext } from "../../context";
 const Navbar: React.FC = () => {
     const { currentUser } = useContext(UserContext);
     const {pathname} = useLocation()
-    console.log("----------------------")
-    console.log("сейчас мы здесь", location)
     const login = (
         <>
             <Link className={styles["login-container"]} to="/login">

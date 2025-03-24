@@ -5,12 +5,10 @@ import { getCurrentUser } from "../../utils/requests";
 import { saveTokenToStore, saveUserToStore } from "../../utils/local-storage";
 import { UserContext } from "../../context.tsx";
 import { Navigate } from "react-router-dom";
-import {roles, allowedEndpoints} from "../../utils/authorization.ts"
+import {roles, allowedEndpoints, getDefaultPage} from "../../utils/authorization.ts"
 
 const Login = () => {
     const { currentUser, setCurrentUser } = useContext(UserContext);
-    console.log(allowedEndpoints)
-    console.log("пользователь в контексте логина:", currentUser)
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate()
@@ -24,18 +22,16 @@ const Login = () => {
             const response = await axios.post<loginResponse>("http://192.168.8.163:8000/auth/login", userobj, {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
-
             // Проверка успешности логина
             console.log(response);
             if (response.status === 200) {
                 const token = response.data.access_token;
-                console.log(token);
                 saveTokenToStore(token);
                 const user = await getCurrentUser();
                 if (user) {
                     saveUserToStore(user);
                     setCurrentUser(user);
-                    navigate(allowedEndpoints[roles[user.role]][0]) // переход на дефолтный адрес после логина
+                    navigate(getDefaultPage(user)) // переход на дефолтный адрес после логина
                 }
             }
         } catch (error) {
