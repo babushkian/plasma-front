@@ -26,7 +26,7 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 const MasterContext = ({ children }: ReactNode) => {
     const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
-    const [currentUserId, setCurrentUserId] = useState<number>(1);
+    const [currentUserId, setCurrentUserId] = useState<number>(10);
     const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);
     console.log("юзер:", currentUser);
 

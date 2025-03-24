@@ -3,14 +3,13 @@ import styles from "./NavBar.module.css";
 import dayjs from "dayjs";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
-import LogoutButton from "../../components/LogoutButton/LogoutButton"
+import LogoutButton from "../../components/LogoutButton/LogoutButton";
 import { UserContext } from "../../context";
-
-
+import { getUserEndpoints } from "../../utils/authorization";
 
 const Navbar: React.FC = () => {
     const { currentUser } = useContext(UserContext);
-    const {pathname} = useLocation()
+    const { pathname } = useLocation();
     const login = (
         <>
             <Link className={styles["login-container"]} to="/login">
@@ -28,12 +27,28 @@ const Navbar: React.FC = () => {
             <LogoutButton />
         </>
     );
-    const authIidget = !currentUser? pathname==="/login"? <></>:login : logout 
+    const authIidget = !currentUser ? pathname === "/login" ? <></> : login : logout;
 
     return (
         <>
             <nav>
                 <ul className={styles.navbar}>
+
+
+                    {/* {currentUser && getUserEndpoints(currentUser).map((item) => (
+                        <li key={item.name}>
+                            <NavLink
+                                className={({ isActive }) => {
+                                    return [styles.navlink, isActive ? styles.active : ""].join(" ");
+                                }}
+                                to={item.endpoint}
+                            >
+                                {item.name}
+                            </NavLink>
+                        </li>
+                    ))} */}
+
+
                     <li>
                         <NavLink
                             className={({ isActive }) => {
@@ -87,8 +102,7 @@ const Navbar: React.FC = () => {
                 </ul>
             </nav>
 
-                        <Outlet />
-
+            <Outlet />
         </>
     );
 };

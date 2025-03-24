@@ -18,17 +18,17 @@ export const roles: Record<UserRolesType, UserIndexRolesType> = {
     Логист: "LOGIST",
 };
 
-export type EndpointValues = string;
+export type EndpointData = { endpoint: string; name: string };
 
-export const endpoints: Record<string, EndpointValues> = {
-    TECHMAN: "/",
-    MASTER: "/master",
-    OPERATOR: "/operator",
-    LOGIST: "/logist",
-    LOGIN: "/login",
+export const endpoints: Record<string, EndpointData> = {
+    TECHMAN: { endpoint: "/", name: "Технолог" },
+    MASTER: { endpoint: "/master", name: "Мастер" },
+    OPERATOR: { endpoint: "/operator", name: "Оператор" },
+    LOGIST: { endpoint: "/logist", name: "Логист" },
+    LOGIN: { endpoint: "/login", name: "Логин" },
 };
 
-export const allowedEndpoints: Record<UserIndexRolesType, EndpointValues[]> = {
+export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
     USER: [endpoints.TECHMAN],
     ADMIN: [endpoints.TECHMAN, endpoints.MASTER, endpoints.OPERATOR, endpoints.LOGIST],
     TECHMAN: [endpoints.TECHMAN],
@@ -39,15 +39,14 @@ export const allowedEndpoints: Record<UserIndexRolesType, EndpointValues[]> = {
 
 export const getUserEndpoints = (user: UserType | undefined) => {
     if (user) return allowedEndpoints[roles[user.role]];
-    return [endpoints.login];
+    return [endpoints.LOGIN];
 };
 
-export const getDefaultPage = (user: UserType | undefined) =>{
-    return getUserEndpoints(user)[0];
-}
+export const getDefaultPage = (user: UserType | undefined) => {
+    return getUserEndpoints(user)[0].endpoint;
+};
 
-
-export const isEndpointPermitted = (user:UserType | undefined, endpoint:EndpointValues) => {
-     return getUserEndpoints(user).includes(endpoint)
-
-}
+export const isEndpointPermitted = (user: UserType | undefined, endpoint: string) => {
+    const endpoints = getUserEndpoints(user);
+    return endpoints.find((item) => item.endpoint === endpoint);
+};
