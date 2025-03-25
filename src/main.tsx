@@ -17,8 +17,6 @@ import Operator from "./pages/Operator/Operator.tsx";
 import OperatorParts from "./pages/Operator/OperatorParts.tsx";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 
-import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
-
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -29,6 +27,7 @@ import { ruRU as coreruRU } from "@mui/material/locale";
 import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
 import PartsList from "./pages/PartsList/PartsList.tsx";
 import Master from "./pages/Master/Master.tsx";
+import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
 
 
@@ -117,6 +116,7 @@ const router = createBrowserRouter(
                 },
                 { path: "/operator/:programName", element: <OperatorParts /> },
                 { path: "/parts/:programName", element: <PartsList />, errorElement: <ErrorPage /> },
+                { path: "/plasmaparts/:programName", element: <PlasmaParts />, errorElement: <ErrorPage /> },
             ],
         },
     ],

@@ -104,8 +104,6 @@ const PartsList = () => {
         loader();
     };
 
-    const showData = () => console.log(data);
-
 
     return (
         <>
@@ -125,9 +123,6 @@ const PartsList = () => {
                         </div>
                     </>
                 )}
-                <Button variant="contained" onClick={showData} disabled={false}>
-                    вывести данные
-                </Button>
             </Box>
         </>
     );
