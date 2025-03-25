@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef} from "@mui/x-data-grid";
-
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 
@@ -72,7 +72,7 @@ const Logist = () => {
 
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={data} columns={columns} />
+                        <DataGrid rows={data} columns={columns} slots={{ toolbar: CustomToolbar }}/>
                     </div>
                 )}
             </Box>
@@ -80,3 +80,4 @@ const Logist = () => {
     );
 };
 export default Logist;
+

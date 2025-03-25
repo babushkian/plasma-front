@@ -3,7 +3,7 @@ import { useLocation} from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
@@ -119,7 +119,7 @@ const PartsList = () => {
                             Применить фактическое количество деталей
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns.current} />
+                            <DataGrid rows={data} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
                         </div>
                     </>
                 )}

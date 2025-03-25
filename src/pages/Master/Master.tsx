@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
@@ -211,7 +212,7 @@ const Master = () => {
                 <Notification value={notification} setValue={setNotification} />
                 {programsData !== null && (
                     <div style={{ height: 700, width: "100%" }}>
-                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} />
+                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} slots={{ toolbar: CustomToolbar }} />
                     </div>
                 )}
             </Box>
@@ -220,3 +221,4 @@ const Master = () => {
 };
 
 export default Master;
+

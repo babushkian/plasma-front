@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
 import { OperatorSelectContext } from "../../context.tsx";
@@ -168,7 +169,7 @@ const Operator = () => {
                 )}
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={rawPrograms} columns={columns.current} />
+                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
                     </div>
                 )}
             </Box>

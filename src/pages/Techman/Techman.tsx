@@ -3,8 +3,8 @@ import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useCon
 //import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 
-import { BASE_URL, URL_GET_PROGRAMS } from "../../utils/urls";
 import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
@@ -14,7 +14,7 @@ import Notification from "../../components/Notification/Notification";
 import GlobalFilter from "../../components/GlobalFilter/GlobalFilter";
 import { createDataRequest, getNewPrograms } from "../../utils/requests";
 import { ICreateData } from "./Techman.types";
-import { Box, Typography, Button, Stack, Checkbox, TextField } from "@mui/material";
+import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from "@mui/material";
 
 import {
@@ -346,7 +346,7 @@ const Techman = () => {
                             // checkboxSelection
                             // disableRowSelectionOnClick
                             // onRowSelectionModelChange={rowChange}
-                            slots={{ toolbar: GridToolbar }}
+                            slots={{ toolbar: CustomToolbar }}
                             apiRef={apiRef}
                         />
                     </div>

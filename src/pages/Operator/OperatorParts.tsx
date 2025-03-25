@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
@@ -195,7 +195,7 @@ const OperatorParts = () => {
                             Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns.current} />
+                            <DataGrid rows={data} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
                         </div>
                     </>
                 )}
