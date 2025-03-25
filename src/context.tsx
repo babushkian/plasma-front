@@ -9,10 +9,10 @@ type DateDiapazonContextType = {
     setDateDiapazon: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
 };
 
-type OperatorSelectContextType = { currentUserId: number; setCurrentUserId: (arg: number) => void };
+type OperatorSelectContextType = { selectedOperatorId: number | undefined; setSelectedOperatorId: (arg: number) => void };
 type UserContextType = {
-    currentUser: UserType | undefined;
-    setCurrentUser: React.Dispatch<React.SetStateAction<UserType | undefined>>;
+    currentUser: UserType ;
+    setCurrentUser: React.Dispatch<React.SetStateAction<UserType>>;
 };
 
 const defaultDates: DateDiapazonType = {
@@ -26,14 +26,14 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 const MasterContext = ({ children }: ReactNode) => {
     const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
-    const [currentUserId, setCurrentUserId] = useState<number>(10);
+    const [selectedOperatorId, setSelectedOperatorId] = useState<number | undefined>(undefined);
     const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);
     console.log("юзер:", currentUser);
 
     return (
         <>
             <DateDiapazonContext.Provider value={{ dateDiapazon, setDateDiapazon }}>
-                <OperatorSelectContext.Provider value={{ currentUserId, setCurrentUserId }}>
+                <OperatorSelectContext.Provider value={{ selectedOperatorId: selectedOperatorId, setSelectedOperatorId }}>
                     <UserContext.Provider value={{ currentUser, setCurrentUser }}>{children}</UserContext.Provider>
                 </OperatorSelectContext.Provider>
             </DateDiapazonContext.Provider>

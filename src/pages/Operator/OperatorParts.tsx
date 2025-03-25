@@ -36,7 +36,7 @@ const OperatorParts = () => {
     if (!operatorIdContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }
-    const { currentUserId } = operatorIdContext;
+    const { selectedOperatorId: currentUserId } = operatorIdContext;
     const currentUserName = useRef<string>("")
     const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);

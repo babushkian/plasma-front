@@ -23,7 +23,7 @@ import apiClient, {
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
 import {ResponsePartsType} from "./requests.types"
-import { AssignProgramRequestType } from "../pages/Master/Master.types";
+import { AssignProgramRequestType, DoerType } from "../pages/Master/Master.types";
 import { UserType } from "../pages/Login/Login.types";
 
 
@@ -91,7 +91,7 @@ export const getProgramsAndDoers = async () => {
 
 export const getDoers = async () => {
     try {
-        const { data } = await apiClient.get<MasterResponseType>(MASTER_GET_DOERS);
+        const { data } = await apiClient.get<DoerType[]>(MASTER_GET_DOERS);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе работников:", error);

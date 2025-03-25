@@ -46,7 +46,7 @@ const LogistTable = () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            setData(response.headers);
+            setData(response.data);
             headers.current = response.headers
             setShowTable(true);
         } else {

@@ -172,7 +172,6 @@ const Techman = () => {
         setNoData(false);
         try {
             const data = await getNewPrograms({ start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),   end_date: dateDiapazon.endDate.format("YYYY-MM-DD")})
-            console.log("может ошибка?", data)
             if (data) {
                 setRawData(data.data);
                 headers.current = data.headers

@@ -1,13 +1,13 @@
 import { UserType, UserRolesType, UserIndexRolesType } from "../pages/Login/Login.types";
 
-// export const roles = {
-//     USER: "Пользователь",
-//     ADMIN: "Администратор",
-//     TECHMAN: "Технолог",
-//     MASTER: "Мастер",
-//     OPERATOR: "Оператор",
-//     LOGIST: "Логист",
-// };
+export const roleStrings = {
+    USER: "Пользователь",
+    ADMIN: "Администратор",
+    TECHMAN: "Технолог",
+    MASTER: "Мастер",
+    OPERATOR: "Оператор",
+    LOGIST: "Логист",
+};
 
 export const roles: Record<UserRolesType, UserIndexRolesType> = {
     Пользователь: "USER",

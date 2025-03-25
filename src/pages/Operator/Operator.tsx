@@ -15,38 +15,54 @@ import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
-import { OperatorSelectContext } from "../../context.tsx";
+import { OperatorSelectContext, UserContext } from "../../context.tsx";
 
 const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
 
 const Operator = () => {
+    const operatorIdContext = useContext(OperatorSelectContext);
+    const currentUserContext = useContext(UserContext);
 
-    const operatorIdContext = useContext(OperatorSelectContext)
-    if (!operatorIdContext){
-        throw new Error("не определено начальное значение для конекста пользователя")
+    if (!operatorIdContext) {
+        throw new Error("не определено начальное значение для конекста оператора");
     }
-    const {currentUserId, setCurrentUserId} = operatorIdContext
-    console.log("пользователь", currentUserId)
+    if (!currentUserContext) {
+        throw new Error("не определено начальное значение для конекста пользователя");
+    }
+
+    const { currentUser } = currentUserContext;
+    const { selectedOperatorId, setSelectedOperatorId } = operatorIdContext;
+
+    console.log("идентификатор пользователя", currentUser.id);
+    console.log("идентификатор оператора", selectedOperatorId);
     const columns = useRef<GridColDef[]>([]);
     const [doers, setDoers] = useState<DoerType[]>([]);
-    const [currentDoer, setCurrentDoer] = useState<DoerType | null>(null);
-    const [usersLoaded, setUsersLoaded] = useState(false);
+    const [operatorsLoaded, setOperatorsLoaded] = useState(false);
     const [rawPrograms, setRawPrograms] = useState<ProgramType[] | null>(null);
     const [showTable, setShowTable] = useState(false);
-    const headers = useRef<Record<string, string>>({})
+    const headers = useRef<Record<string, string>>({});
 
     const load = async () => {
         const response = await getDoers();
         if (response) {
-            console.log("ответ сервера", response);
-            setDoers(response);
-            setCurrentDoer(response[0]);
-            setUsersLoaded(true);
+            setDoers(response.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer)));
+            //определяем опцию по умолчанию в выпадающем списке операторов
+            const userOperator = response.find((item) => item.user_id === currentUser.id);
+            setSelectedOperatorId(userOperator ? userOperator.id : response[0].id);
+            setOperatorsLoaded(true);
         }
     };
+
+    // // если идентификатор пользователя присутствует среди операторов, то сразу выбирается текущий оператор
+    // useEffect(() => {
+    //     const currentDoer = doers.find((item) => item.user_id === currentUser.id);
+    //     if (currentDoer) {
+    //         setSelectedOperatorId(currentDoer?.id);
+    //     }
+    // }, [currentUser.id, doers, setSelectedOperatorId, selectedOperatorId]);
 
     useEffect(() => {
         load();
@@ -61,8 +77,8 @@ const Operator = () => {
         const data = await getMyPrograms(fio_id);
         if (typeof data !== "undefined") {
             console.log(data);
-            setRawPrograms(data.data);
-            headers.current = data.headers
+            setRawPrograms(data.data.sort((a, b) => a.id - b.id));
+            headers.current = data.headers;
         }
     };
 
@@ -79,7 +95,7 @@ const Operator = () => {
                     renderCell: (params) => (
                         <MuiLink
                             component={Link}
-                            state={{ program: params.row}}
+                            state={{ program: params.row }}
                             to={`/operator/${params.row.ProgramName}`}
                         >
                             {params.row.ProgramName}
@@ -96,30 +112,35 @@ const Operator = () => {
             renderCell: (params) => {
                 switch (params.row.program_status) {
                     case "распределена":
-                        return <Button variant="contained" onClick={()=>changeProgramStatus(params.id)} >в работу</Button>;
+                        return (
+                            <Button variant="contained" onClick={() => changeProgramStatus(params.id)}>
+                                в работу
+                            </Button>
+                        );
                     case "в работе":
-                        return <Button variant="contained" onClick={()=>changeProgramStatus(params.id, "распределена")} >остановить</Button>;
+                        return (
+                            <Button variant="contained" onClick={() => changeProgramStatus(params.id, "распределена")}>
+                                остановить
+                            </Button>
+                        );
                     default:
-                        return <p></p>
+                        return <p></p>;
                 }
-
-               
             },
         });
         return clmns;
     };
 
-    const changeProgramStatus  = async (rowId:number, new_status?:string) => {
-        const result = await OperatorStartProgram(rowId, new_status)
+    const changeProgramStatus = async (rowId: number, new_status?: string) => {
+        const result = await OperatorStartProgram(rowId, new_status);
         if (result?.msg) {
-            console.log(result)
-            if (currentDoer) {
-                loadPrograms(currentDoer.id);
+            console.log(result);
+            if (selectedOperatorId) {
+                loadPrograms(selectedOperatorId);
                 setShowTable(true);
             }
-
-        }        
-    }
+        }
+    };
 
     useEffect(() => {
         if (rawPrograms !== null) {
@@ -129,33 +150,31 @@ const Operator = () => {
     }, [rawPrograms]);
 
     useEffect(() => {
-        if (currentDoer) {
-            loadPrograms(currentDoer?.id);
+        if (operatorsLoaded) {
+            loadPrograms(selectedOperatorId);
         }
-    }, [currentDoer]);
+    }, [selectedOperatorId, operatorsLoaded]);
 
     const hadleSelectDoer = (event) => {
         console.log("выбрали работника:", event.target.value);
-        const selectedDoer = doers.filter((item) => item.id == event.target.value)[0]
-        setCurrentDoer(selectedDoer);
-        setCurrentUserId(selectedDoer.id)
+        const selectedDoer = doers.filter((item) => item.id == event.target.value)[0];
+        // даем изменить значение селекта тольо если юзер не является оператором
+        if (!doers.find((item) => item.user_id === currentUser.id)) setSelectedOperatorId(selectedDoer.id);
     };
 
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место оператора</Typography>
-                {usersLoaded && (
+                {operatorsLoaded && (
                     <>
                         <FormControl sx={{ m: 1, width: 300 }}>
-                            <InputLabel id="master-program-doers">Работник</InputLabel>
+                            <InputLabel id="master-program-doers">Оператор</InputLabel>
                             <Select
                                 labelId="master-program-doers"
-                                // sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
-                                input={<OutlinedInput label="Name" />}
+                                input={<OutlinedInput label="Оператор" />}
                                 onChange={hadleSelectDoer}
-                                //value={currentDoer.id}
-                                value={currentUserId}
+                                value={selectedOperatorId}
                                 displayEmpty={true}
                             >
                                 {doers.map((doer) => (
@@ -169,7 +188,7 @@ const Operator = () => {
                 )}
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
+                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }} />
                     </div>
                 )}
             </Box>
