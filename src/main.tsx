@@ -13,7 +13,6 @@ import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Login from "./pages/Login/Login";
 import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
-import TestLayout from "./pages/TestLayout/TestLayout.tsx";
 import Operator from "./pages/Operator/Operator.tsx";
 import OperatorParts from "./pages/Operator/OperatorParts.tsx";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
@@ -71,7 +70,6 @@ const router = createBrowserRouter(
             path: "/",
             element: <Navbar />,
             children: [
-                { path: "/test", element: <TestLayout /> },
                 {
                     path: "/",
                     element: (

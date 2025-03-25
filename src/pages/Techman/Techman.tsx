@@ -311,7 +311,7 @@ const Techman = () => {
                                 <InputLabel>Пользователь</InputLabel>
                                 <Select
                                     value={filterValue["UserName"]}
-                                    label="Filter"
+                                    label="Пользователь"
                                     onChange={(e) => handleFilterChange(e, "UserName")}
                                 >
                                     {userOptions.current["UserName"].map((item) => (

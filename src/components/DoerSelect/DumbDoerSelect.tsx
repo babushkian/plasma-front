@@ -35,11 +35,11 @@ const DumbDoerSelect = memo(
         // а так же загрузка в селект уже имеющихся выбранных опций
         return (
             <FormControl sx={{ m: 1, width: 265 }}>
-                <InputLabel id="master-program-doers">Name</InputLabel>
+                <InputLabel id="master-program-doers">операторы</InputLabel>
                 <Select
                     labelId="master-program-doers"
                     // sx={{ m: 1, minWidth: 200, height: 36, fontSize: 14 }}
-                    input={<OutlinedInput label="Name" />}
+                    input={<OutlinedInput label="операторы" />}
                     multiple
                     onChange={hadleSelectDoer}
                     value={selectValue}
@@ -63,27 +63,7 @@ const DumbDoerSelect = memo(
             </FormControl>
         );
     },
-    // (prevProps, nextProps) => {
-    //     let same = true;
-    //     if (prevProps.selectValue !== nextProps.selectValue) {
-    //         same = false;
-    //         console.log("selectValue разные")
-    //     }
-    //     if (prevProps.doers !== nextProps.doers) {
-    //         same = false;
-    //         console.log("doers разные")
-    //     }
-    //     if (prevProps.rowId!== nextProps.rowId) {
-    //         same = false;
-    //         console.log("rowId разные")
-    //     }
-    //     if (prevProps.assignHandler!== nextProps.assignHandler) {
-    //         same = false;
-    //         console.log("assignHandler разные")
-    //     }
 
-    //     return same
-    // }
 );
 
 export default DumbDoerSelect;

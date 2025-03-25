@@ -60,12 +60,10 @@ export const DateDiapazon = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
                 <Grid2 container spacing={2} justifyContent="center">
                     <Grid2>
-                        <Typography align="center">Начальная дата</Typography>
-                        <DatePicker value={startDate} maxDate={endDate} onChange={handleStartDate} />
+                        <DatePicker label="Начальная дата" value={startDate} maxDate={endDate} onChange={handleStartDate} />
                     </Grid2>
                     <Grid2>
-                        <Typography align="center">Конечная дата</Typography>
-                        <DatePicker value={endDate} minDate={startDate} onChange={handleEndDate}/>
+                        <DatePicker  label="Конечная дата" value={endDate} minDate={startDate} onChange={handleEndDate}/>
                     </Grid2>
                 </Grid2>
             </LocalizationProvider>
