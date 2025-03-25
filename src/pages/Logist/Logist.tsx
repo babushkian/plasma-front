@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
@@ -14,13 +14,13 @@ const Logist = () => {
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-
+    const headers = useRef<Record<string, string>>({})
     const columnFields: (keyof ProgramAndFioType)[] = ["id", "ProgramName", "dimensions", "program_status"];
     
     const columns: GridColDef[] = columnFields.map((columnname) => {
         let colTemplate: GridColDef = {
             field: columnname,
-            headerName: columnname,
+            headerName: headers.current[columnname],
             flex: 1,
         };
         if (columnname === "ProgramName") {
@@ -40,17 +40,17 @@ const Logist = () => {
     const loader = async () => {
         setShowTable(false);
         const responseData = await logistGetPrograms();
-
+        
         if (responseData !== undefined) {
             // делаем словарь, где ключи - идентификаторы исполнителей, а значения - имена исполнителей
-
-            const fioData = responseData.map((item) => {
+            const fioData = responseData.data.map((item) => {
                 const dimensions = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
                     item.Thickness
                 }`;
 
                 return { ...item, dimensions };
             });
+            headers.current = responseData.headers
             setData(fioData);
             setLoadError(false);
             setShowTable(true);

@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
             <LogoutButton />
         </>
     );
-    const authIidget = !currentUser ? pathname === "/login" ? <></> : login : logout;
+    const authWidget = !currentUser ? pathname === "/login" ? <></> : login : logout;
 
     return (
         <>
@@ -35,7 +35,7 @@ const Navbar: React.FC = () => {
                 <ul className={styles.navbar}>
 
 
-                    {/* {currentUser && getUserEndpoints(currentUser).map((item) => (
+                    {getUserEndpoints(currentUser).map((item) => (
                         <li key={item.name}>
                             <NavLink
                                 className={({ isActive }) => {
@@ -46,51 +46,9 @@ const Navbar: React.FC = () => {
                                 {item.name}
                             </NavLink>
                         </li>
-                    ))} */}
+                    ))}
 
-
-                    <li>
-                        <NavLink
-                            className={({ isActive }) => {
-                                return [styles.navlink, isActive ? styles.active : ""].join(" ");
-                            }}
-                            to="/"
-                        >
-                            Технолог
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink
-                            className={({ isActive }) => {
-                                return [styles.navlink, isActive ? styles.active : ""].join(" ");
-                            }}
-                            to="/master"
-                        >
-                            Мастер
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink
-                            className={({ isActive }) => {
-                                return [styles.navlink, isActive ? styles.active : ""].join(" ");
-                            }}
-                            to="/operator"
-                        >
-                            Оператор
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink
-                            className={({ isActive }) => {
-                                return [styles.navlink, isActive ? styles.active : ""].join(" ");
-                            }}
-                            to="/logist"
-                        >
-                            Логист
-                        </NavLink>
-                    </li>
-
-                    <li>{authIidget}</li>
+                    <li>{authWidget}</li>
 
                     {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>

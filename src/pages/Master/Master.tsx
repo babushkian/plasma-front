@@ -6,7 +6,8 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
-import { DoerType, ProgramExtendedType, ResponseType, changeFieldType } from "./Master.types";
+import { DoerType, ProgramExtendedType, changeFieldType } from "./Master.types";
+import { MasterResponseType } from "../../utils/requests.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
 
@@ -18,6 +19,7 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "ProgramName",
     "program_status",
     "dimensions",
+    "Material", 
     "program_priority",
     "doerIds",
 ];
@@ -25,10 +27,14 @@ const columnFields: (keyof ProgramExtendedType)[] = [
 const Master = () => {
     const columns = useRef<GridColDef[]>([]); // стабильная переменная, чтобы хоанить описание столбцов
     //данные пришедшие с свервера и неподготовленные для отображения в таблице
-    const [data, setData] = useState<ResponseType>();
+    const [data, setData] = useState<MasterResponseType>();
     const [programsData, setProgramsData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
+    
+    // объкт русификации заголовков  таблицы
+    const headers = useRef({})
+    
 
     // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
     // актуальное состояние assignedProgramsRef.current , а не замороженное из-за замыкания assignedPrograms
@@ -44,7 +50,7 @@ const Master = () => {
      */
     const loadData = async () => {
         const rawData = await getProgramsAndDoers();
-        if (rawData?.programs) {
+        if (rawData?.data) {
             setData(rawData);
         }
     };
@@ -60,9 +66,9 @@ const Master = () => {
      * необходимые колонки берет из columnFields
      * */
     useEffect(() => {
-        if (data?.programs !== undefined) {
+        if (data?.data !== undefined) {
             setProgramsData(
-                data.programs.map((item) => {
+                data.data.map((item) => {
                     const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
                         acc[field] = item[field];
                         return acc;
@@ -78,6 +84,7 @@ const Master = () => {
             );
 
             doers.current = [...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
+            headers.current = data.headers
         }
     }, [data]);
 
@@ -110,11 +117,11 @@ const Master = () => {
      * Если функция не обновится, то она будет обрабатывать ланне на момент создания колбэка,
      * так что надо быть аккуратнее.
      */
-    const createColumns = useCallback(() => {
+    const createColumns = useCallback(() => {        
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let colTemplate: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers.current[columnname],
                 flex: 1,
             };
             if (columnname === "ProgramName") {
@@ -157,13 +164,11 @@ const Master = () => {
         });
 
         return clmns;
-    }, [handleSelect]);
+    }, [handleSelect, headers]);
 
     useEffect(() => {
-        if (columns.current.length === 0) {
-            columns.current = createColumns();
-        }
-    }, [programsData, createColumns]);
+        columns.current = createColumns();
+    }, [programsData, createColumns, headers]);
 
     const handleAssignPrograms = async () => {
         if (programsData !== null) {

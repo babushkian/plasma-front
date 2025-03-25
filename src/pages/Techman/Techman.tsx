@@ -73,9 +73,10 @@ const Techman = () => {
     // пользователи, хранимые в выпадающем списке для фильтрации
     const userOptions = useRef<selecOptionsType>(undefined);
     // список значений выставленных в выпадающих фильтрах, по которым фильтруется таблица
-
     const [filterValue, setFilterValue] = useState<Partial<Record<ProgNameKeysType, string>>>({});
     const [noData, setNoData] = useState(false);
+    // объкт русификации заголовков  таблицы
+    const headers = useRef({})
 
     const createColumns = () => {
         const colBuild: GridColDef[] = Object.entries(columnDict).map(([columnname, type]) => {
@@ -83,7 +84,7 @@ const Techman = () => {
             const colName = columnname as keyof typeof columnDict;
             let colDef: GridColDef = {
                 field: colName,
-                headerName: colName,
+                headerName: headers.current[colName],
                 flex: 1,
                 type: type as GridColType,
             };
@@ -161,7 +162,9 @@ const Techman = () => {
         }
         return [];
     };
+    
     const navigate = useNavigate()
+
     /*загружаем даные о програмах с сервера*/
     const loadData = async () => {
         setShowTable(false);
@@ -171,7 +174,8 @@ const Techman = () => {
             const data = await getNewPrograms({ start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),   end_date: dateDiapazon.endDate.format("YYYY-MM-DD")})
             console.log("может ошибка?", data)
             if (data) {
-                setRawData(data);
+                setRawData(data.data);
+                headers.current = data.headers
                 console.log("данные с сревера:", data);
                 setLoaded(true);
             }

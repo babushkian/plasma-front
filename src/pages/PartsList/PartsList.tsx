@@ -35,13 +35,15 @@ const PartsList = () => {
     const [showTable, setShowTable] = useState(false);
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
+    const headers = useRef({})
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            setData(response);
+            setData(response.data);
+            headers.current = response.headers
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -61,7 +63,7 @@ const PartsList = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const col: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers.current[columnname],
                 flex: 1,
             };
             return col;

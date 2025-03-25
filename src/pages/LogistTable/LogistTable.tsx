@@ -38,13 +38,16 @@ const LogistTable = () => {
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+    const headers = useRef<Record<string, string>>({})
+
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            setData(response);
+            setData(response.headers);
+            headers.current = response.headers
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -74,7 +77,7 @@ const LogistTable = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const col: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers.current[columnname],
                 flex: 1,
             };
             return col;

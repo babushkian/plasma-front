@@ -1,6 +1,10 @@
-import { ICreateData, TechProgramType } from "../pages/Techman/Techman.types";
+import { ICreateData, TechResponseType } from "../pages/Techman/Techman.types";
+import { MasterResponseType } from "./requests.types";
+import { LogistResponseType } from "./requests.types";
+import { OperatorResponseType } from "./requests.types";
 
 import apiClient, {
+    URL_GET_PROGRAM_PARTS,
     URL_CREATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,
     MASTER_ASSIGN_PROGRAMS,
@@ -15,9 +19,10 @@ import apiClient, {
     URL_GET_PROGRAMS,
     USER_ME,
 } from "./urls";
-import { ProgramType, ResponseType } from "../pages/Master/Master.types";
+
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
+import {ResponsePartsType} from "./requests.types"
 import { AssignProgramRequestType } from "../pages/Master/Master.types";
 import { UserType } from "../pages/Login/Login.types";
 
@@ -25,14 +30,28 @@ import { UserType } from "../pages/Login/Login.types";
     export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
         console.log("Запрос программ и работников");
         try {
-            const { data } = await apiClient.get<TechProgramType[]>(URL_GET_PROGRAMS, {params:dates});
+            const { data } = await apiClient.get<TechResponseType>(URL_GET_PROGRAMS, {params:dates});
             return data;
         } catch (error) {
             if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
             return Promise.reject(error)
         }
     };
-    
+
+
+
+    // export const getProgramParts = async (dates:{start_date: string, end_date:string}) => {
+    //     console.log("Запрос программ и работников");
+    //     try {
+    //         const { data } = await apiClient.get<TechResponseType>(URL_GET_PROGRAMS, {params:dates});
+    //         return data;
+    //     } catch (error) {
+    //         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+    //         return Promise.reject(error)
+    //     }
+    // };
+
+
 
 
 /**
@@ -63,7 +82,7 @@ export const assignProgramsRequest = async (params: AssignProgramRequestType[]) 
 export const getProgramsAndDoers = async () => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<ResponseType>(MASTER_GET_PROGRAMS_AND_DOERS);
+        const { data } = await apiClient.get<MasterResponseType>(MASTER_GET_PROGRAMS_AND_DOERS);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для распределения:", error);
@@ -72,7 +91,7 @@ export const getProgramsAndDoers = async () => {
 
 export const getDoers = async () => {
     try {
-        const { data } = await apiClient.get<ResponseType>(MASTER_GET_DOERS);
+        const { data } = await apiClient.get<MasterResponseType>(MASTER_GET_DOERS);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
@@ -81,7 +100,7 @@ export const getDoers = async () => {
 
 export const logistGetPrograms = async () => {
     try {
-        const { data } = await apiClient.get<ProgramType[]>(LOGIST_GET_PROGRAMS);
+        const { data } = await apiClient.get<LogistResponseType>(LOGIST_GET_PROGRAMS);
         return data;
     } catch (error) {
         console.error("Error fetching protected data:", error);
@@ -89,12 +108,9 @@ export const logistGetPrograms = async () => {
     }
 };
 
-export const masterGetDetailsByProgramId: (
-    program_id: number,
-    doer_id?: number
-) => Promise<MasterProgramPartsRecordType[] | undefined> = async (program_id: number, fio_doer_id?: number) => {
+export const masterGetDetailsByProgramId = async (program_id: number, fio_doer_id?: number) => {
     try {
-        const { data } = await apiClient.get<MasterProgramPartsRecordType[]>(MASTER_GET_PARTS_BY_PROGRAM_ID, {
+        const { data } = await apiClient.get<ResponsePartsType>(MASTER_GET_PARTS_BY_PROGRAM_ID, {
             params: { program_id, fio_doer_id },
         });
         //console.log(data);
@@ -134,7 +150,7 @@ export const getPartsByStatuses = async () => {
 
 export const getMyPrograms = async (fio_id: number) => {
     try {
-        const { data } = await apiClient.get<ProgramType[]>(OPERATOR_GET_MY_PROGRAMS, {
+        const { data } = await apiClient.get<OperatorResponseType>(OPERATOR_GET_MY_PROGRAMS, {
             params: { fio_id },
         });
         return data;

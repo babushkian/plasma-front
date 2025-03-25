@@ -35,6 +35,7 @@ const Operator = () => {
     const [usersLoaded, setUsersLoaded] = useState(false);
     const [rawPrograms, setRawPrograms] = useState<ProgramType[] | null>(null);
     const [showTable, setShowTable] = useState(false);
+    const headers = useRef<Record<string, string>>({})
 
     const load = async () => {
         const response = await getDoers();
@@ -59,7 +60,8 @@ const Operator = () => {
         const data = await getMyPrograms(fio_id);
         if (typeof data !== "undefined") {
             console.log(data);
-            setRawPrograms(data);
+            setRawPrograms(data.data);
+            headers.current = data.headers
         }
     };
 
@@ -67,7 +69,7 @@ const Operator = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers.current[columnname],
                 flex: 1,
             };
             if (columnname == "ProgramName") {

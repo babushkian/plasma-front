@@ -13,6 +13,8 @@ export type TechProgramType = {
     Material: string;
 };
 
+export type TechResponseType = {data: TechProgramType[], headers: Record<string, string>}
+
 export type ProcessedPrognameType = TechProgramType & { id: string; checked: boolean };
 
 export type DateDiapazonType = {

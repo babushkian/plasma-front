@@ -45,6 +45,7 @@ const OperatorParts = () => {
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+    const headers = useRef<Record<string, string>>({})
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -54,8 +55,6 @@ const OperatorParts = () => {
         const responseDoers = await getDoers();
         let doersProcessed: DoersRecord;
         if (responseDoers) {
-            console.log("ответ сервера", responseDoers);
-
             doersProcessed = responseDoers.reduce((acc, item) => {
                 acc[item.id] = item;
                 return acc;
@@ -64,7 +63,7 @@ const OperatorParts = () => {
         setDoers(doersProcessed)
         const response = await masterGetDetailsByProgramId(state.program.id, currentUserId);
         if (response !== undefined && responseDoers !== undefined) {
-            const procesedResponse = response.map((item) => ({
+            const procesedResponse = response.data.map((item) => ({
                 ...item,
                 checkBox: {
                     checked: Boolean(item.done_by_fio_doer_id),
@@ -75,6 +74,7 @@ const OperatorParts = () => {
                     : "",
             }));
             setData(procesedResponse);
+            headers.current = response.headers
         } else {
             setLoadError(true);
         }
@@ -104,7 +104,7 @@ const OperatorParts = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const col: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers.current[columnname],
                 flex: 1,
             };
             return col;

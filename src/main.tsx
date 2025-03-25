@@ -23,6 +23,7 @@ import { BASE_URL, URL_GET_PROGRAM_PARTS } from "./utils/urls";
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from '@mui/material/CssBaseline';
 //локализация
 import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
@@ -30,8 +31,30 @@ import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
 import PartsList from "./pages/PartsList/PartsList.tsx";
 import Master from "./pages/Master/Master.tsx";
 import MasterContext from "./context.tsx";
-const theme = createTheme(
-    {},
+
+
+
+// const theme = createTheme({
+//     palette: {
+//         primary: {
+//             main: "#1976d2", // Основной цвет для primary
+//         },
+//         secondary: {
+//             main: "#dc004e", // Основной цвет для secondary
+//         },
+//         background: {
+//             default: "#1e1a15",
+//             paper: "#836c6c",
+//         },
+//         text: {
+//             primary: 'rgba(255,255,255,0.87)',
+//             secondary: 'rgba(218,211,208,0.6)',
+//           },
+
+//     },
+// });
+
+const theme = createTheme( {},
     ruRU, // x-data-grid translations
     coreruRU, // core translations
     dateruRU // date-pickers
@@ -110,6 +133,7 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>
             <ThemeProvider theme={theme}>
+            <CssBaseline />
                 <MasterContext>
                     <RouterProvider router={router} future={{ v7_startTransition: true }} />
                 </MasterContext>
