@@ -29,6 +29,8 @@ export const OPERATOR_SET_MY_PARTS = "operator/this_is_my_parts";
 export const LOGIST_GET_PROGRAMS = "logist/get_programs_for_calculation";
 export const LOGIST_CALCULATE_PARTS = "logist/calculate_parts";
 
+export const REPORT_PARTS_FULL = "reports/parts_full";
+
 const apiClient = axios.create({
     baseURL: BASE_URL,
 });

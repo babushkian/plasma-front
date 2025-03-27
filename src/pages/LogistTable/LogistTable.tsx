@@ -11,6 +11,7 @@ import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/r
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
 import QtyInput from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
+import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
@@ -140,13 +141,6 @@ const LogistTable = () => {
         loader();
     };
 
-    const initialState = {
-        columns: {
-            columnVisibilityModel: {
-                id: false,
-            },
-        },
-    };
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -165,7 +159,7 @@ const LogistTable = () => {
                                 rows={data}
                                 columns={columns.current}
                                 slots={{ toolbar: CustomToolbar }}
-                                initialState={initialState}
+                                initialState={hiddenIdColumn}
                             />
                         </div>
                     </>

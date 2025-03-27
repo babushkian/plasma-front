@@ -26,20 +26,21 @@ export const endpoints: Record<string, EndpointData> = {
     OPERATOR: { endpoint: "/operator", name: "Оператор" },
     LOGIST: { endpoint: "/logist", name: "Логист" },
     LOGIN: { endpoint: "/login", name: "Логин" },
+    MAIN_REPORT:{endpoint: "/report", name: "Отчет" }
 };
 
 export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
-    USER: [endpoints.TECHMAN],
-    ADMIN: [endpoints.TECHMAN, endpoints.MASTER, endpoints.OPERATOR, endpoints.LOGIST],
-    TECHMAN: [endpoints.TECHMAN],
-    MASTER: [endpoints.MASTER, endpoints.OPERATOR],
-    OPERATOR: [endpoints.OPERATOR],
-    LOGIST: [endpoints.LOGIST],
+    USER: [endpoints.MAIN_REPORT],
+    ADMIN: [endpoints.TECHMAN, endpoints.MASTER, endpoints.OPERATOR, endpoints.LOGIST, endpoints.MAIN_REPORT],
+    TECHMAN: [endpoints.TECHMAN, endpoints.MAIN_REPORT],
+    MASTER: [endpoints.MASTER, endpoints.OPERATOR, endpoints.MAIN_REPORT],
+    OPERATOR: [endpoints.OPERATOR, endpoints.MAIN_REPORT],
+    LOGIST: [endpoints.LOGIST, endpoints.MAIN_REPORT],
 };
 
 export const getUserEndpoints = (user: UserType | undefined) => {
     if (user) return allowedEndpoints[roles[user.role]];
-    return [endpoints.LOGIN];
+    return [endpoints.MAIN_REPORT];
 };
 
 export const getDefaultPage = (user: UserType | undefined) => {

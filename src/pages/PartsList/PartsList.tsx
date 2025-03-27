@@ -1,14 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
+import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
@@ -24,16 +25,16 @@ type factQtyRecordType = Record<number, factQtyType>;
 // ];
 
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
-"PartName",
-"WONumber",
-"WOData1",
-"QtyInProcess",
-"qty_fact",
-"PartLength",
-"PartWidth",
-"Thickness",
-"fio_doers",
-]
+    "PartName",
+    "WONumber",
+    "WOData1",
+    "QtyInProcess",
+    "qty_fact",
+    "PartLength",
+    "PartWidth",
+    "Thickness",
+    "fio_doers",
+];
 
 const PartsList = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -47,7 +48,7 @@ const PartsList = () => {
     const [showTable, setShowTable] = useState(false);
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
-    const headers = useRef({})
+    const headers = useRef({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -55,7 +56,7 @@ const PartsList = () => {
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
             setData(response.data);
-            headers.current = response.headers
+            headers.current = response.headers;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -85,7 +86,7 @@ const PartsList = () => {
                         if (Array.isArray(value)) {
                             return value.map((item) => item.fio_doer).join(", ");
                         }
-                        return value.fio_doer
+                        return value.fio_doer;
                     },
                 };
             }
@@ -100,7 +101,6 @@ const PartsList = () => {
         columns.current = createColumns();
     }, [data, createColumns]);
 
-    
     const setQty: (programId: number, qty: number) => void = (programId, qty) => {
         console.log("весь фрейм:", data);
         console.log("пераметры: ", programId, qty);
@@ -115,7 +115,6 @@ const PartsList = () => {
         }
     };
 
-
     const sendQty: () => Promise<void> = async () => {
         if (Object.keys(factQty).length === 0) {
             return;
@@ -128,12 +127,11 @@ const PartsList = () => {
         loader();
     };
 
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                   Информация о деталях программы № {state.ProgramName} на странице логиста
+                    Информация о деталях программы № {state.ProgramName} на странице логиста
                 </Typography>
 
                 {loadError && <div>Ошибка загрузки</div>}
@@ -143,7 +141,12 @@ const PartsList = () => {
                             Применить фактическое количество деталей
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
+                            <DataGrid
+                                rows={data}
+                                columns={columns.current}
+                                slots={{ toolbar: CustomToolbar }}
+                                initialState={hiddenIdColumn}
+                            />
                         </div>
                     </>
                 )}

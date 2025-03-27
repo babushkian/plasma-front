@@ -8,6 +8,7 @@ import { ProgramExtendedType } from "../Master/Master.types";
 import { getProgramParts } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
+import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 const columnFields: string[] = [
     "PartName",
@@ -103,6 +104,7 @@ const PlasmaParts = () => {
                             columns={columns.current}
                             getRowId={(row) => row.PK_PIP}
                             slots={{ toolbar: CustomToolbar }}
+                            initialState={hiddenIdColumn}
                         />
                     </div>
                 )}

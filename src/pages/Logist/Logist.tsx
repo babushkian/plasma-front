@@ -6,6 +6,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
+import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -22,8 +23,8 @@ const Logist = () => {
         "program_priority",
         "ProgramName",
         "program_status",
-        // "WONumber",
-        // "WOData1",
+        "WONumber",
+        "WOData1",
         "Thickness",
         "SheetWidth",
         "SheetLength",
@@ -76,13 +77,6 @@ const Logist = () => {
         loader();
     }, []);
 
-    const initialState = {
-        columns: {
-            columnVisibilityModel: {
-                id: false,
-            },
-        },
-    };
 
     return (
         <>
@@ -97,7 +91,7 @@ const Logist = () => {
                             rows={data}
                             columns={columns}
                             slots={{ toolbar: CustomToolbar }}
-                            initialState={initialState}
+                            initialState={hiddenIdColumn}
                         />
                     </div>
                 )}

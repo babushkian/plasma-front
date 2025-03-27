@@ -18,6 +18,7 @@ import apiClient, {
     OPERATOR_SET_MY_PARTS,
     URL_GET_PROGRAMS,
     USER_ME,
+    REPORT_PARTS_FULL,
 } from "./urls";
 
 
@@ -27,30 +28,38 @@ import { AssignProgramRequestType, DoerType } from "../pages/Master/Master.types
 import { UserType } from "../pages/Login/Login.types";
 
 
-    export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
-        console.log("Запрос программ и работников");
-        try {
-            const { data } = await apiClient.get<TechResponseType>(URL_GET_PROGRAMS, {params:dates});
-            return data;
-        } catch (error) {
-            if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
-            return Promise.reject(error)
-        }
-    };
+/**
+ * Получаем программы из плазмы за определенный период
+ * @param dates 
+ * @returns 
+ */
+export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
+    console.log("Запрос программ и работников");
+    try {
+        const { data } = await apiClient.get<TechResponseType>(URL_GET_PROGRAMS, {params:dates});
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+        return Promise.reject(error)
+    }
+};
 
 
-
-    export const getProgramParts = async (programName:string) => {
-        console.log("Запрос программ и работников");
-        try {
-            const { data } = await apiClient.get<TechResponseType>(`${URL_GET_PROGRAM_PARTS}/${programName}`);
-            return data;
-        } catch (error) {
-            if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
-            return Promise.reject(error)
-        }
-    };
-
+/**
+ * Получаем детали конкретной програмы из плазмы
+ * @param programName 
+ * @returns 
+ */
+export const getProgramParts = async (programName:string) => {
+    console.log("Запрос программ и работников");
+    try {
+        const { data } = await apiClient.get<TechResponseType>(`${URL_GET_PROGRAM_PARTS}/${programName}`);
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+        return Promise.reject(error)
+    }
+};
 
 
 
@@ -205,3 +214,20 @@ export const logout =  async () => {
     }
 
 }
+
+
+/**
+ * Получаем данные для отчета за определенный период
+ * @param dates 
+ * @returns 
+ */
+export const getReportData = async (dates:{start_date: string, end_date:string}) => {
+    
+    try {
+        const {data} = await apiClient.get<ResponsePartsType>(REPORT_PARTS_FULL, {params:dates});
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+        return Promise.reject(error)
+    }
+};

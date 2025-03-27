@@ -29,6 +29,7 @@ import PartsList from "./pages/PartsList/PartsList.tsx";
 import Master from "./pages/Master/Master.tsx";
 import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
+import MainReport from "./pages/MainReport/MainReport.tsx";
 
 
 
@@ -117,6 +118,7 @@ const router = createBrowserRouter(
                 { path: "/operator/:programName", element: <OperatorParts /> },
                 { path: "/parts/:programName", element: <PartsList />, errorElement: <ErrorPage /> },
                 { path: "/plasmaparts/:programName", element: <PlasmaParts />, errorElement: <ErrorPage /> },
+                { path: "/report", element: <MainReport />, errorElement: <ErrorPage /> },
             ],
         },
     ],
