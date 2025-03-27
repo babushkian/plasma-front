@@ -32,8 +32,8 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "program_priority",
     "doerIds",
     "program_status",
-    // "WONumber",
-    // "WOData1",
+    "wo_numbers",
+    "wo_data1",
     "Thickness",
     "SheetWidth",
     "SheetLength",
@@ -138,6 +138,14 @@ const Master = () => {
                 headerName: headers.current[columnname],
                 flex: 1,
             };
+            
+            if (["wo_numbers", "wo_data1"].includes(columnname) ) {
+                colTemplate = {
+                    ...colTemplate,
+                    valueGetter: (value)=> value.join(", ")
+                };    
+            }                    
+
             if (columnname === "ProgramName") {
                 colTemplate = {
                     ...colTemplate,

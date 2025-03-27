@@ -227,6 +227,7 @@ const OperatorParts = () => {
                                 columns={columns.current}
                                 slots={{ toolbar: CustomToolbar }}
                                 initialState={hiddenIdColumn}
+                                getRowHeight={() => "auto"}
                             />
                         </div>
                     </>

@@ -22,18 +22,17 @@ import { OperatorSelectContext, UserContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 
 //const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
-const columnFields =[
-"program_priority",
-"ProgramName",
-"program_status",
-// "WONumber",
-// "WOData1",
-"fio_doer",
-"Thickness",
-"SheetWidth",
-"SheetLength",
-]
-
+const columnFields = [
+    "program_priority",
+    "ProgramName",
+    "program_status",
+    // "wo_numbers",
+    // "wo_data1",
+    "fio_doer",
+    "Thickness",
+    "SheetWidth",
+    "SheetLength",
+];
 
 const Operator = () => {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -108,13 +107,19 @@ const Operator = () => {
                     ),
                 };
             }
+            if (["wo_numbers", "wo_data1"].includes(columnname)) {
+                colTemplate = {
+                    ...colTemplate,
+                    valueGetter: (value) => value.join(", "),
+                };
+            }
             if (columnname == "fio_doer") {
                 col = {
                     ...col,
-                    valueGetter: (value) => value.fio_doer 
-                }
+                    valueGetter: (value) => value.fio_doer,
+                };
             }
-            
+
             return col;
         });
         clmns.push({
@@ -175,7 +180,6 @@ const Operator = () => {
         if (!doers.find((item) => item.user_id === currentUser.id)) setSelectedOperatorId(selectedDoer.id);
     };
 
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -202,7 +206,13 @@ const Operator = () => {
                 )}
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }} initialState={hiddenIdColumn} />
+                        <DataGrid
+                            rows={rawPrograms}
+                            columns={columns.current}
+                            slots={{ toolbar: CustomToolbar }}
+                            initialState={hiddenIdColumn}
+                            getRowHeight={() => "auto"}
+                        />
                     </div>
                 )}
             </Box>

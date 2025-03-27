@@ -23,8 +23,8 @@ const Logist = () => {
         "program_priority",
         "ProgramName",
         "program_status",
-        "WONumber",
-        "WOData1",
+        "wo_numbers",
+        "wo_data1",    
         "Thickness",
         "SheetWidth",
         "SheetLength",
@@ -47,7 +47,12 @@ const Logist = () => {
                 ),
             };
         }
-
+        if (["wo_numbers", "wo_data1"].includes(columnname) ) {
+            colTemplate = {
+                ...colTemplate,
+                valueGetter: (value)=> value.join(", ")
+            };    
+        }
         return colTemplate;
     });
 
@@ -92,6 +97,7 @@ const Logist = () => {
                             columns={columns}
                             slots={{ toolbar: CustomToolbar }}
                             initialState={hiddenIdColumn}
+                            getRowHeight={() => "auto"}
                         />
                     </div>
                 )}

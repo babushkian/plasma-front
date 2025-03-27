@@ -105,6 +105,7 @@ const PlasmaParts = () => {
                             getRowId={(row) => row.PK_PIP}
                             slots={{ toolbar: CustomToolbar }}
                             initialState={hiddenIdColumn}
+                            getRowHeight={() => "auto"}
                         />
                     </div>
                 )}
