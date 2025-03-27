@@ -21,7 +21,7 @@ const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
     return (
         <>
            
-            <TextField size="small" sx={{margin:1}} label="Количество" value={qty} onChange={hadleSetQty}/>
+            <TextField size="small" sx={{margin:1}} value={qty} onChange={hadleSetQty}/>
         </>
     );
 };

@@ -19,8 +19,21 @@ import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests";
 import { DoerType, ProgramType } from "../Master/Master.types";
 import { OperatorSelectContext, UserContext } from "../../context.tsx";
+import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 
-const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
+//const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
+const columnFields =[
+"program_priority",
+"ProgramName",
+"program_status",
+// "WONumber",
+// "WOData1",
+"fio_doer",
+"Thickness",
+"SheetWidth",
+"SheetLength",
+]
+
 
 const Operator = () => {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -55,14 +68,6 @@ const Operator = () => {
             setOperatorsLoaded(true);
         }
     };
-
-    // // если идентификатор пользователя присутствует среди операторов, то сразу выбирается текущий оператор
-    // useEffect(() => {
-    //     const currentDoer = doers.find((item) => item.user_id === currentUser.id);
-    //     if (currentDoer) {
-    //         setSelectedOperatorId(currentDoer?.id);
-    //     }
-    // }, [currentUser.id, doers, setSelectedOperatorId, selectedOperatorId]);
 
     useEffect(() => {
         load();
@@ -103,12 +108,20 @@ const Operator = () => {
                     ),
                 };
             }
+            if (columnname == "fio_doer") {
+                col = {
+                    ...col,
+                    valueGetter: (value) => value.fio_doer 
+                }
+            }
+            
             return col;
         });
         clmns.push({
             field: "action",
             headerName: "action",
-            flex: 0.5,
+            flex: 0,
+            width: 180,
             renderCell: (params) => {
                 switch (params.row.program_status) {
                     case "распределена":
@@ -162,6 +175,7 @@ const Operator = () => {
         if (!doers.find((item) => item.user_id === currentUser.id)) setSelectedOperatorId(selectedDoer.id);
     };
 
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -188,7 +202,7 @@ const Operator = () => {
                 )}
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }} />
+                        <DataGrid rows={rawPrograms} columns={columns.current} slots={{ toolbar: CustomToolbar }} initialState={hiddenIdColumn} />
                     </div>
                 )}
             </Box>

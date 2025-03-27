@@ -14,14 +14,26 @@ type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
 // столбцы, отображаемые в таблице
+// const columnFields: (keyof MasterProgramPartsRecordType)[] = [
+//     "id",
+//     "ProgramName",
+//     "program_status",
+//     "QtyInProcess",
+//     "qty_fact",
+//     "WONumber",
+// ];
+
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
-    "id",
-    "ProgramName",
-    "program_status",
-    "QtyInProcess",
-    "qty_fact",
-    "WONumber",
-];
+"PartName",
+"WONumber",
+"WOData1",
+"QtyInProcess",
+"qty_fact",
+"PartLength",
+"PartWidth",
+"Thickness",
+"fio_doers",
+]
 
 const PartsList = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -61,11 +73,23 @@ const PartsList = () => {
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
-            const col: GridColDef = {
+            let col: GridColDef = {
                 field: columnname,
                 headerName: headers.current[columnname],
                 flex: 1,
             };
+            if (columnname == "fio_doers") {
+                col = {
+                    ...col,
+                    valueGetter: (value) => {
+                        if (Array.isArray(value)) {
+                            return value.map((item) => item.fio_doer).join(", ");
+                        }
+                        return value.fio_doer
+                    },
+                };
+            }
+
             return col;
         });
 

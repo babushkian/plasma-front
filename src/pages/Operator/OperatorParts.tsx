@@ -3,12 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { OperatorSelectContext } from "../../context.tsx";
+import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 
 type DoersRecord = Record<number, DoerType>;
 
@@ -17,27 +18,38 @@ type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
 } & { done_by_fio: string };
 
 // столбцы, отображаемые в таблице
+// const columnFields: (keyof ProgramPartsProcessedType)[] = [
+//     "id",
+//     "ProgramName",
+//     "program_status",
+//     "part_status",
+//     "QtyInProcess",
+//     "WONumber",
+//     "done_by_fio",
+// ];
 const columnFields: (keyof ProgramPartsProcessedType)[] = [
-    "id",
-    "ProgramName",
-    "program_status",
-    "part_status",
-    "QtyInProcess",
+    "PartName",
     "WONumber",
+    "WOData1",
+    "QtyInProcess",
+    "qty_fact",
+    "PartLength",
+    "PartWidth",
+    "Thickness",
+    "fio_doers",
     "done_by_fio",
 ];
-
 const OperatorParts = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: { program: ProgramExtendedType} } = useLocation();
+    const { state }: { state: { program: ProgramExtendedType } } = useLocation();
 
     const operatorIdContext = useContext(OperatorSelectContext);
     if (!operatorIdContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }
-    const { selectedOperatorId: currentUserId } = operatorIdContext;
-    const currentUserName = useRef<string>("")
+    const { selectedOperatorId } = operatorIdContext;
+    const currentUserName = useRef<string>("");
     const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramPartsProcessedType[]>([]);
@@ -45,7 +57,7 @@ const OperatorParts = () => {
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<string, string>>({})
+    const headers = useRef<Record<string, string>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -60,21 +72,23 @@ const OperatorParts = () => {
                 return acc;
             }, {});
         }
-        setDoers(doersProcessed)
-        const response = await masterGetDetailsByProgramId(state.program.id, currentUserId);
+        setDoers(doersProcessed);
+        const response = await masterGetDetailsByProgramId(state.program.id, selectedOperatorId);
         if (response !== undefined && responseDoers !== undefined) {
             const procesedResponse = response.data.map((item) => ({
                 ...item,
                 checkBox: {
                     checked: Boolean(item.done_by_fio_doer_id),
-                    disabled: item.done_by_fio_doer_id && currentUserId !== item.done_by_fio_doer_id ? true : false,
+                    disabled: false
+                        //item.done_by_fio_doer_id && selectedOperatorId !== item.done_by_fio_doer_id ? true : false,
                 },
                 done_by_fio: doersProcessed[item.done_by_fio_doer_id]
                     ? doersProcessed[item.done_by_fio_doer_id].fio_doer
                     : "",
             }));
             setData(procesedResponse);
-            headers.current = response.headers
+            headers.current = {...response.headers, done_by_fio:"Сделал"};
+            
         } else {
             setLoadError(true);
         }
@@ -86,27 +100,40 @@ const OperatorParts = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const getCurrentUserName = useCallback((currentUserId: number, doers:DoersRecord) => {
+    const getCurrentUserName = useCallback((currentUserId: number, doers: DoersRecord) => {
         if (Object.keys(doers).length) {
-            console.log("список операторов:", doers)
+            console.log("список операторов:", doers);
             return doers[currentUserId].fio_doer;
         }
         return "";
     }, []);
 
-    
-    useEffect(()=> {console.log("СПИСОК ПОЛЬЗОВАТЕЛЕЙ ИЗМЕНИЛСЯ!!!")
-        currentUserName.current = getCurrentUserName(currentUserId, doers)
-    }, [currentUserId, doers, getCurrentUserName])
-
+    useEffect(() => {
+        console.log("СПИСОК ПОЛЬЗОВАТЕЛЕЙ ИЗМЕНИЛСЯ!!!");
+        if (selectedOperatorId) {
+            currentUserName.current = getCurrentUserName(selectedOperatorId, doers);
+        }
+    }, [selectedOperatorId, doers, getCurrentUserName]);
 
     const createColumns = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
-            const col: GridColDef = {
+            let col: GridColDef = {
                 field: columnname,
                 headerName: headers.current[columnname],
                 flex: 1,
             };
+            if (columnname == "fio_doers") {
+                col = {
+                    ...col,
+                    valueGetter: (value) => {
+                        if (Array.isArray(value)) {
+                            return value.map((item) => item.fio_doer).join(", ");
+                        }
+                        return value.fio_doer
+                    },
+                };
+            }
+
             return col;
         });
 
@@ -171,7 +198,7 @@ const OperatorParts = () => {
         if (uniqueCheckedParts.length) {
             const props = {
                 program_id: state.program.id,
-                fio_doer_id: currentUserId,
+                fio_doer_id: selectedOperatorId,
                 parts_ids: uniqueCheckedParts,
             };
             OperatorSetMyPrograms(props);
@@ -195,7 +222,12 @@ const OperatorParts = () => {
                             Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
+                            <DataGrid
+                                rows={data}
+                                columns={columns.current}
+                                slots={{ toolbar: CustomToolbar }}
+                                initialState={hiddenIdColumn}
+                            />
                         </div>
                     </>
                 )}

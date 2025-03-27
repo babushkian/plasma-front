@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
@@ -11,18 +11,32 @@ import { DoerType, ProgramExtendedType, changeFieldType } from "./Master.types";
 import { MasterResponseType } from "../../utils/requests.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
+import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
+// const columnFields: (keyof ProgramExtendedType)[] = [
+//     "id",
+//     "ProgramName",
+//     "program_status",
+//     "dimensions",
+//     "Material",
+//     "program_priority",
+//     "doerIds",
+// ];
+
 const columnFields: (keyof ProgramExtendedType)[] = [
     "id",
     "ProgramName",
-    "program_status",
-    "dimensions",
-    "Material", 
     "program_priority",
     "doerIds",
+    "program_status",
+    // "WONumber",
+    // "WOData1",
+    "Thickness",
+    "SheetWidth",
+    "SheetLength",
 ];
 
 const Master = () => {
@@ -32,10 +46,9 @@ const Master = () => {
     const [programsData, setProgramsData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
-    
+
     // объкт русификации заголовков  таблицы
-    const headers = useRef({})
-    
+    const headers = useRef({});
 
     // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
     // актуальное состояние assignedProgramsRef.current , а не замороженное из-за замыкания assignedPrograms
@@ -85,7 +98,7 @@ const Master = () => {
             );
 
             doers.current = [...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
-            headers.current = data.headers
+            headers.current = data.headers;
         }
     }, [data]);
 
@@ -118,7 +131,7 @@ const Master = () => {
      * Если функция не обновится, то она будет обрабатывать ланне на момент создания колбэка,
      * так что надо быть аккуратнее.
      */
-    const createColumns = useCallback(() => {        
+    const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let colTemplate: GridColDef = {
                 field: columnname,
@@ -138,6 +151,8 @@ const Master = () => {
             if (columnname === "program_priority") {
                 colTemplate = {
                     ...colTemplate,
+                    width: 170,
+                    flex:0,
                     renderCell: (params) => (
                         <PrioritySelect
                             selectedValue={params.value}
@@ -151,6 +166,8 @@ const Master = () => {
             if (columnname === "doerIds") {
                 colTemplate = {
                     ...colTemplate,
+                    width: 330,
+                    flex:0,
                     renderCell: (params) => (
                         <DumbDoerSelect
                             selectValue={params.row.doerIds}
@@ -198,6 +215,8 @@ const Master = () => {
         }
     };
 
+
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -212,7 +231,13 @@ const Master = () => {
                 <Notification value={notification} setValue={setNotification} />
                 {programsData !== null && (
                     <div style={{ height: 700, width: "100%" }}>
-                        <DataGrid rows={programsData} columns={columns.current} getRowHeight={() => "auto"} slots={{ toolbar: CustomToolbar }} />
+                        <DataGrid
+                            rows={programsData}
+                            columns={columns.current}
+                            getRowHeight={() => "auto"}
+                            slots={{ toolbar: CustomToolbar }}
+                            initialState={hiddenIdColumn}
+                        />
                     </div>
                 )}
             </Box>
@@ -221,4 +246,3 @@ const Master = () => {
 };
 
 export default Master;
-

@@ -2,15 +2,24 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { ProgramExtendedType } from "../Master/Master.types";
 
 import { getProgramParts } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 
-
-
+const columnFields: string[] = [
+    "PartName",
+    "WONumber",
+    //"WOData1",
+    "QtyInProcess",
+    //"qty_fact",
+    "PartLength",
+    "PartWidth",
+    //"Thickness",
+    //"fio_doer",
+];
 
 const PlasmaParts = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -40,19 +49,38 @@ const PlasmaParts = () => {
     }, []);
 
     const createColumns = useCallback(() => {
-        console.log("перерисовка колонок", counter.current);
-        counter.current += 1;
-        const clmns: GridColDef[] = Object.keys(data[0]).map((columnname) => {
-            const col: GridColDef = {
+        // const clmns: GridColDef[] = Object.keys(data[0]).map((columnname) => {
+        //     const col: GridColDef = {
+        //         field: columnname,
+        //         headerName: columnname,
+        //         flex: 1,
+        //     };
+        //     return col;
+        // });
+        const clmns: GridColDef[] = columnFields.map((columnname) => {
+            let col: GridColDef = {
                 field: columnname,
                 headerName: columnname,
                 flex: 1,
             };
+            if (columnname == "fio_doers") {
+                col = {
+                    ...col,
+                    valueGetter: (value) => {
+                        if (Array.isArray(value)) {
+                            return value.map((item) => item.fio_doer).join(", ");
+                        }
+                        return value.fio_doer;
+                    },
+                };
+            }
+
             return col;
         });
+
         setShowTable(true);
         return clmns;
-    }, [data]);
+    }, []);
 
     useEffect(() => {
         if (data.length) {

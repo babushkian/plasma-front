@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef} from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 
@@ -14,9 +14,22 @@ const Logist = () => {
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const headers = useRef<Record<string, string>>({})
-    const columnFields: (keyof ProgramAndFioType)[] = ["id", "ProgramName", "dimensions", "program_status"];
-    
+    const headers = useRef<Record<string, string>>({});
+    //const columnFields: (keyof ProgramAndFioType)[] = ["id", "ProgramName", "dimensions", "program_status"];
+
+    const columnFields: (keyof ProgramAndFioType)[] = [
+        "id",
+        "program_priority",
+        "ProgramName",
+        "program_status",
+        // "WONumber",
+        // "WOData1",
+        "Thickness",
+        "SheetWidth",
+        "SheetLength",
+        //"fio_doers",
+    ];
+
     const columns: GridColDef[] = columnFields.map((columnname) => {
         let colTemplate: GridColDef = {
             field: columnname,
@@ -40,7 +53,7 @@ const Logist = () => {
     const loader = async () => {
         setShowTable(false);
         const responseData = await logistGetPrograms();
-        
+
         if (responseData !== undefined) {
             // делаем словарь, где ключи - идентификаторы исполнителей, а значения - имена исполнителей
             const fioData = responseData.data.map((item) => {
@@ -50,7 +63,7 @@ const Logist = () => {
 
                 return { ...item, dimensions };
             });
-            headers.current = responseData.headers
+            headers.current = responseData.headers;
             setData(fioData);
             setLoadError(false);
             setShowTable(true);
@@ -63,6 +76,14 @@ const Logist = () => {
         loader();
     }, []);
 
+    const initialState = {
+        columns: {
+            columnVisibilityModel: {
+                id: false,
+            },
+        },
+    };
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -72,7 +93,12 @@ const Logist = () => {
 
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid rows={data} columns={columns} slots={{ toolbar: CustomToolbar }}/>
+                        <DataGrid
+                            rows={data}
+                            columns={columns}
+                            slots={{ toolbar: CustomToolbar }}
+                            initialState={initialState}
+                        />
                     </div>
                 )}
             </Box>
@@ -80,4 +106,3 @@ const Logist = () => {
     );
 };
 export default Logist;
-

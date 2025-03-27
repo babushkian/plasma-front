@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
@@ -16,13 +16,27 @@ type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
 // столбцы, отображаемые в таблице
+// const columnFields: (keyof MasterProgramPartsRecordType)[] = [
+//     "id",
+//     "ProgramName",
+//     "program_status",
+//     "QtyInProcess",
+//     "qty_fact",
+//     "WONumber",
+// ];
+
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
-    "id",
-    "ProgramName",
-    "program_status",
-    "QtyInProcess",
-    "qty_fact",
+    "PartName",
     "WONumber",
+    "WOData1",
+    
+    "PartLength",
+    "PartWidth",
+    "Thickness",
+    "fio_doers", // надо замениь на done_by_fio
+    "QtyInProcess",
+    "storage_cell_id",
+    "qty_fact",
 ];
 
 const LogistTable = () => {
@@ -38,8 +52,7 @@ const LogistTable = () => {
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<string, string>>({})
-
+    const headers = useRef<Record<string, string>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -47,7 +60,7 @@ const LogistTable = () => {
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
             setData(response.data);
-            headers.current = response.headers
+            headers.current = response.headers;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -75,21 +88,39 @@ const LogistTable = () => {
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
-            const col: GridColDef = {
+            let col: GridColDef = {
                 field: columnname,
                 headerName: headers.current[columnname],
                 flex: 1,
             };
+            if (columnname == "fio_doers") {
+                col = {
+                    ...col,
+                    valueGetter: (value) => value.map((item) => item.fio_doer).join(", "),
+                };
+            }
+            if (columnname == "qty_fact") {
+                col = {
+                    ...col,
+                    flex: 0,
+                    width: 100,
+                    renderCell: (params) => (
+                        <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
+                    ),
+                };
+            }
+
             return col;
         });
-        clmns.push({
-            field: "действие",
-            headerName: "действие",
-            flex: 1,
-            renderCell: (params) => (
-                <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
-            ),
-        });
+        // clmns.push({
+        //     field: "action",
+        //     headerName: "Факическое количество",
+        //     flex: 0,
+        //     width: 100,
+        //     renderCell: (params) => (
+        //         <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
+        //     ),
+        // });
         return clmns;
     }, [setQty]);
 
@@ -109,9 +140,13 @@ const LogistTable = () => {
         loader();
     };
 
-    // столбцы, которые нужно выводить в таблице
-    const fields = ["id", "PartName", "WONumber", "QtyInProcess", "qty_fact", "part_status", "fio_doer_id"];
-
+    const initialState = {
+        columns: {
+            columnVisibilityModel: {
+                id: false,
+            },
+        },
+    };
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -126,7 +161,12 @@ const LogistTable = () => {
                             Применить фактическое количество деталей
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid rows={data} columns={columns.current} slots={{ toolbar: CustomToolbar }}/>
+                            <DataGrid
+                                rows={data}
+                                columns={columns.current}
+                                slots={{ toolbar: CustomToolbar }}
+                                initialState={initialState}
+                            />
                         </div>
                     </>
                 )}
@@ -136,4 +176,3 @@ const LogistTable = () => {
 };
 
 export default LogistTable;
-

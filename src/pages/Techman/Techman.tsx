@@ -44,7 +44,7 @@ const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
     PostDateTime: "string",
     ProgramName: "string",
     program_status: "singleSelect",
-    UserName: "singleSelect",
+    // UserName: "singleSelect",
     Material: "string",
 };
 
@@ -288,7 +288,7 @@ const Techman = () => {
                 <DateDiapazon />
                 <Stack spacing={2} direction="row">
                     <Button variant="contained" onClick={loadData}>
-                        Получить данные
+                        Получить данные за период
                     </Button>
 
                     <Button
@@ -298,7 +298,7 @@ const Techman = () => {
                         }}
                         disabled={!Boolean(selectedPrograms).valueOf()}
                     >
-                        Отправить данные
+                        Отправить выбранные программы
                     </Button>
                 </Stack>
                 <Notification value={notification} setValue={setNotification} />
@@ -306,7 +306,7 @@ const Techman = () => {
                 {showTable && (
                     <div style={{ height: "600px", width: "100%" }}>
                         <Stack spacing={2} direction="row" sx={{ pb: 2, px: 1 }}>
-                            <FormControl variant="outlined" style={{ minWidth: 200 }}>
+                            {/* <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Пользователь</InputLabel>
                                 <Select
                                     value={filterValue["UserName"]}
@@ -319,7 +319,7 @@ const Techman = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                            </FormControl>
+                            </FormControl> */}
                             <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Статус</InputLabel>
                                 <Select
