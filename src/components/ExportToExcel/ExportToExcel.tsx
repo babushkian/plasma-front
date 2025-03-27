@@ -1,4 +1,4 @@
-import { MenuItem } from '@mui/material';
+import { Button } from '@mui/material';
 import * as XLSX from 'xlsx';
 import {
     gridFilteredSortedRowIdsSelector,
@@ -40,22 +40,20 @@ function handleExport(apiRef, columns) {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    console.log(workbook)
     XLSX.writeFile(workbook, document.title + ".xlsx", { compression: true });
 }
 
-export default function GridExcelExportMenuItem(props) {
+export default function GridExcelExportMenuItem({columns}) {
     const apiRef = useGridApiContext();
-    const { hideMenu, columns } = props;
-
     return (
-        <MenuItem
+        <Button variant='contained' size='small'
             onClick={() => {
                 handleExport(apiRef, columns);
-                // Hide the export menu after the export
-                hideMenu?.();
+                
             }}
         >
-            Download as Excel
-        </MenuItem>
+            Скачать XLSX
+        </Button>
     );
 }

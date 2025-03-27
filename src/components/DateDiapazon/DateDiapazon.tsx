@@ -27,7 +27,6 @@ export const DateDiapazon = () => {
     function compareDates(date: Dayjs, otherDate: Dayjs | null, greater = true) {
         let result = null;
         if (otherDate) {
-            console.log(date.format("YYYY.MM.DD"), otherDate.format("YYYY.MM.DD"))
             result = greater ? date.isAfter(otherDate) : date.isBefore(otherDate);
         }
         if (result) {
