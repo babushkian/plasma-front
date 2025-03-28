@@ -29,6 +29,24 @@ const Logist = () => {
                 headerName: headers.current[columnname],
                 width: 160,
             };
+            if (columnname == "fio_doers") {
+                colTemplate = {
+                    ...colTemplate,
+                    valueGetter: (value) => {
+                        if (Array.isArray(value)) {
+                            return value.map((item) => item.fio_doer).join(", ");
+                        }
+                        return value.fio_doer;
+                    },
+                };
+            }
+            if (columnname == "done_by_fio_doer") {
+                colTemplate = {
+                    ...colTemplate,
+                    valueGetter: (value) => value?.fio_doer,
+                };
+            }
+
             return colTemplate;
         });
         return columns;

@@ -1,9 +1,6 @@
 import { useState, useContext } from "react";
 import { DateDiapazonContext } from "../../context.tsx";
 
-// import { useDispatch, useSelector } from "react-redux";
-// import { AddDispatch } from "../../store/store";
-// import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 
 import { Typography, Grid2 } from "@mui/material";
 
@@ -22,8 +19,6 @@ export const DateDiapazon = () => {
     
     const {dateDiapazon:{startDate, endDate}, setDateDiapazon} = useContext(DateDiapazonContext)
 
-//    const dispatch = useDispatch<AddDispatch>();
-
     function compareDates(date: Dayjs, otherDate: Dayjs | null, greater = true) {
         let result = null;
         if (otherDate) {
@@ -41,7 +36,6 @@ export const DateDiapazon = () => {
         if (dayjs.isDayjs(date)) {            
             setDateDiapazon({startDate: date, endDate})
             compareDates(date, endDate, true);
-            //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
     };
 
@@ -50,7 +44,6 @@ export const DateDiapazon = () => {
         if (dayjs.isDayjs(date)) {            
             setDateDiapazon({startDate, endDate: date})
             compareDates(date, startDate, false);
-            //dispatch(dateDiapazonActions.setDiapazon({startDate: convertDateToString(startDate), endDate: convertDateToString(endDate) }))
         }
     };
 
