@@ -9,13 +9,21 @@ import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 
 import ReportToolbar from "../../components/CustomToolbar/ReportToolbar";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
-import { DateDiapazonContext } from "../../context";
+import { DateDiapazonType } from "../Techman/Techman.types";
+import dayjs from "dayjs";
+
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
+const defaultDates: DateDiapazonType = {
+    startDate: dayjs().subtract(dayjs().date()-1, "day"),
+    endDate: dayjs(),
+};
+
+
 const Logist = () => {
-    const { dateDiapazon } = useContext(DateDiapazonContext);
-    const apiRef = useGridApiRef();
+    const [dates, setDates] = useState<DateDiapazonType>(defaultDates)
+
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
@@ -54,11 +62,12 @@ const Logist = () => {
 
     const loader = async () => {
         setShowTable(false);
-        const dates = {
-            start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),
-            end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
+        const datesObj = {
+            start_date: dates.startDate.format("YYYY-MM-DD"),
+            end_date: dates.endDate.format("YYYY-MM-DD"),
         };
-        const responseData = await getReportData(dates);
+        const responseData = await getReportData(datesObj);
+        
 
         if (responseData !== undefined) {
             setData(responseData.data);
@@ -84,7 +93,7 @@ const Logist = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Отчет</Typography>
-                <DateDiapazon />
+                <DateDiapazon dates={dates} setDates={setDates}/>
                 <Button variant="contained" onClick={loader}>
                     Получить данные за период
                 </Button>

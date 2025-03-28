@@ -227,7 +227,7 @@ export const getReportData = async (dates:{start_date: string, end_date:string})
         const {data} = await apiClient.get<ResponsePartsType>(REPORT_PARTS_FULL, {params:dates});
         return data;
     } catch (error) {
-        if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
-        return Promise.reject(error)
+        if (error instanceof Error) console.error("Ошибка при запросе отсета за период:", error);
+        //return Promise.reject(error)
     }
 };

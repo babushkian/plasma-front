@@ -4,10 +4,11 @@ import { UserType } from "./pages/Login/Login.types";
 import { getUserFromStore } from "./utils/local-storage";
 import dayjs from "dayjs";
 
-type DateDiapazonContextType = {
+export type DateDiapazonContextType = {
     dateDiapazon: DateDiapazonType;
     setDateDiapazon: React.Dispatch<React.SetStateAction<DateDiapazonType>>;
 };
+
 
 type OperatorSelectContextType = { selectedOperatorId: number | undefined; setSelectedOperatorId: (arg: number) => void };
 type UserContextType = {

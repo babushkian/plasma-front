@@ -59,7 +59,7 @@ const Techman = () => {
     // интерфейс для управления таблицей
     const apiRef = useGridApiRef();
     // диапазон дат, за который будут загружаться данные
-    const {dateDiapazon} = useContext(DateDiapazonContext)    
+    const {dateDiapazon, setDateDiapazon} = useContext(DateDiapazonContext)    
     //данные пришедшие из запроса в первоначальном виде
     const [rawData, setRawData] = useState<TechProgramType[]>([]);
     // данные, обработанные для отображения в таблице(все данные целиком, в том числе и те, которые не показываются)
@@ -285,7 +285,7 @@ const Techman = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Загрузка программ</Typography>
-                <DateDiapazon />
+                <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon}/>
                 <Stack spacing={2} direction="row">
                     <Button variant="contained" onClick={loadData}>
                         Получить данные за период
