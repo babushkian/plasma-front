@@ -228,6 +228,6 @@ export const getReportData = async (dates:{start_date: string, end_date:string})
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе отсета за период:", error);
-        //return Promise.reject(error)
+        return Promise.reject(error)
     }
 };

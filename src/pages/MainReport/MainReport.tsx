@@ -11,18 +11,17 @@ import ReportToolbar from "../../components/CustomToolbar/ReportToolbar";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { DateDiapazonType } from "../Techman/Techman.types";
 import dayjs from "dayjs";
-
+import axios from "axios";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
 const defaultDates: DateDiapazonType = {
-    startDate: dayjs().subtract(dayjs().date()-1, "day"),
+    startDate: dayjs().subtract(dayjs().date() - 1, "day"), //начало месяца
     endDate: dayjs(),
 };
 
-
 const Logist = () => {
-    const [dates, setDates] = useState<DateDiapazonType>(defaultDates)
+    const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
 
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
@@ -30,6 +29,7 @@ const Logist = () => {
     const headers = useRef<Record<string, string>>({});
     const columns = useRef<GridColDef>([]);
 
+    const errorMessage = useRef("Ошибка загрузки");
     const createColumns = useCallback(() => {
         const columns: GridColDef[] = Object.keys(headers.current).map((columnname) => {
             let colTemplate: GridColDef = {
@@ -66,14 +66,22 @@ const Logist = () => {
             start_date: dates.startDate.format("YYYY-MM-DD"),
             end_date: dates.endDate.format("YYYY-MM-DD"),
         };
-        const responseData = await getReportData(datesObj);
-        
-
-        if (responseData !== undefined) {
-            setData(responseData.data);
-            headers.current = responseData.headers;
-            setLoadError(false);
-        } else {
+        try {
+            const responseData = await getReportData(datesObj);
+            if (responseData !== undefined) {
+                setData(responseData.data);
+                headers.current = responseData.headers;
+                setLoadError(false);
+            } else {
+                setLoadError(true);
+            }
+        } catch (error) {
+            errorMessage.current = "Ошибка загрузки"
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 404) {
+                    errorMessage.current = "Отсутствуют записи за выбранный период"
+                }
+            }
             setLoadError(true);
         }
     };
@@ -93,12 +101,12 @@ const Logist = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Отчет</Typography>
-                <DateDiapazon dates={dates} setDates={setDates}/>
+                <DateDiapazon dates={dates} setDates={setDates} />
                 <Button variant="contained" onClick={loader}>
                     Получить данные за период
                 </Button>
 
-                {loadError && <div>Ошибка загрузки</div>}
+                {loadError && <div>{errorMessage.current}</div>}
 
                 {showTable && (
                     <div style={{ height: 760, width: "100%" }}>
