@@ -2,6 +2,7 @@ import { UserType } from "../pages/Login/Login.types";
 
 export const TOKEN_LOCAL_STORAGE_KEY = "token";
 export const USER_LOCAL_STORAGE_KEY = "user";
+export const REPORT_VISIBILITY_MODEL = "visibility_model";
 
 export const getUserFromStore: () => UserType | undefined = () => {
     const user = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
@@ -27,3 +28,6 @@ export const clearStore = () => {
         console.log("удаляем ключ:", key)
         localStorage.removeItem(key)};
 };
+
+
+export const saveVisibilityModelToStore = () =>{}

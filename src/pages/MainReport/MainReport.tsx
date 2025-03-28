@@ -26,6 +26,7 @@ const Logist = () => {
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState({})
     const headers = useRef<Record<string, string>>({});
     const columns = useRef<GridColDef>([]);
 
@@ -97,6 +98,10 @@ const Logist = () => {
         }
     }, [createColumns, data]);
 
+    useEffect(()=>console.log(columnVisibilityModel), [columnVisibilityModel])
+    const handleVisibilityModel = (newModel)=>{
+        setColumnVisibilityModel(newModel)
+    }
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -117,6 +122,8 @@ const Logist = () => {
                             slotProps={{ toolbar: { columns: columns.current } }}
                             initialState={hiddenIdColumn}
                             getRowHeight={() => "auto"}
+                            columnVisibilityModel={columnVisibilityModel}
+                            onColumnVisibilityModelChange={handleVisibilityModel}
                         />
                     </div>
                 )}

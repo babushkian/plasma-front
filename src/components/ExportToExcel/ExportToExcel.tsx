@@ -7,6 +7,7 @@ import {
     gridVisibleColumnFieldsSelector,
     useGridApiContext,
 } from "@mui/x-data-grid";
+import { columnTypes } from "./reportColumnTypes";
 
 function getExcelData(apiRef) {
     // Select rows and columns
@@ -29,14 +30,15 @@ function handleExport(apiRef, columns: GridColDef[]) {
         acc[item.field] = item.headerName;
         return acc;
     }, {} as Record<string, string | undefined>);
+
     const rows = data.map((row) => {
         const mRow = {};
         for (const key of fields) {
-            mRow[key] = row[key];
+            // значение и тип ячейки (сейчас строка либо число)
+            mRow[key] = { v: row[key], t: columnTypes[key] };
         }
         return mRow;
     });
-
 
     const columnNames = fields.map((item) => translateObj[item]);
     const worksheet = XLSX.utils.json_to_sheet(rows);
