@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styles from "./NavBar.module.css";
 import dayjs from "dayjs";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
 import { UserContext } from "../../context";
 import { getUserEndpoints } from "../../utils/authorization";
@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
     );
     const logout = (
         <>
-            <span>
+            <span style={{marginRight:10}}>
                 {currentUser?.last_name} | {currentUser?.role}
             </span>
             <LogoutButton />
@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
                             </NavLink>
                         </li>
                     ))}
-
+                    <li style={{flexGrow:1}}></li>
                     <li>{authWidget}</li>
 
                     {/* <li>
