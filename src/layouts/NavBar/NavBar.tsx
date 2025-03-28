@@ -51,10 +51,6 @@ const Navbar: React.FC = () => {
                     <li>{authWidget}</li>
 
                     {/* <li>
-                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/test">Пример дизайна</NavLink>
-                </li> */}
-
-                    {/* <li>
                     <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/loadbystatus">Загрузка по статусу</NavLink>
                 </li> */}
                 </ul>

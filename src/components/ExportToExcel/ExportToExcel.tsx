@@ -1,17 +1,17 @@
 // код позаимствован из https://github.com/prettyblueberry/mui-datagrid-full-edit/blob/main/src/lib/components/GridExcelExportMenuItem.js
-import { Button } from '@mui/material';
-import * as XLSX from 'xlsx';
+import { Button } from "@mui/material";
+import * as XLSX from "xlsx";
 import {
+    GridColDef,
     gridFilteredSortedRowIdsSelector,
     gridVisibleColumnFieldsSelector,
     useGridApiContext,
-} from '@mui/x-data-grid';
+} from "@mui/x-data-grid";
 
 function getExcelData(apiRef) {
     // Select rows and columns
     const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
     const visibleColumnsField = gridVisibleColumnFieldsSelector(apiRef);
-
     // Format the data. Here we only keep the value
     return filteredSortedRowIds.map((id) => {
         const row = {};
@@ -22,9 +22,13 @@ function getExcelData(apiRef) {
     });
 }
 
-function handleExport(apiRef, columns) {
+function handleExport(apiRef, columns: GridColDef[]) {
     const data = getExcelData(apiRef);
-    const fields = columns.map(c => c.field);
+    const fields = Object.keys(data[0]);
+    const translateObj = columns.reduce((acc, item) => {
+        acc[item.field] = item.headerName;
+        return acc;
+    }, {} as Record<string, string | undefined>);
     const rows = data.map((row) => {
         const mRow = {};
         for (const key of fields) {
@@ -33,25 +37,27 @@ function handleExport(apiRef, columns) {
         return mRow;
     });
 
-    const columnNames = columns.map( c => c.headerName);
+
+    const columnNames = fields.map((item) => translateObj[item]);
     const worksheet = XLSX.utils.json_to_sheet(rows);
     XLSX.utils.sheet_add_aoa(worksheet, [[...columnNames]], {
-        origin: 'A1',
+        origin: "A1",
     });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-    console.log(workbook)
+    console.log(workbook);
     XLSX.writeFile(workbook, document.title + ".xlsx", { compression: true });
 }
 
-export default function GridExcelExportMenuItem({columns}) {
+export default function GridExcelExportMenuItem({ columns }) {
     const apiRef = useGridApiContext();
     return (
-        <Button variant='contained' size='small'
+        <Button
+            variant="contained"
+            size="small"
             onClick={() => {
                 handleExport(apiRef, columns);
-                
             }}
         >
             Скачать XLSX

@@ -124,7 +124,7 @@ const Operator = () => {
         });
         clmns.push({
             field: "action",
-            headerName: "action",
+            headerName: "Действия",
             flex: 0,
             width: 180,
             renderCell: (params) => {

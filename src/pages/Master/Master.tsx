@@ -174,6 +174,7 @@ const Master = () => {
             if (columnname === "doerIds") {
                 colTemplate = {
                     ...colTemplate,
+                    headerName: "Исполнители", 
                     width: 330,
                     flex:0,
                     renderCell: (params) => (
@@ -222,7 +223,6 @@ const Master = () => {
             loadData();
         }
     };
-
 
 
     return (
