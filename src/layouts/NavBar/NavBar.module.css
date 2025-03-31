@@ -4,8 +4,9 @@
     flex-direction: row;
     gap: 30px;
     justify-content: start;
-    background-color: rgb(212, 209, 203);
+    background-color: #ec562d;
     list-style-type: none;
+    color: white;
     margin: 0;
 }
 
@@ -15,11 +16,27 @@
 }
 .login-container {
     margin-left: auto;
-    
+
     flex-grow: 8;
 }
 
+.background {
+    height: 94vh;
+    margin: 0;
+    padding: 0;
+    background-image: url("../../assets/about-bg.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.menu-link {
+    color: rgb(240, 233, 220);
+}
+.menu-link:hower {
+    color: rgb(238, 223, 193);
+    text-decoration: underline;
+}
 .active {
-    color: rgb(93, 8, 204);
+    color: rgb(253, 242, 193);
     text-decoration: underline;
 }

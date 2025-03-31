@@ -1,3 +1,4 @@
+import bgImage from "../../assets/about-bg.jpg"
 import React, { useContext } from "react";
 import styles from "./NavBar.module.css";
 import dayjs from "dayjs";
@@ -39,7 +40,7 @@ const Navbar: React.FC = () => {
                         <li key={item.name}>
                             <NavLink
                                 className={({ isActive }) => {
-                                    return [styles.navlink, isActive ? styles.active : ""].join(" ");
+                                    return [styles["menu-link"], isActive ? styles.active : ""].join(" ");
                                 }}
                                 to={item.endpoint}
                             >
@@ -55,8 +56,9 @@ const Navbar: React.FC = () => {
                 </li> */}
                 </ul>
             </nav>
-
-            <Outlet />
+            <div className={styles.background}>
+            <Outlet/>
+            </div>
         </>
     );
 };

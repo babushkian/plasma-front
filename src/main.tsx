@@ -42,8 +42,8 @@ import MainReport from "./pages/MainReport/MainReport.tsx";
 //             main: "#dc004e", // Основной цвет для secondary
 //         },
 //         background: {
-//             default: "#1e1a15",
-//             paper: "#836c6c",
+//             default: "#3B3730",
+//             paper: "##484444",
 //         },
 //         text: {
 //             primary: 'rgba(255,255,255,0.87)',
@@ -51,13 +51,47 @@ import MainReport from "./pages/MainReport/MainReport.tsx";
 //           },
 
 //     },
+//     ruRU, // x-data-grid translations
+//     coreruRU, // core translations
+//     dateruRU // date-pickers
+
 // });
 
-const theme = createTheme( {},
-    ruRU, // x-data-grid translations
-    coreruRU, // core translations
-    dateruRU // date-pickers
-);
+
+
+  const theme = createTheme({
+    palette: {
+      mode: 'dark',
+      primary: {
+        main: '#e8e8d1',
+        contrastText: '#060606',
+        //dark: '#15a00f',
+        dark: '#357EFF',
+        light: '#f3f3d9',
+      },
+      secondary: {
+        main: '#ec562d',
+      },
+      background: {
+        default: '#3D3B38',
+        paper: '#4a4747',
+      },
+      divider: 'rgba(212,212,212,0.58)',
+      text: {
+        secondary: 'rgba(203,203,203,0.8)',
+        primary: 'rgba(255,255,255,0.87)',
+        disabled: 'rgba(193,193,193,0.38)',
+        hint: '#acacb7',
+      },
+    },
+  });
+  
+
+// const theme = createTheme( {},
+//     ruRU, // x-data-grid translations
+//     coreruRU, // core translations
+//     dateruRU // date-pickers
+// );
 
 const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
 

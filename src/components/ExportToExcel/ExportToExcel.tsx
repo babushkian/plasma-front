@@ -35,8 +35,13 @@ function handleExport(apiRef, columns: GridColDef[]) {
         const mRow = {};
         for (const key of fields) {
             // значение и тип ячейки (сейчас строка либо число)
-            mRow[key] = { v: row[key], t: columnTypes[key] };
+            mRow[key] = { v: row[key]? row[key]: "", t: columnTypes[key] };
+            // if (["time_program_started", "time_program_finished"].includes(key)) {
+            //     mRow[key] = {...mRow[key],  v: ""};
+            //}
         }
+
+
         return mRow;
     });
 

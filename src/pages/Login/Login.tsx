@@ -86,7 +86,7 @@ const Login = () => {
                     Login
                 </Typography>
                 
-                    <Stack sx={{background:"#EEE"}}>
+                    <Stack sx={{backgroundColor:"background.paper", borderRadius:1, padding:1}}>
                         <TextField
                             name="username"
                             

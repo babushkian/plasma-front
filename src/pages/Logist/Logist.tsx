@@ -91,7 +91,7 @@ const Logist = () => {
                 {loadError && <div>Ошибка загрузки</div>}
 
                 {showTable && (
-                    <div style={{ height: 600, width: "100%" }}>
+                    <div style={{  height:"800px", width: "100%" }}>
                         <DataGrid
                             rows={data}
                             columns={columns}

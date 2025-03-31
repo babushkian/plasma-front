@@ -20,6 +20,8 @@ import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/reque
 import { DoerType, ProgramType } from "../Master/Master.types";
 import { OperatorSelectContext, UserContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
+import { Theme, styled } from '@mui/material/styles';
+import { minimalContentHeight } from "@mui/x-data-grid/hooks/features/rows/gridRowsUtils";
 
 //const columnFields = ["id", "ProgramName", "program_status", "program_priority"];
 const columnFields = [
@@ -33,6 +35,59 @@ const columnFields = [
     "SheetWidth",
     "SheetLength",
 ];
+
+
+
+
+// const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+//     border: 2,
+//     //color: 'rgba(175, 0, 0, 0.85)',
+//     WebkitFontSmoothing: 'auto',
+//     letterSpacing: 'normal',
+//     '& .MuiDataGrid-columnsContainer': {
+//       backgroundColor: '#1d1d1d',
+//       ...theme.applyStyles('dark', {
+//         backgroundColor: '#fafafa',
+//       }),
+//     },
+//     '& .MuiDataGrid-iconSeparator': {
+//       display: 'none',
+//     },
+//     '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
+//       //borderRight: '1px solid #303030',
+//       borderRight: '1px solid rgba(248, 191, 2,  0.64)',
+//       ...theme.applyStyles('dark', {
+//         //borderRightColor: '#f0f0f0',
+//         //borderBottomColor: "rgba(196, 191, 168, 0.42)",
+//       }),
+//     },
+//     '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
+//       borderBottom: '1px solid rgba(255, 196, 0, 0.64)',
+//       ...theme.applyStyles('dark', {
+//         //borderBottomColor: '#f0f0f0',
+//        // borderBottomColor: "rgba(255, 246, 196, 0.42)",
+//         //borderColor: "rgba(255, 246, 196, 0.42)"
+//       }),
+//     },
+
+//     '& .MuiDataGrid-cell': {
+//       color: 'rgba(255,255,255,0.65)',
+//       ...theme.applyStyles('dark', {
+//         color: 'rgba(235, 235, 235, 0.85)',
+//       }),
+//     },
+
+//     '& .MuiPaginationItem-root': {
+//       borderRadius: 2,
+//     },
+
+//     // ...theme.applyStyles('dark', {
+//     //   color: 'rgba(0,0,0,.85)',
+//     // }),
+//   }));
+
+
+
 
 const Operator = () => {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -131,13 +186,13 @@ const Operator = () => {
                 switch (params.row.program_status) {
                     case "распределена":
                         return (
-                            <Button variant="contained" onClick={() => changeProgramStatus(params.id)}>
+                            <Button sx={{ my: 0.5 }} variant="contained" onClick={() => changeProgramStatus(params.id)}>
                                 в работу
                             </Button>
                         );
                     case "в работе":
                         return (
-                            <Button variant="contained" onClick={() => changeProgramStatus(params.id, "распределена")}>
+                            <Button  sx={{ my: 0.5 }} variant="contained" onClick={() => changeProgramStatus(params.id, "распределена")}>
                                 остановить
                             </Button>
                         );
@@ -205,8 +260,8 @@ const Operator = () => {
                     </>
                 )}
                 {showTable && (
-                    <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid
+                    <div style={{ height: 700, width: "100%" }}>
+                        < DataGrid //StyledDataGrid
                             rows={rawPrograms}
                             columns={columns.current}
                             slots={{ toolbar: CustomToolbar }}
