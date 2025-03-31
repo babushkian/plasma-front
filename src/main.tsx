@@ -20,7 +20,7 @@ import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from '@mui/material/CssBaseline';
+import CssBaseline from "@mui/material/CssBaseline";
 //локализация
 import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
@@ -30,8 +30,6 @@ import Master from "./pages/Master/Master.tsx";
 import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
-
-
 
 // const theme = createTheme({
 //     palette: {
@@ -57,35 +55,37 @@ import MainReport from "./pages/MainReport/MainReport.tsx";
 
 // });
 
-
-
-  const theme = createTheme({
-    palette: {
-      mode: 'dark',
-      primary: {
-        main: '#e8e8d1',
-        contrastText: '#060606',
-        //dark: '#15a00f',
-        dark: '#357EFF',
-        light: '#f3f3d9',
-      },
-      secondary: {
-        main: '#ec562d',
-      },
-      background: {
-        default: '#3D3B38',
-        paper: '#4a4747',
-      },
-      divider: 'rgba(212,212,212,0.58)',
-      text: {
-        secondary: 'rgba(203,203,203,0.8)',
-        primary: 'rgba(255,255,255,0.87)',
-        disabled: 'rgba(193,193,193,0.38)',
-        hint: '#acacb7',
-      },
+const theme = createTheme(
+    {
+        palette: {
+            mode: "dark",
+            primary: {
+                main: "#e8e8d1",
+                contrastText: "#060606",
+                //dark: '#15a00f',
+                dark: "#357EFF",
+                light: "#f3f3d9",
+            },
+            secondary: {
+                main: "#ec562d",
+            },
+            background: {
+                default: "#3D3B38",
+                paper: "#4a4747",
+            },
+            divider: "rgba(212,212,212,0.58)",
+            text: {
+                secondary: "rgba(209,209,209,0.9)",
+                primary: "rgba(255,255,255,0.95)",
+                disabled: "rgba(200,200,200,0.45)",
+                hint: "#acacb7",
+            },
+        },
     },
-  });
-  
+    ruRU, // x-data-grid translations
+    coreruRU, // core translations
+    dateruRU // date-pickers
+);
 
 // const theme = createTheme( {},
 //     ruRU, // x-data-grid translations
@@ -167,7 +167,7 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>
             <ThemeProvider theme={theme}>
-            <CssBaseline />
+                <CssBaseline />
                 <MasterContext>
                     <RouterProvider router={router} future={{ v7_startTransition: true }} />
                 </MasterContext>

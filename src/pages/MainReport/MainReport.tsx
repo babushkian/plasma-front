@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef, GridColumnVisibilityModel} from "@mui/x-data-grid";
 
 import { getReportData } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
@@ -12,6 +12,7 @@ import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import { DateDiapazonType } from "../Techman/Techman.types";
 import dayjs from "dayjs";
 import axios from "axios";
+import { getVisibilityModelToStore, saveVisibilityModelToStore } from "../../utils/local-storage";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -26,7 +27,7 @@ const Logist = () => {
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const [columnVisibilityModel, setColumnVisibilityModel] = useState({})
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState(getVisibilityModelToStore)
     const headers = useRef<Record<string, string>>({});
     const columns = useRef<GridColDef>([]);
 
@@ -99,8 +100,9 @@ const Logist = () => {
     }, [createColumns, data]);
 
     useEffect(()=>console.log(columnVisibilityModel), [columnVisibilityModel])
-    const handleVisibilityModel = (newModel)=>{
+    const handleVisibilityModel = (newModel: GridColumnVisibilityModel)=>{
         setColumnVisibilityModel(newModel)
+        saveVisibilityModelToStore(newModel)
     }
     return (
         <>

@@ -5,6 +5,7 @@ import { getCurrentUser } from "../../utils/requests";
 import { saveTokenToStore, saveUserToStore } from "../../utils/local-storage";
 import { UserContext } from "../../context.tsx";
 import {
+    Alert,
     Box,
     Button,
     FormControl,
@@ -12,6 +13,7 @@ import {
     InputAdornment,
     InputLabel,
     OutlinedInput,
+    Snackbar,
     Stack,
     TextField,
     Typography,
@@ -27,11 +29,12 @@ const Login = () => {
     const { currentUser, setCurrentUser } = useContext(UserContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [openSnackbar, setOpenSnackbar] = useState(false)
+    const errorMessage = "Неверное имя пользователя или пароль."
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = React.useState(false);
-
+    
     const handleClickShowPassword = () => setShowPassword((show) => !show);
-
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
     };
@@ -60,7 +63,14 @@ const Login = () => {
                 }
             }
         } catch (error) {
-            console.error("Error during login:", error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 400) {
+                    setOpenSnackbar(true)
+                    console.log("ошибка авторизации")
+                } else {
+                    console.error("Error during login:", error);
+                }
+            }
         }
     };
 
@@ -83,53 +93,76 @@ const Login = () => {
                 }}
             >
                 <Typography variant="h5" align="center" gutterBottom>
-                    Login
+                    Вход
                 </Typography>
-                
-                    <Stack sx={{backgroundColor:"background.paper", borderRadius:1, padding:1}}>
-                        <TextField
-                            name="username"
-                            
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            label="Пользователь"
-                            sx={{ m: 1, width: "300px" }}
-                            variant="outlined"
+
+                <Stack sx={{ backgroundColor: "background.paper", borderRadius: 1, padding: 1, rowGap:1 }}>
+                    <TextField
+                        name="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        label="Пользователь"
+                        sx={{ m: 1, width: "300px" }}
+                        variant="outlined"
+                    />
+
+                    <FormControl sx={{ m: 1, width: "300px" }} variant="outlined">
+                        <InputLabel htmlFor="outlined-adornment-password">Пароль</InputLabel>
+                        <OutlinedInput
+                            id="outlined-adornment-password"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={handleClickShowPassword}
+                                        onMouseDown={handleMouseDownPassword}
+                                        onMouseUp={handleMouseUpPassword}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                            label="Пароль"
                         />
+                    </FormControl>
+                    <Button variant="contained" onClick={handleSubmit}>
+                        {" "}
+                        Войти
+                    </Button>
+                    <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={()=>setOpenSnackbar(false)}>
+                <Alert /*variant="filled"*/ onClose={()=>setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+                </Stack>
 
-                        <FormControl sx={{ m: 1, width: "300px" }} variant="outlined">
-                            <InputLabel htmlFor="outlined-adornment-password">Пароль</InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-password"
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-        
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={handleClickShowPassword}
-                                            onMouseDown={handleMouseDownPassword}
-                                            onMouseUp={handleMouseUpPassword}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                label="Пароль"
-                            />
-                        </FormControl>
-                        <Button variant="contained" onClick={handleSubmit}> Войти</Button>
-                    </Stack>
-
-                    <Stack spacing={2}>
-                    <Button variant="contained" onClick={() => handleLogin({ username: "dima@mail.ru", password: "1234" })}> Войти админом</Button>
-                    <Button variant="contained" onClick={() => handleLogin({ username: "as@mail.ru", password: "1234" })}> Войти мастером</Button>
-                    <Button variant="contained" onClick={() => handleLogin({ username: "vp@mail.ru", password: "1234" })}> Войти оператором</Button>
-                    </Stack>
-                
+                <Stack spacing={2}>
+                    <Button
+                        variant="contained"
+                        onClick={() => handleLogin({ username: "dima@mail.ru", password: "1234" })}
+                    >
+                        {" "}
+                        Войти админом
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => handleLogin({ username: "as@mail.ru", password: "1234" })}
+                    >
+                        {" "}
+                        Войти мастером
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => handleLogin({ username: "vp@mail.ru", password: "1234" })}
+                    >
+                        {" "}
+                        Войти оператором
+                    </Button>
+                </Stack>
             </Box>
         </Box>
     );

@@ -1,3 +1,4 @@
+import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 import { UserType } from "../pages/Login/Login.types";
 
 export const TOKEN_LOCAL_STORAGE_KEY = "token";
@@ -30,4 +31,16 @@ export const clearStore = () => {
 };
 
 
-export const saveVisibilityModelToStore = () =>{}
+export const saveVisibilityModelToStore = (model: GridColumnVisibilityModel) =>{
+    localStorage.setItem(REPORT_VISIBILITY_MODEL, JSON.stringify(model))};
+
+export const getVisibilityModelToStore = ()=>{
+    const visibilityModel = localStorage.getItem(REPORT_VISIBILITY_MODEL)
+    if (visibilityModel){
+        return JSON.parse(visibilityModel) as GridColumnVisibilityModel
+    }
+    return {} as GridColumnVisibilityModel
+    
+}
+
+    
