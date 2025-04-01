@@ -30,6 +30,7 @@ import {
 } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
+import { endpoints } from "../../utils/authorization.ts";
 
 
 
@@ -181,7 +182,7 @@ const Techman = () => {
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 console.error('Ошибка авторизации: требуется вход в систему.');
-                navigate("/login")
+                navigate(endpoints.LOGIN)
             }
             console.error("Error fetching protected data:", error);
             

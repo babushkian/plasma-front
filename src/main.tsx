@@ -2,8 +2,7 @@ import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import {endpoints} from "./utils/authorization.ts"
-
+import { endpoints } from "./utils/authorization.ts";
 
 import "./index.css";
 import "@fontsource/roboto/300.css";
@@ -15,7 +14,6 @@ import LogistTable from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Login from "./pages/Login/Login";
-import PartsByStatuses from "./pages/PartsByStatuses/PartsByStatuses.tsx";
 import Operator from "./pages/Operator/Operator.tsx";
 import OperatorParts from "./pages/Operator/OperatorParts.tsx";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
@@ -33,6 +31,7 @@ import Master from "./pages/Master/Master.tsx";
 import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
+import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 
 // const theme = createTheme({
 //     palette: {
@@ -103,8 +102,8 @@ export const LoadingPlaceholder = () => <div>Загрузка...</div>;
 
 const router = createBrowserRouter(
     [
+        { path: "/", element: <RedirectByRole /> },
         {
-            path: "/",
             element: <Navbar />,
             children: [
                 {
@@ -120,19 +119,18 @@ const router = createBrowserRouter(
                             errorElement: <ErrorPage />,
                         },
                         {
-                            path: endpoints.OPERATOR, children: [
-                                {index: true,
-                                Component: Operator,},
+                            path: endpoints.OPERATOR,
+                            children: [
+                                { index: true, Component: Operator },
                                 { path: ":programName", Component: OperatorParts },
-                            ]
-                            
+                            ],
                         },
                         {
                             path: endpoints.LOGIST,
                             element: (
-                                    <Suspense fallback={<LoadingPlaceholder />}>
-                                        <LazyLogist />
-                                    </Suspense>
+                                <Suspense fallback={<LoadingPlaceholder />}>
+                                    <LazyLogist />
+                                </Suspense>
                             ),
                             errorElement: <ErrorPage />,
                         },

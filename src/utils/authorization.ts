@@ -19,7 +19,7 @@ export const roles: Record<UserRolesType, UserIndexRolesType> = {
 } as const ;
 
 export const endpoints = {
-    TECHMAN: "/", 
+    TECHMAN: "/techman", 
     MASTER: "/master", 
     OPERATOR: "/operator", 
     LOGIST: "/logist", 
