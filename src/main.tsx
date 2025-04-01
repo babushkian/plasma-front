@@ -32,6 +32,7 @@ import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 
 // const theme = createTheme({
 //     palette: {
@@ -121,8 +122,8 @@ const router = createBrowserRouter(
                         {
                             path: endpoints.OPERATOR,
                             children: [
-                                { index: true, Component: Operator },
-                                { path: ":programName", Component: OperatorParts },
+                                { index: true, element:<Operator /> },
+                                { path: ":programName", element: <OperatorParts />},
                             ],
                         },
                         {
@@ -137,13 +138,14 @@ const router = createBrowserRouter(
                     ],
                 },
 
-                { path: "login", element: <Login /> },
-                { path: "logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
-
-                { path: "operator/:programName", Component: OperatorParts },
-                { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
-                { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                
+                // { path: "logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
+                // { path: "operator/:programName", Component: OperatorParts },
+                // { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
+                // { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
+                { path: "*", element: <NotFoundPage /> }
             ],
         },
     ],
@@ -153,6 +155,8 @@ const router = createBrowserRouter(
         },
     }
 );
+console.log("список маршрутов")
+console.log(router.routes)
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
