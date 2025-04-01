@@ -12,8 +12,8 @@ export type DateDiapazonContextType = {
 
 type OperatorSelectContextType = { selectedOperatorId: number | undefined; setSelectedOperatorId: (arg: number) => void };
 type UserContextType = {
-    currentUser: UserType ;
-    setCurrentUser: React.Dispatch<React.SetStateAction<UserType>>;
+    currentUser: UserType | undefined ;
+    setCurrentUser: React.Dispatch<React.SetStateAction<UserType | undefined>>;
 };
 
 const defaultDates: DateDiapazonType = {
@@ -25,7 +25,9 @@ export const DateDiapazonContext = createContext<DateDiapazonContextType | undef
 export const OperatorSelectContext = createContext<OperatorSelectContextType | undefined>(undefined);
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
-const MasterContext = ({ children }: ReactNode) => {
+type MasterContextProps = { children: ReactNode}
+
+const MasterContext = ({ children}: MasterContextProps ) => {
     const [dateDiapazon, setDateDiapazon] = useState<DateDiapazonType>(defaultDates);
     const [selectedOperatorId, setSelectedOperatorId] = useState<number | undefined>(undefined);
     const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);

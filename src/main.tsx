@@ -2,6 +2,9 @@ import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import {endpoints} from "./utils/authorization.ts"
+
+
 import "./index.css";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -108,20 +111,24 @@ const router = createBrowserRouter(
                     Component: PrivateRoute,
                     children: [
                         {
-                            path: "/",
+                            path: endpoints.TECHMAN.endpoint,
                             element: <Techman />,
                         },
                         {
-                            path: "/master",
+                            path: endpoints.MASTER.endpoint,
                             Component: Master,
                             errorElement: <ErrorPage />,
                         },
                         {
-                            path: "/operator",
-                            Component: Operator,
+                            path: endpoints.OPERATOR.endpoint, children: [
+                                {index: true,
+                                Component: Operator,},
+                                { path: ":programName", Component: OperatorParts },
+                            ]
+                            
                         },
                         {
-                            path: "/logist",
+                            path: endpoints.LOGIST.endpoint,
                             element: (
                                     <Suspense fallback={<LoadingPlaceholder />}>
                                         <LazyLogist />
@@ -132,19 +139,19 @@ const router = createBrowserRouter(
                     ],
                 },
 
-                { path: "/login", element: <Login /> },
-                { path: "/logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
+                { path: "login", element: <Login /> },
+                { path: "logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
 
                 {
-                    path: "/loadbystatus",
+                    path: "loadbystatus",
                     element: <PartsByStatuses />,
 
                     errorElement: <ErrorPage />,
                 },
-                { path: "/operator/:programName", Component: OperatorParts },
-                { path: "/parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
-                { path: "/plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
-                { path: "/report", Component: MainReport, errorElement: <ErrorPage /> },
+                { path: "operator/:programName", Component: OperatorParts },
+                // { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
+                // { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                { path: "report", Component: MainReport, errorElement: <ErrorPage /> },
             ],
         },
     ],
