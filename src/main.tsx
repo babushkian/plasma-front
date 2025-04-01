@@ -105,54 +105,46 @@ const router = createBrowserRouter(
             element: <Navbar />,
             children: [
                 {
-                    path: "/",
-                    element: (
-                        <PrivateRoute>
-                            <Techman />
-                        </PrivateRoute>
-                    ),
+                    Component: PrivateRoute,
+                    children: [
+                        {
+                            path: "/",
+                            element: <Techman />,
+                        },
+                        {
+                            path: "/master",
+                            Component: Master,
+                            errorElement: <ErrorPage />,
+                        },
+                        {
+                            path: "/operator",
+                            Component: Operator,
+                        },
+                        {
+                            path: "/logist",
+                            element: (
+                                    <Suspense fallback={<LoadingPlaceholder />}>
+                                        <LazyLogist />
+                                    </Suspense>
+                            ),
+                            errorElement: <ErrorPage />,
+                        },
+                    ],
                 },
+
                 { path: "/login", element: <Login /> },
-                {
-                    path: "/logist",
-                    element: (
-                        <PrivateRoute>
-                            <Suspense fallback={<LoadingPlaceholder />}>
-                                <LazyLogist />
-                            </Suspense>
-                        </PrivateRoute>
-                    ),
-                    errorElement: <ErrorPage />,
-                },
                 { path: "/logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
 
-                {
-                    path: "/master",
-                    element: (
-                        <PrivateRoute>
-                            <Master />
-                        </PrivateRoute>
-                    ),
-                    errorElement: <ErrorPage />,
-                },
                 {
                     path: "/loadbystatus",
                     element: <PartsByStatuses />,
 
                     errorElement: <ErrorPage />,
                 },
-                {
-                    path: "/operator",
-                    element: (
-                        <PrivateRoute>
-                            <Operator />
-                        </PrivateRoute>
-                    ),
-                },
-                { path: "/operator/:programName", element: <OperatorParts /> },
-                { path: "/parts/:programName", element: <PartsList />, errorElement: <ErrorPage /> },
-                { path: "/plasmaparts/:programName", element: <PlasmaParts />, errorElement: <ErrorPage /> },
-                { path: "/report", element: <MainReport />, errorElement: <ErrorPage /> },
+                { path: "/operator/:programName", Component: OperatorParts },
+                { path: "/parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
+                { path: "/plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                { path: "/report", Component: MainReport, errorElement: <ErrorPage /> },
             ],
         },
     ],

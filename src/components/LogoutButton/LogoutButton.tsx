@@ -8,8 +8,6 @@ import { logout } from "../../utils/requests";
 const LogoutButton = () => {
     const navigate = useNavigate();
     const uc = useContext(UserContext);
-    console.log("пользователь в контексте логаута", uc);
-
     if (uc) {
         const { setCurrentUser } = uc;
         const handleLogout = async () => {
