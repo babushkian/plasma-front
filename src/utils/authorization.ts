@@ -7,7 +7,7 @@ export const roleStrings = {
     MASTER: "Мастер",
     OPERATOR: "Оператор",
     LOGIST: "Логист",
-};
+} as const;
 
 export const roles: Record<UserRolesType, UserIndexRolesType> = {
     Пользователь: "USER",
@@ -16,31 +16,42 @@ export const roles: Record<UserRolesType, UserIndexRolesType> = {
     Мастер: "MASTER",
     Оператор: "OPERATOR",
     Логист: "LOGIST",
-};
+} as const ;
 
-export type EndpointData = { endpoint: string; name: string };
+export const endpoints = {
+    TECHMAN: "/", 
+    MASTER: "/master", 
+    OPERATOR: "/operator", 
+    LOGIST: "/logist", 
+    LOGIN: "/login", 
+    MAIN_REPORT: "/report", 
+} as const;
 
-export const endpoints: Record<string, EndpointData> = {
-    TECHMAN: { endpoint: "/", name: "Технолог" },
-    MASTER: { endpoint: "/master", name: "Мастер" },
-    OPERATOR: { endpoint: "/operator", name: "Оператор" },
-    LOGIST: { endpoint: "/logist", name: "Логист" },
-    LOGIN: { endpoint: "/login", name: "Логин" },
-    MAIN_REPORT:{endpoint: "/report", name: "Отчет" }
+type EndpointValues = typeof endpoints[keyof typeof endpoints];
+
+export type EndpointData = { endpoint: EndpointValues; name: string };
+
+export const appMenuItems: Record<keyof typeof endpoints, EndpointData> = {
+    TECHMAN: { endpoint: endpoints.TECHMAN, name: "Технолог" },
+    MASTER: { endpoint: endpoints.MASTER, name: "Мастер" },
+    OPERATOR: { endpoint: endpoints.OPERATOR, name: "Оператор" },
+    LOGIST: { endpoint: endpoints.LOGIST, name: "Логист" },
+    LOGIN: { endpoint: endpoints.LOGIN, name: "Логин" },
+    MAIN_REPORT:{endpoint: endpoints.MAIN_REPORT, name: "Отчет" }
 };
 
 export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
-    USER: [endpoints.MAIN_REPORT],
-    ADMIN: [endpoints.TECHMAN, endpoints.MASTER, endpoints.OPERATOR, endpoints.LOGIST, endpoints.MAIN_REPORT],
-    TECHMAN: [endpoints.TECHMAN, endpoints.MAIN_REPORT],
-    MASTER: [endpoints.MASTER, endpoints.OPERATOR, endpoints.MAIN_REPORT],
-    OPERATOR: [endpoints.OPERATOR, endpoints.MAIN_REPORT],
-    LOGIST: [endpoints.LOGIST, endpoints.MAIN_REPORT],
+    USER: [appMenuItems.MAIN_REPORT],
+    ADMIN: [appMenuItems.TECHMAN, appMenuItems.MASTER, appMenuItems.OPERATOR, appMenuItems.LOGIST, appMenuItems.MAIN_REPORT],
+    TECHMAN: [appMenuItems.TECHMAN, appMenuItems.MAIN_REPORT],
+    MASTER: [appMenuItems.MASTER, appMenuItems.OPERATOR, appMenuItems.MAIN_REPORT],
+    OPERATOR: [appMenuItems.OPERATOR, appMenuItems.MAIN_REPORT],
+    LOGIST: [appMenuItems.LOGIST, appMenuItems.MAIN_REPORT],
 };
 
 export const getUserEndpoints = (user: UserType | undefined) => {
     if (user) return allowedEndpoints[roles[user.role]];
-    return [endpoints.MAIN_REPORT];
+    return [appMenuItems.MAIN_REPORT];
 };
 
 export const getDefaultPage = (user: UserType | undefined) => {

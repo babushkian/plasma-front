@@ -4,6 +4,7 @@ import { clearStore } from "../../utils/local-storage";
 import { useContext } from "react";
 import { UserContext } from "../../context.tsx";
 import { logout } from "../../utils/requests";
+import { endpoints } from "../../utils/authorization.ts";
 
 const LogoutButton = () => {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ const LogoutButton = () => {
 
             console.log("разлогинились:", response);
             setCurrentUser(undefined);
-            navigate("/login");
+            navigate(endpoints.LOGIN);
         };
 
         return (

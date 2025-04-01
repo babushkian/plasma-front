@@ -6,14 +6,14 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
 import { UserContext } from "../../context";
-import { getUserEndpoints } from "../../utils/authorization";
+import { endpoints, getUserEndpoints } from "../../utils/authorization";
 
 const Navbar: React.FC = () => {
     const { currentUser } = useContext(UserContext);
     const { pathname } = useLocation();
     const login = (
         <>
-            <Link className={styles["login-container"]} to="/login">
+            <Link className={styles["login-container"]} to={endpoints.LOGIN}>
                 <Button size="small" variant="contained">
                     войти
                 </Button>
@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
             <LogoutButton />
         </>
     );
-    const authWidget = !currentUser ? pathname === "/login" ? <></> : login : logout;
+    const authWidget = !currentUser ? pathname === endpoints.LOGIN ? <></> : login : logout;
 
     return (
         <>

@@ -111,16 +111,16 @@ const router = createBrowserRouter(
                     Component: PrivateRoute,
                     children: [
                         {
-                            path: endpoints.TECHMAN.endpoint,
+                            path: endpoints.TECHMAN,
                             element: <Techman />,
                         },
                         {
-                            path: endpoints.MASTER.endpoint,
+                            path: endpoints.MASTER,
                             Component: Master,
                             errorElement: <ErrorPage />,
                         },
                         {
-                            path: endpoints.OPERATOR.endpoint, children: [
+                            path: endpoints.OPERATOR, children: [
                                 {index: true,
                                 Component: Operator,},
                                 { path: ":programName", Component: OperatorParts },
@@ -128,7 +128,7 @@ const router = createBrowserRouter(
                             
                         },
                         {
-                            path: endpoints.LOGIST.endpoint,
+                            path: endpoints.LOGIST,
                             element: (
                                     <Suspense fallback={<LoadingPlaceholder />}>
                                         <LazyLogist />
@@ -142,16 +142,10 @@ const router = createBrowserRouter(
                 { path: "login", element: <Login /> },
                 { path: "logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
 
-                {
-                    path: "loadbystatus",
-                    element: <PartsByStatuses />,
-
-                    errorElement: <ErrorPage />,
-                },
                 { path: "operator/:programName", Component: OperatorParts },
-                // { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
-                // { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
-                { path: "report", Component: MainReport, errorElement: <ErrorPage /> },
+                { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
+                { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
             ],
         },
     ],
