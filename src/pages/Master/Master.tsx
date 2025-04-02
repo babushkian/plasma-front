@@ -12,6 +12,7 @@ import { MasterResponseType } from "../../utils/requests.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
+import { endpoints } from "../../utils/authorization";
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
@@ -150,7 +151,7 @@ const Master = () => {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`/parts/${params.row.ProgramName}`}>
+                        <MuiLink component={Link} state={params.row} to={`${endpoints.MASTER}/${params.row.ProgramName}`}>
                             {params.row.ProgramName}
                         </MuiLink>
                     ),

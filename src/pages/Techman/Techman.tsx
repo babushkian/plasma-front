@@ -99,7 +99,7 @@ const Techman = () => {
                 colDef = {
                     ...colDef,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`/plasmaparts/${params.row.ProgramName}`}>
+                        <MuiLink component={Link} state={params.row} to={`${endpoints.TECHMAN}/${params.row.ProgramName}`}>
                             {params.row.ProgramName}
                         </MuiLink>
                     ),

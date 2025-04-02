@@ -5,7 +5,7 @@ import { isEndpointPermitted, getDefaultPage } from "../../utils/authorization.t
 
 const PrivateRoute = () => {
     const user = useContext(UserContext);
-    const { pathname } = useLocation();
+    const { pathname } = useLocation();    
     return isEndpointPermitted(user?.currentUser, pathname) ? <Outlet /> : <Navigate to={getDefaultPage(user?.currentUser)} />;
     
 };

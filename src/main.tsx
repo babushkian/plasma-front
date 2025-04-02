@@ -112,40 +112,49 @@ const router = createBrowserRouter(
                     children: [
                         {
                             path: endpoints.TECHMAN,
-                            element: <Techman />,
+                            children: [
+                                { index: true, element: <Techman /> },
+                                { path: ":programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+                            ],
                         },
                         {
                             path: endpoints.MASTER,
-                            Component: Master,
-                            errorElement: <ErrorPage />,
+                            children: [
+                                { index: true, Component: Master, errorElement: <ErrorPage /> },
+                                { path: ":programName", Component: PartsList, errorElement: <ErrorPage /> },
+                            ],
                         },
                         {
                             path: endpoints.OPERATOR,
                             children: [
-                                { index: true, element:<Operator /> },
-                                { path: ":programName", element: <OperatorParts />},
+                                { index: true, element: <Operator /> },
+                                { path: ":programName", element: <OperatorParts /> },
                             ],
                         },
                         {
                             path: endpoints.LOGIST,
-                            element: (
-                                <Suspense fallback={<LoadingPlaceholder />}>
-                                    <LazyLogist />
-                                </Suspense>
-                            ),
-                            errorElement: <ErrorPage />,
+                            children: [
+                                {
+                                    index: true,
+                                    element: (
+                                        <Suspense fallback={<LoadingPlaceholder />}>
+                                            <LazyLogist />
+                                        </Suspense>
+                                    ),
+                                    errorElement: <ErrorPage />,
+                                },
+                                { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
+
+                            ],
                         },
                     ],
                 },
 
-                
-                // { path: "logist/:programName", element: <LogistTable />, errorElement: <ErrorPage /> },
-                // { path: "operator/:programName", Component: OperatorParts },
-                // { path: "parts/:programName", Component: PartsList, errorElement: <ErrorPage /> },
-                // { path: "plasmaparts/:programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
+
+
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
-                { path: "*", element: <NotFoundPage /> }
+                { path: "*", element: <NotFoundPage /> },
             ],
         },
     ],
@@ -155,8 +164,8 @@ const router = createBrowserRouter(
         },
     }
 );
-console.log("список маршрутов")
-console.log(router.routes)
+console.log("список маршрутов");
+console.log(router.routes);
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

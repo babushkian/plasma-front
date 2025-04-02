@@ -7,6 +7,7 @@ import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
+import { endpoints } from "../../utils/authorization";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -16,7 +17,6 @@ const Logist = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const headers = useRef<Record<string, string>>({});
-    //const columnFields: (keyof ProgramAndFioType)[] = ["id", "ProgramName", "dimensions", "program_status"];
 
     const columnFields: (keyof ProgramAndFioType)[] = [
         "id",
@@ -41,7 +41,7 @@ const Logist = () => {
             colTemplate = {
                 ...colTemplate,
                 renderCell: (params) => (
-                    <MuiLink component={Link} state={params.row} to={`/logist/${params.row.ProgramName}`}>
+                    <MuiLink component={Link} state={params.row} to={`${endpoints.LOGIST}/${params.row.ProgramName}`}>
                         {params.row.ProgramName}
                     </MuiLink>
                 ),
