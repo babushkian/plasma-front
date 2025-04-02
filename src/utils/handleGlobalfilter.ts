@@ -8,6 +8,7 @@ import { GridRowModel } from "@mui/x-data-grid";
  */
 export const filterRows = (rows: GridRowModel[], filterText: string) => {
     const lowercasedFilter = filterText.toLowerCase();
+    if (filterText==='') return rows
     return rows.filter((row) =>
         Object.values(row).some((value) => String(value).toLowerCase().includes(lowercasedFilter))
     );
@@ -20,7 +21,7 @@ export const filterRows = (rows: GridRowModel[], filterText: string) => {
  * Наверное надо завести какую-то ссылку на отфильтрованные данные сразу после фильтрации 
  * и сравнивать их перед синхронизацией.
  * @param filteredState отфильтрованные данные
- * @param setOriginState 
+ * @param setOriginState функция для изменения оригинальных данных
  */
 export const syncFiltered = (
     filteredState: GridRowModel[],
@@ -38,7 +39,9 @@ export const syncFiltered = (
     // то копируем в оригинальный объект отфильтрованный ряд
     setOriginState((prev) =>
         prev.map((item) => {
-            if (filteredRowIds.includes(item.id)) return filteredObj[item.id];
+            if (filteredRowIds.includes(item.id)) {
+                console.log("измененный столбец:", item.id)
+                return filteredObj[item.id]};
             return item;
         })
     );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import SearchToolbar from "../../components/CustomToolbar/SearchToolbar";
@@ -39,6 +40,16 @@ const NewLogist = () => {
             headerName: headers.current[columnname],
             flex: 1,
         };
+        if (columnname === "ProgramName") {
+            colTemplate = {
+                ...colTemplate,
+                renderCell: (params) => (
+                    <MuiLink component={Link} state={params.row} to={`/l/${params.row.ProgramName}`}>
+                        {params.row.ProgramName}
+                    </MuiLink>
+                ),
+            };
+        }
         if (["wo_numbers", "wo_data1"].includes(columnname)) {
             colTemplate = {
                 ...colTemplate,
@@ -81,15 +92,16 @@ const NewLogist = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место логиста</Typography>
-                <Button onClick={()=>setCounter((prev) => prev + 1)}>нажми {counter}</Button>
+                {/*тестовая кнопка для проверки, когда перерисовывается таблица (она не должна перерисовываться при нажатии на кнопку) */}
+                {/* <Button onClick={()=>setCounter((prev) => prev + 1)}>нажми {counter}</Button> */}
                 {loadError && <div>Ошибка загрузки</div>}
 
                 {showTable && (
                     <div style={{ height: "800px", width: "100%" }}>
                         <FilteredDataGrid
                             rows={data}
+                            setRows={setData} 
                             columns={columns}
-                            slots={{ toolbar: SearchToolbar }}
                             initialState={hiddenIdColumn}
                             getRowHeight={() => "auto"}
                         />

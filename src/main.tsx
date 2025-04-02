@@ -34,6 +34,7 @@ import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import NewLogist from "./pages/NewLogist/NewLogist.tsx";
+import NewLogistTable from "./pages/NewLogist/NewLogistTable.tsx";
 
 // const theme = createTheme({
 //     palette: {
@@ -153,6 +154,7 @@ const router = createBrowserRouter(
 
 
                 { path: "/l", Component: NewLogist  },
+                { path: "/l/:programName", Component: NewLogistTable  },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

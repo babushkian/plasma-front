@@ -1,28 +1,46 @@
-import { DataGrid, DataGridProps } from "@mui/x-data-grid";
+import { DataGrid, DataGridProps, GridRowModel, GridColDef } from "@mui/x-data-grid";
 import { useState, memo, useEffect, useCallback } from "react";
 import SearchToolbar, { SearchToolbarType } from "../CustomToolbar/SearchToolbar";
-import { filterRows } from "../../utils/handleGlobalfilter";
-import { Height } from "@mui/icons-material";
+import { filterRows, syncFiltered } from "../../utils/handleGlobalfilter";
 
-const FilterableDataGtid = memo(({ rows, columns, ...props }: DataGridProps) => {
+export type FilterableDataGtidProps = Omit<DataGridProps, "rows" | "columns"> & {
+    rows: GridRowModel[];
+    setRows: React.Dispatch<React.SetStateAction<GridRowModel[]>>;
+    columns: GridColDef[];
+};
+const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: FilterableDataGtidProps) => {
     // rows и columns сохраняются в компонетне, а а таблицу отправляются filtered
-    const [filteredRows, setFilteredRows] = useState(rows);
+    const [filteredRows, setFilteredRows] = useState<GridRowModel[]>(rows);
     const [filterText, setFilterText] = useState("");
+    const [wasFiltered, setWasFiltered] = useState(false);
 
-    const filterData = useCallback(() => {
-        setFilteredRows( filterRows(rows, filterText))
+    const getFilteredData = useCallback(() => {
+        setFilteredRows(filterRows(rows, filterText));
     }, [filterText, rows]);
 
     useEffect(() => {
-        const timeoutId = setTimeout(filterData, 500);
+        const timeoutId = setTimeout(getFilteredData, 500);
+        //setWasFiltered(true)
         return () => {
             clearTimeout(timeoutId);
         };
-    }, [filterText, filterData]);
+    }, [filterText, getFilteredData]);
+
+    useEffect(() => {
+        if (wasFiltered && filteredRows !== rows) {
+            syncFiltered(filteredRows, setRows);
+            console.log("СИНХРОНИЗАЦИЯ");
+            setWasFiltered(false);
+        }
+    }, [filteredRows, rows, setRows, wasFiltered]);
+
+    useEffect(() => {
+        console.log("rows это новый объект!");
+    }, [rows]);
 
     console.log("таблица перерисовалась");
     return (
-        <div style={{height:700}}>
+        <div style={{ height: 700 }}>
             <DataGrid
                 rows={filteredRows}
                 columns={columns}

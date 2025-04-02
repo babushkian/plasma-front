@@ -76,8 +76,9 @@ const Techman = () => {
     // список значений выставленных в выпадающих фильтрах, по которым фильтруется таблица
     const [filterValue, setFilterValue] = useState<Partial<Record<ProgNameKeysType, string>>>({});
     const [noData, setNoData] = useState(false);
-    // объкт русификации заголовков  таблицы
+    // объект русификации заголовков  таблицы
     const headers = useRef({})
+    const navigate = useNavigate()
 
     const createColumns = () => {
         const colBuild: GridColDef[] = Object.entries(columnDict).map(([columnname, type]) => {
@@ -120,16 +121,14 @@ const Techman = () => {
         return colBuild;
     };
 
-    // const dispatch = useDispatch<AddDispatch>();
+   
     // свидетельствует о том, что данные получены с сервера, можно их обработать
     const [loaded, setLoaded] = useState(false);
     // можно показывать таблицу
     const [showTable, setShowTable] = useState(false);
-    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+    const [notification, setNotification] = useState(false); // всплывающее уведомление, что данные ушли на сервер
 
-    // чтобы они отображались, их нудно сделать сотсояниям, а то при присвоении экран не перерисовывается
-    // const { startDate: startDateState, endDate: endDateState } = useSelector((state: RootState) => state.diapazon);
-
+  
     //если появились данные, нужно сформировать колонки таблицы
     // Добавляем к исходным данным колокии
     const processData: (data: TechProgramType[]) => ProcessedPrognameType[] = (data) => {
@@ -163,8 +162,6 @@ const Techman = () => {
         }
         return [];
     };
-    
-    const navigate = useNavigate()
 
     /*загружаем даные о програмах с сервера*/
     const loadData = async () => {
@@ -188,8 +185,6 @@ const Techman = () => {
             
     }}
 
-
-
     // первоначальная загрузка данных
     useEffect(() => {
         loadData();
@@ -197,7 +192,6 @@ const Techman = () => {
 
     useEffect(() => {
         if (loaded && rawData.length > 0) {
-            
             const processed = processData(rawData)
             setData(processed);
             setFilteredData(processed)
@@ -223,7 +217,6 @@ const Techman = () => {
 
     //обработка выбора строк с помощью чекбокса
     const handleSelect = (props: GridRenderCellParams<TechProgramType>) => {
-        
         // изменение данных в исходной таблице
         // вообще, данные в ней нужно менять только после изменения значения фильтра (или его сборса)
         setData((prevRows) =>
