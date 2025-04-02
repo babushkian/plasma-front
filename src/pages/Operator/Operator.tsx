@@ -241,7 +241,7 @@ const Operator = () => {
                 <Typography variant="h5">Рабочее место оператора</Typography>
                 {operatorsLoaded && (
                     <>
-                        <FormControl sx={{ m: 1, width: 300 }}>
+                        <FormControl sx={{ m: 1, width: 300 }} size="small" >
                             <InputLabel id="master-program-doers">Оператор</InputLabel>
                             <Select
                                 labelId="master-program-doers"

@@ -17,7 +17,7 @@ const PrioritySelect = memo(({ selectedValue, rowId, priorityOptions, assignHand
     };
 
     return (
-        <FormControl sx={{ m: 1, width: 150 }}>
+        <FormControl sx={{ m: 1, width: 150 }} size="small">
         <Select value={selectedValue} onChange={onChange}>
             {priorityOptions.map((option) => (
                 <MenuItem value={option} key={option}>{option}</MenuItem>
