@@ -57,7 +57,9 @@ function handleExport(apiRef, columns: GridColDef[]) {
     XLSX.writeFile(workbook, document.title + ".xlsx", { compression: true });
 }
 
-export default function GridExcelExportMenuItem({ columns }) {
+type ExportType = { columns:GridColDef[] }
+
+export default function GridExcelExportMenuItem({ columns }: ExportType) {
     const apiRef = useGridApiContext();
     return (
         <Button
