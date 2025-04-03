@@ -21,7 +21,7 @@ const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: Filterabl
     }, [rows]);
 
     useEffect(() => {
-        const timeoutId = setTimeout(()=>getFilteredData(filterText), 500);
+        const timeoutId = setTimeout(()=>getFilteredData(filterText), 300);
         return () => {
             clearTimeout(timeoutId);
         };

@@ -38,7 +38,7 @@ const NewLogistTable = () => {
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const apiRef = useGridApiRef();
-
+    const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     // объект с измененными стрками, в которые введено количество изготовленных деталей
@@ -59,30 +59,30 @@ const NewLogistTable = () => {
         }
     };
 
-    /** При загрузке страницы загружаем данные о деталях*/
-    useEffect(() => {
+     /** При загрузке страницы загружаем данные о деталях*/
+     useEffect(() => {
         loader();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const setQty = useCallback(
-        (rowId: number, qty: number) => {
-            console.log("редактируем ряд: ", apiRef.current.getRow(rowId))
-            console.log("редактируем ряд: ", apiRef.current.getAllRowIds())
-            
-            const dataIndex = data.findIndex((item) => rowId === item.id);
-            if (data[dataIndex].qty_fact === qty) {
-                return;
-            } else {
-                // добвляем элемент в массив
-                setFactQty((prev) => ({ ...prev, [rowId]: { id: rowId, qty_fact: qty } }));
-            }
-        },
-        
-        [data]
-    );
+    const setQty = useCallback((rowId: number, qty: number) => {
+        setData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    setModifiedRows((prev) => {
+                        const next = new Set(prev);
+                        next.add(rowId);
+                        return next;
+                    });
+                    return { ...row, qty_fact: qty };
+                }
+                return row;
+            })
+        );
+    }, []);
 
     const createColumns = useCallback(() => {
+        console.log("создаем колонки");
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
@@ -111,22 +111,24 @@ const NewLogistTable = () => {
         return clmns;
     }, [setQty]);
 
+
     useEffect(() => {
-        columns.current = createColumns();
+        if (!columns.current.length) {
+            columns.current = createColumns();
+        }
     }, [data, createColumns]);
 
     const sendQty: () => Promise<void> = async () => {
-        if (Object.keys(factQty).length === 0) {
-            return;
-        }
-        const partsQty = Object.values(factQty);
+        const partsQty = data
+            .filter((item) => modifiedRows.has(item.id))
+            .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
         await logistCalculateParts(partsQty);
         setNotification(true);
-        // сброс заполненных работников и перезагрузка страницы
-        setFactQty(() => ({}));
+
+        setModifiedRows(new Set());
         loader();
     };
-    
+
     // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект     
     // который должен каждый раз создаваться заново
     const gridParams = useMemo(
