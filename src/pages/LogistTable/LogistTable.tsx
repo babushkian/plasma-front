@@ -47,11 +47,10 @@ const LogistTable = () => {
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
+    // ндентификатроы измененных сьолбцов
     const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    // объект с измененными стрками, в которые введено количество изготовленных деталей
-    const [factQty, setFactQty] = useState<factQtyRecordType>({});
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const headers = useRef<Record<keyof MasterProgramPartsRecordType, string>>({});
 
@@ -74,26 +73,24 @@ const LogistTable = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const setQty = useCallback(
-        (rowId: number, qty: number) => {
-            const dataIndex = data.findIndex((item) => rowId === item.id);
-            if (data[dataIndex].qty_fact === qty) {
-                return;
-            } else {
-                // добвляем элемент в массив
-                setFactQty((prev) => ({ ...prev, [rowId]: { id: rowId, qty_fact: qty } }));
-                setModifiedRows((prev) => {
-                    const next = new Set(prev);
-                    next.add(rowId);
-                    return next;
-                });
-            }
-        },
-        [data]
-    );
-
+    const setQty = useCallback((rowId: number, qty: number) => {
+        setData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    setModifiedRows((prev) => {
+                        const next = new Set(prev);
+                        next.add(rowId);
+                        return next;
+                    });
+                    return { ...row, qty_fact: qty };
+                }
+                return row;
+            })
+        );
+    }, []);
 
     const createColumns = useCallback(() => {
+        console.log("создаем колонки");
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
@@ -123,22 +120,19 @@ const LogistTable = () => {
     }, [setQty]);
 
     useEffect(() => {
-        columns.current = createColumns();
+        if (!columns.current.length) {
+            columns.current = createColumns();
+        }
     }, [data, createColumns]);
 
     const sendQty: () => Promise<void> = async () => {
-        if (Object.keys(factQty).length === 0) {
-            return;
-        }
-        const partsQty1 = data.filter((item)=> modifiedRows.has(item.id)).map((item)=>( { id: item.id, qty_fact: item.qty_fact }))
-        console.log(partsQty1)
-        const partsQty = Object.values(factQty);
+        const partsQty = data
+            .filter((item) => modifiedRows.has(item.id))
+            .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
         await logistCalculateParts(partsQty);
         setNotification(true);
-        // сброс заполненных работников и перезагрузка страницы
-        setFactQty(() => ({}));
 
-        setModifiedRows(new Set())
+        setModifiedRows(new Set());
         loader();
     };
 
@@ -152,7 +146,7 @@ const LogistTable = () => {
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={sendQty} disabled={false}>
+                        <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
                             Применить фактическое количество деталей
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
