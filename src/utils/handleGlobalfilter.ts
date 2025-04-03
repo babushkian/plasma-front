@@ -8,7 +8,7 @@ import { GridRowModel } from "@mui/x-data-grid";
  */
 export const filterRows = (rows: GridRowModel[], filterText: string) => {
     const lowercasedFilter = filterText.toLowerCase();
-    if (filterText==='') return rows
+    if (filterText==='') return [...rows]
     return rows.filter((row) =>
         Object.values(row).some((value) => String(value).toLowerCase().includes(lowercasedFilter))
     );

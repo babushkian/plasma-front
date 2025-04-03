@@ -8,31 +8,33 @@ export type FilterableDataGtidProps = Omit<DataGridProps, "rows" | "columns"> & 
     setRows: React.Dispatch<React.SetStateAction<GridRowModel[]>>;
     columns: GridColDef[];
 };
+
 const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: FilterableDataGtidProps) => {
-    // rows и columns сохраняются в компонетне, а а таблицу отправляются filtered
+    // rows и columns сохраняются в компонетне, а в таблицу отправляются filtered
     const [filteredRows, setFilteredRows] = useState<GridRowModel[]>(rows);
     const [filterText, setFilterText] = useState("");
-    const [wasFiltered, setWasFiltered] = useState(false);
+    const [tableWasMutated, setTableWasMutated] = useState(false)
 
-    const getFilteredData = useCallback(() => {
+    // фильтрует столбцы для таблицы
+    const getFilteredData = useCallback((filterText:string) => {
         setFilteredRows(filterRows(rows, filterText));
-    }, [filterText, rows]);
+    }, [rows]);
 
     useEffect(() => {
-        const timeoutId = setTimeout(getFilteredData, 500);
-        //setWasFiltered(true)
+        const timeoutId = setTimeout(()=>getFilteredData(filterText), 500);
         return () => {
             clearTimeout(timeoutId);
         };
     }, [filterText, getFilteredData]);
 
-    useEffect(() => {
-        if (wasFiltered && filteredRows !== rows) {
-            syncFiltered(filteredRows, setRows);
-            console.log("СИНХРОНИЗАЦИЯ");
-            setWasFiltered(false);
-        }
-    }, [filteredRows, rows, setRows, wasFiltered]);
+
+    // useEffect(() => {
+    //     if ( filteredRows !== rows) {
+    //         syncFiltered(filteredRows, setRows);
+    //         console.log("СИНХРОНИЗАЦИЯ");
+            
+    //     }
+    // }, [filteredRows, rows, setRows]);
 
     useEffect(() => {
         console.log("rows это новый объект!");

@@ -67,7 +67,7 @@ const Techman = () => {
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
     // данные после фильтрации(именно они отбражаются в таблице)
     const [filteredData, setFilteredData] = useState<ProcessedPrognameType[]>([]);
-    // список программ, выделенных для загрузки в нашу таблицу из сигмы
+    // количество программ, выделенных для загрузки в нашу таблицу из сигмы
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
     // стабильная переменная для храенеия данных о столбцах таблицы]
     const columns = useRef<GridColDef[]>([]);

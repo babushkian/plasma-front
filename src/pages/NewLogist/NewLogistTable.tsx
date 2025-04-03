@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { ProgramExtendedType } from "../Master/Master.types";
 
@@ -37,6 +37,7 @@ const NewLogistTable = () => {
     const [counter, setCounter] = useState(0);
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
+    const apiRef = useGridApiRef();
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
@@ -66,6 +67,9 @@ const NewLogistTable = () => {
 
     const setQty = useCallback(
         (rowId: number, qty: number) => {
+            console.log("редактируем ряд: ", apiRef.current.getRow(rowId))
+            console.log("редактируем ряд: ", apiRef.current.getAllRowIds())
+            
             const dataIndex = data.findIndex((item) => rowId === item.id);
             if (data[dataIndex].qty_fact === qty) {
                 return;
@@ -74,6 +78,7 @@ const NewLogistTable = () => {
                 setFactQty((prev) => ({ ...prev, [rowId]: { id: rowId, qty_fact: qty } }));
             }
         },
+        
         [data]
     );
 
@@ -130,6 +135,7 @@ const NewLogistTable = () => {
             setRows: setData,
             columns: columns.current,
             initialState: hiddenIdColumn,
+            apiRef: apiRef,
         }),
         [data]
     );

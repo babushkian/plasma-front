@@ -17,16 +17,6 @@ import { endpoints } from "../../utils/authorization";
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
-// const columnFields: (keyof ProgramExtendedType)[] = [
-//     "id",
-//     "ProgramName",
-//     "program_status",
-//     "dimensions",
-//     "Material",
-//     "program_priority",
-//     "doerIds",
-// ];
-
 const columnFields: (keyof ProgramExtendedType)[] = [
     "id",
     "ProgramName",
@@ -109,7 +99,7 @@ const Master = () => {
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
 
-    const handleSelect = useCallback((rowId: number, value: string | number[], field: changeFieldType) => {
+    const handleChangedCell = useCallback((rowId: number, value: string | number[], field: changeFieldType) => {
         // изменяем массив модифицированных строк
         if (!assignedProgramsRef.current.includes(rowId)) {
             setAssignedPrograms((prev) => [...prev, rowId]);
@@ -167,7 +157,7 @@ const Master = () => {
                             selectedValue={params.value}
                             rowId={params.row.id}
                             priorityOptions={priorityArray}
-                            assignHandler={handleSelect}
+                            assignHandler={handleChangedCell}
                         />
                     ),
                 };
@@ -183,7 +173,7 @@ const Master = () => {
                             selectValue={params.row.doerIds}
                             rowId={params.row.id}
                             doers={doers.current}
-                            assignHandler={handleSelect}
+                            assignHandler={handleChangedCell}
                         />
                     ),
                 };
@@ -192,7 +182,7 @@ const Master = () => {
         });
 
         return clmns;
-    }, [handleSelect, headers]);
+    }, [handleChangedCell, headers]);
 
     useEffect(() => {
         columns.current = createColumns();

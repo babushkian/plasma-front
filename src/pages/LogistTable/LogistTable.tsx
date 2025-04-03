@@ -30,7 +30,7 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     "PartName",
     "WONumber",
     "WOData1",
-    
+
     "PartLength",
     "PartWidth",
     "Thickness",
@@ -47,13 +47,13 @@ const LogistTable = () => {
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
-
+    const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     // объект с измененными стрками, в которые введено количество изготовленных деталей
     const [factQty, setFactQty] = useState<factQtyRecordType>({});
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<string, string>>({});
+    const headers = useRef<Record<keyof MasterProgramPartsRecordType, string>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -82,10 +82,16 @@ const LogistTable = () => {
             } else {
                 // добвляем элемент в массив
                 setFactQty((prev) => ({ ...prev, [rowId]: { id: rowId, qty_fact: qty } }));
+                setModifiedRows((prev) => {
+                    const next = new Set(prev);
+                    next.add(rowId);
+                    return next;
+                });
             }
         },
         [data]
     );
+
 
     const createColumns = useCallback(() => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -113,15 +119,6 @@ const LogistTable = () => {
 
             return col;
         });
-        // clmns.push({
-        //     field: "action",
-        //     headerName: "Факическое количество",
-        //     flex: 0,
-        //     width: 100,
-        //     renderCell: (params) => (
-        //         <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
-        //     ),
-        // });
         return clmns;
     }, [setQty]);
 
@@ -133,11 +130,15 @@ const LogistTable = () => {
         if (Object.keys(factQty).length === 0) {
             return;
         }
+        const partsQty1 = data.filter((item)=> modifiedRows.has(item.id)).map((item)=>( { id: item.id, qty_fact: item.qty_fact }))
+        console.log(partsQty1)
         const partsQty = Object.values(factQty);
         await logistCalculateParts(partsQty);
         setNotification(true);
         // сброс заполненных работников и перезагрузка страницы
         setFactQty(() => ({}));
+
+        setModifiedRows(new Set())
         loader();
     };
 

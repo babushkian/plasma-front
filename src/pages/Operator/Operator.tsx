@@ -92,19 +92,17 @@ const columnFields = [
 const Operator = () => {
     const operatorIdContext = useContext(OperatorSelectContext);
     const currentUserContext = useContext(UserContext);
-
     if (!operatorIdContext) {
         throw new Error("не определено начальное значение для конекста оператора");
     }
     if (!currentUserContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }
-
     const { currentUser } = currentUserContext;
     const { selectedOperatorId, setSelectedOperatorId } = operatorIdContext;
-
     console.log("идентификатор пользователя", currentUser.id);
     console.log("идентификатор оператора", selectedOperatorId);
+    
     const columns = useRef<GridColDef[]>([]);
     const [doers, setDoers] = useState<DoerType[]>([]);
     const [operatorsLoaded, setOperatorsLoaded] = useState(false);
