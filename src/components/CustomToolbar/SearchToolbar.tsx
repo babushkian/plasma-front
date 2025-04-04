@@ -1,10 +1,12 @@
 import { GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton } from "@mui/x-data-grid";
 import { Box, TextField } from "@mui/material";
+import { memo } from "react";
 
 
 export type SearchToolbarType = { filterText: string; setFilterText: React.Dispatch<React.SetStateAction<string>> };
 
-function SearchToolbar({ filterText, setFilterText }: SearchToolbarType) {
+const SearchToolbar = memo(({ filterText, setFilterText }: SearchToolbarType) =>{
+    console.log("прерисовывается глобальный фильтр, значение:", filterText)
     return (
         <GridToolbarContainer>
             <GridToolbarColumnsButton />
@@ -19,6 +21,6 @@ function SearchToolbar({ filterText, setFilterText }: SearchToolbarType) {
             />
         </GridToolbarContainer>
     );
-}
+})
 
 export default SearchToolbar;

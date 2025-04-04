@@ -1,7 +1,7 @@
 import { DataGrid, DataGridProps, GridRowModel, GridColDef } from "@mui/x-data-grid";
-import { useState, memo, useEffect, useCallback } from "react";
+import { useState, memo, useEffect, useCallback, useRef } from "react";
 import SearchToolbar, { SearchToolbarType } from "../CustomToolbar/SearchToolbar";
-import { filterRows, syncFiltered } from "../../utils/handleGlobalfilter";
+import { filterRows } from "../../utils/handleGlobalfilter";
 
 export type FilterableDataGtidProps = Omit<DataGridProps, "rows" | "columns"> & {
     rows: GridRowModel[];
@@ -11,36 +11,36 @@ export type FilterableDataGtidProps = Omit<DataGridProps, "rows" | "columns"> & 
 
 const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: FilterableDataGtidProps) => {
     // rows и columns сохраняются в компонетне, а в таблицу отправляются filtered
+    // если ячейки таблицы редактируются, то изменения вносятся в rows, а filteredRows 
+    // просто отображают измененные оригинальные данные
     const [filteredRows, setFilteredRows] = useState<GridRowModel[]>(rows);
     const [filterText, setFilterText] = useState("");
-    const [tableWasMutated, setTableWasMutated] = useState(false)
+    const prevFilterText = useRef(filterText);
 
     // фильтрует столбцы для таблицы
-    const getFilteredData = useCallback((filterText:string) => {
-        setFilteredRows(filterRows(rows, filterText));
-    }, [rows]);
+    const getFilteredData = useCallback(
+        (filterText: string) => {
+            setFilteredRows(filterRows(rows, filterText));
+        },
+        [rows]
+    );
 
+    // фильтрация по таблице происходит либо мгновенно, когда внутри таблицы меняются значения
+    // либо с паузой, когра происходит ввод глобального фильтра, чтобы таблица не дергалась на каждое нажатие клавиши
     useEffect(() => {
-        const timeoutId = setTimeout(()=>getFilteredData(filterText), 300);
+        let timeout = 0;
+        const changed = filterText !== prevFilterText.current
+        if (changed) timeout = 500;
+        const timeoutId = setTimeout(() => {
+            getFilteredData(filterText);
+            prevFilterText.current = filterText
+        }, timeout);
         return () => {
             clearTimeout(timeoutId);
         };
     }, [filterText, getFilteredData]);
 
 
-    // useEffect(() => {
-    //     if ( filteredRows !== rows) {
-    //         syncFiltered(filteredRows, setRows);
-    //         console.log("СИНХРОНИЗАЦИЯ");
-            
-    //     }
-    // }, [filteredRows, rows, setRows]);
-
-    useEffect(() => {
-        console.log("rows это новый объект!");
-    }, [rows]);
-
-    console.log("таблица перерисовалась");
     return (
         <div style={{ height: 700 }}>
             <DataGrid
