@@ -8,7 +8,7 @@ import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
-import { MasterProgramPartsRecordType } from "./LogistTable.types";
+import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import QtyInput from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
@@ -16,7 +16,8 @@ import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableData
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
-const columnFields: (keyof MasterProgramPartsRecordType)[] = [
+const columnFields = [
+    "id",
     "PartName",
     "WONumber",
     "WOData1",
@@ -27,7 +28,15 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     "QtyInProcess",
     "storage_cell_id",
     "qty_fact",
-];
+] as const;
+
+// так как мы удаляем из таблицы лишние сироки и преобразуем массив работников в строку с перечислением этих работников,
+// то нужно из первоначального типа убрать первонеяальне определение поля "fio_doers" и заменить его на строку
+type FilteredMasterProgramParts = Omit<
+    Pick<MasterProgramPartsRecordType, (typeof columnFields)[number]>,
+    "fio_doers"
+> & { fio_doers: string };
+// type FilteredMasterProgramParts = Pick<MasterProgramPartsRecordType, typeof columnFields[number]> & {fio_doers:string};
 
 const NewLogistTable = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -36,13 +45,11 @@ const NewLogistTable = () => {
     //просто счетчик для проверки, как перерисовываается таблица при изменении части страницы, которая на таблицу никак не влияет
     const [counter, setCounter] = useState(0);
     const columns = useRef<GridColDef[]>([]);
-    const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
+    const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
     const apiRef = useGridApiRef();
     const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    // объект с измененными стрками, в которые введено количество изготовленных деталей
-    const [factQty, setFactQty] = useState<factQtyRecordType>({});
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const headers = useRef<Record<string, string>>({});
 
@@ -51,7 +58,19 @@ const NewLogistTable = () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            setData(response.data);
+            const processedData = response.data.map((row) => {
+                const processedRow: FilteredMasterProgramParts = {};
+                columnFields.map((colName) => {
+                    if (colName === "fio_doers") {
+                        processedRow[colName] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
+                    } else {
+                        processedRow[colName] = row[colName];
+                    }
+                });
+                return processedRow;
+            });
+            setData(processedData);
+            //setData(response.data);
             headers.current = response.headers;
             setShowTable(true);
         } else {
@@ -59,8 +78,8 @@ const NewLogistTable = () => {
         }
     };
 
-     /** При загрузке страницы загружаем данные о деталях*/
-     useEffect(() => {
+    /** При загрузке страницы загружаем данные о деталях*/
+    useEffect(() => {
         loader();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -89,12 +108,7 @@ const NewLogistTable = () => {
                 headerName: headers.current[columnname],
                 flex: 1,
             };
-            if (columnname == "fio_doers") {
-                col = {
-                    ...col,
-                    valueGetter: (value) => value.map((item) => item.fio_doer).join(", "),
-                };
-            }
+
             if (columnname == "qty_fact") {
                 col = {
                     ...col,
@@ -110,7 +124,6 @@ const NewLogistTable = () => {
         });
         return clmns;
     }, [setQty]);
-
 
     useEffect(() => {
         if (!columns.current.length) {
@@ -129,7 +142,7 @@ const NewLogistTable = () => {
         loader();
     };
 
-    // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект     
+    // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
     // который должен каждый раз создаваться заново
     const gridParams = useMemo(
         () => ({
@@ -142,7 +155,6 @@ const NewLogistTable = () => {
         [data]
     );
 
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -150,9 +162,6 @@ const NewLogistTable = () => {
                     Тестовое редактирование деталей программы № {state.ProgramName} на странице логиста
                 </Typography>
                 <Notification value={notification} setValue={setNotification} />
-                {/*тестовая кнопка для проверки, когда перерисовывается таблица (она не должна перерисовываться при нажатии на кнопку) */}
-                <Button onClick={()=>setCounter((prev) => prev + 1)}>нажми {counter}</Button>
-
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>

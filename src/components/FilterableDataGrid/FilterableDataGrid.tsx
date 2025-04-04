@@ -49,6 +49,7 @@ const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: Filterabl
                 {...props}
                 slots={{ toolbar: SearchToolbar }}
                 slotProps={{ toolbar: { filterText, setFilterText } as SearchToolbarType }}
+                getRowHeight={() => "auto"}
             />
         </div>
     );
