@@ -3,9 +3,9 @@ import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useCon
 //import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar"
+import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 
-import { TechProgramType, ProcessedPrognameType } from "./Techman.types";
+import { TechProgramType, ProcessedPrognameType, DateDiapazonType } from "./Techman.types";
 // import { AddDispatch, RootState } from "../../store/store";
 // import { dateDiapazonActions } from "../../store/date_diapazon.slice";
 // import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
@@ -31,8 +31,6 @@ import {
 import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
 import { endpoints } from "../../utils/authorization.ts";
-
-
 
 type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
 
@@ -60,7 +58,7 @@ const Techman = () => {
     // интерфейс для управления таблицей
     const apiRef = useGridApiRef();
     // диапазон дат, за который будут загружаться данные
-    const {dateDiapazon, setDateDiapazon} = useContext(DateDiapazonContext)    
+    const { dateDiapazon, setDateDiapazon } = useContext(DateDiapazonContext);
     //данные пришедшие из запроса в первоначальном виде
     const [rawData, setRawData] = useState<TechProgramType[]>([]);
     // данные, обработанные для отображения в таблице(все данные целиком, в том числе и те, которые не показываются)
@@ -77,8 +75,8 @@ const Techman = () => {
     const [filterValue, setFilterValue] = useState<Partial<Record<ProgNameKeysType, string>>>({});
     const [noData, setNoData] = useState(false);
     // объект русификации заголовков  таблицы
-    const headers = useRef({})
-    const navigate = useNavigate()
+    const headers = useRef({});
+    const navigate = useNavigate();
 
     const createColumns = () => {
         const colBuild: GridColDef[] = Object.entries(columnDict).map(([columnname, type]) => {
@@ -100,7 +98,11 @@ const Techman = () => {
                 colDef = {
                     ...colDef,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`${endpoints.TECHMAN}/${params.row.ProgramName}`}>
+                        <MuiLink
+                            component={Link}
+                            state={params.row}
+                            to={`${endpoints.TECHMAN}/${params.row.ProgramName}`}
+                        >
                             {params.row.ProgramName}
                         </MuiLink>
                     ),
@@ -121,14 +123,12 @@ const Techman = () => {
         return colBuild;
     };
 
-   
     // свидетельствует о том, что данные получены с сервера, можно их обработать
     const [loaded, setLoaded] = useState(false);
     // можно показывать таблицу
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // всплывающее уведомление, что данные ушли на сервер
 
-  
     //если появились данные, нужно сформировать колонки таблицы
     // Добавляем к исходным данным колокии
     const processData: (data: TechProgramType[]) => ProcessedPrognameType[] = (data) => {
@@ -164,37 +164,40 @@ const Techman = () => {
     };
 
     /*загружаем даные о програмах с сервера*/
-    const loadData = async () => {
+    const loadData = async (diapazon: DateDiapazonType) => {
         setShowTable(false);
         setLoaded(false);
         setNoData(false);
         try {
-            const data = await getNewPrograms({ start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),   end_date: dateDiapazon.endDate.format("YYYY-MM-DD")})
+            const data = await getNewPrograms({
+                start_date: diapazon.startDate.format("YYYY-MM-DD"),
+                end_date: diapazon.endDate.format("YYYY-MM-DD"),
+            });
             if (data) {
                 setRawData(data.data);
-                headers.current = data.headers
+                headers.current = data.headers;
                 console.log("данные с сревера:", data);
                 setLoaded(true);
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                console.error('Ошибка авторизации: требуется вход в систему.');
-                navigate(endpoints.LOGIN)
+                console.error("Ошибка авторизации: требуется вход в систему.");
+                navigate(endpoints.LOGIN);
             }
             console.error("Error fetching protected data:", error);
-            
-    }}
+        }
+    };
 
     // первоначальная загрузка данных
     useEffect(() => {
-        loadData();
+        loadData(dateDiapazon);
     }, []);
 
     useEffect(() => {
         if (loaded && rawData.length > 0) {
-            const processed = processData(rawData)
+            const processed = processData(rawData);
             setData(processed);
-            setFilteredData(processed)
+            setFilteredData(processed);
             columns.current = createColumns();
             setShowTable(true);
         } else if (loaded && rawData.length === 0) {
@@ -212,7 +215,7 @@ const Techman = () => {
         console.log(createRecords);
         await createDataRequest(createRecords);
         setNotification(true);
-        loadData();
+        loadData(dateDiapazon);
     };
 
     //обработка выбора строк с помощью чекбокса
@@ -236,8 +239,6 @@ const Techman = () => {
                 return row;
             })
         );
-
-
     };
 
     /**Считает количество выделенных чекбоксами строк*/
@@ -275,14 +276,34 @@ const Techman = () => {
         console.log(newSelectionModel);
     };
 
+    const selectCurrentday = ()=> {
+        const diap:DateDiapazonType = {startDate:dayjs(), endDate:dayjs()}  
+        setDateDiapazon(diap)
+        loadData(diap)
+    }
+
+    const selectWeek= ()=> {
+        const diap:DateDiapazonType = {startDate:dayjs().subtract(7,"days"), endDate:dayjs()}  
+        setDateDiapazon(diap)
+        loadData(diap)
+    }
+
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Загрузка программ</Typography>
-                <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon}/>
+                <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon} />
                 <Stack spacing={2} direction="row">
-                    <Button variant="contained" onClick={loadData}>
-                        Получить данные за период
+                    <Button variant="contained" onClick={selectCurrentday}>
+                        за сегодня
+                    </Button>
+                    <Button variant="contained" onClick={selectWeek}>
+                        за неделю
+                    </Button>
+
+                    <Button variant="contained" onClick={()=>loadData(dateDiapazon)}>
+                        за период
                     </Button>
 
                     <Button
@@ -313,7 +334,7 @@ const Techman = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                            </FormControl> */}
+                            </FormControl>
                             <FormControl variant="outlined" style={{ minWidth: 200 }}>
                                 <InputLabel>Статус</InputLabel>
                                 <Select
@@ -327,8 +348,13 @@ const Techman = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                            </FormControl>
-                            <GlobalFilter rows = {data} setRows={setData} filteredRows={filteredData} setFilteredRows={setFilteredData}  />
+                            </FormControl> */}
+                            <GlobalFilter
+                                rows={data}
+                                setRows={setData}
+                                filteredRows={filteredData}
+                                setFilteredRows={setFilteredData}
+                            />
                         </Stack>
 
                         <DataGrid

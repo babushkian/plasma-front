@@ -43,7 +43,6 @@ const NewLogistTable = () => {
     // так как у деталей такой информции нет
     const { state }: { state: ProgramExtendedType } = useLocation();
     //просто счетчик для проверки, как перерисовываается таблица при изменении части страницы, которая на таблицу никак не влияет
-    const [counter, setCounter] = useState(0);
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
     const apiRef = useGridApiRef();
@@ -152,7 +151,7 @@ const NewLogistTable = () => {
             initialState: hiddenIdColumn,
             apiRef: apiRef,
         }),
-        [data]
+        [apiRef, data]
     );
 
     return (
@@ -165,7 +164,7 @@ const NewLogistTable = () => {
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={sendQty} disabled={false}>
+                        <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
                             Применить фактическое количество деталей
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>

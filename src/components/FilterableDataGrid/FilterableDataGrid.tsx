@@ -5,11 +5,11 @@ import { filterRows } from "../../utils/handleGlobalfilter";
 
 export type FilterableDataGtidProps = Omit<DataGridProps, "rows" | "columns"> & {
     rows: GridRowModel[];
-    setRows: React.Dispatch<React.SetStateAction<GridRowModel[]>>;
+    //setRows: React.Dispatch<React.SetStateAction<GridRowModel[]>>;
     columns: GridColDef[];
 };
 
-const FilterableDataGtid = memo(({ rows, setRows, columns, ...props }: FilterableDataGtidProps) => {
+const FilterableDataGtid = memo(({ rows, columns, ...props }: FilterableDataGtidProps) => {
     // rows и columns сохраняются в компонетне, а в таблицу отправляются filtered
     // если ячейки таблицы редактируются, то изменения вносятся в rows, а filteredRows 
     // просто отображают измененные оригинальные данные

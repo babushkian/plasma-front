@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import SearchToolbar from "../../components/CustomToolbar/SearchToolbar";
 import { getDoers, logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
@@ -13,26 +13,28 @@ import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableData
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
+
+const columnFields: (keyof ProgramAndFioType)[] = [
+    "id",
+    "program_priority",
+    "ProgramName",
+    "program_status",
+    "wo_numbers",
+    "wo_data1",
+    "Thickness",
+    "SheetWidth",
+    "SheetLength",
+    //"fio_doers",
+];
+
+
 const NewLogist = () => {
     const [data, setData] = useState<ProgramAndFioType[]>([]);
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const headers = useRef<Record<string, string>>({});
-    const [counter, setCounter] = useState(0);
-
-    const columnFields: (keyof ProgramAndFioType)[] = [
-        "id",
-        "program_priority",
-        "ProgramName",
-        "program_status",
-        "wo_numbers",
-        "wo_data1",
-        "Thickness",
-        "SheetWidth",
-        "SheetLength",
-        //"fio_doers",
-    ];
+    const apiRef = useGridApiRef();
 
     const columns: GridColDef[] = columnFields.map((columnname) => {
         let colTemplate: GridColDef = {
@@ -81,8 +83,16 @@ const NewLogist = () => {
         }
     };
 
-  
-
+    const gridParams = useMemo(
+        () => ({
+            rows: data,
+            setRows: setData,
+            columns: columns,
+            initialState: hiddenIdColumn,
+            apiRef: apiRef,
+        }),
+        [apiRef, data]
+    );
 
     useEffect(() => {
         loader();
@@ -98,13 +108,7 @@ const NewLogist = () => {
 
                 {showTable && (
                     <div style={{ height: "800px", width: "100%" }}>
-                        <FilteredDataGrid
-                            rows={data}
-                            setRows={setData} 
-                            columns={columns}
-                            initialState={hiddenIdColumn}
-                            getRowHeight={() => "auto"}
-                        />
+                        <FilteredDataGrid {...gridParams} />
                     </div>
                 )}
             </Box>
