@@ -50,7 +50,6 @@ const NewLogistTable = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<string, string>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -69,9 +68,9 @@ const NewLogistTable = () => {
                 return processedRow;
             });
             setData(processedData);
-            //setData(response.data);
-            headers.current = response.headers;
+            columns.current = createColumns(response.headers);
             setShowTable(true);
+
         } else {
             setLoadError(true);
         }
@@ -99,12 +98,12 @@ const NewLogistTable = () => {
         );
     }, []);
 
-    const createColumns = useCallback(() => {
+    const createColumns = useCallback((headers:Record<string, string>) => {
         console.log("создаем колонки");
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
-                headerName: headers.current[columnname],
+                headerName: headers[columnname],
                 flex: 1,
             };
 
@@ -123,12 +122,6 @@ const NewLogistTable = () => {
         });
         return clmns;
     }, [setQty]);
-
-    useEffect(() => {
-        if (!columns.current.length) {
-            columns.current = createColumns();
-        }
-    }, [data, createColumns]);
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data

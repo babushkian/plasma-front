@@ -52,7 +52,7 @@ const LogistTable = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<keyof MasterProgramPartsRecordType, string>>({});
+    //const headers = useRef<Record<keyof MasterProgramPartsRecordType, string | undefined>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -60,8 +60,10 @@ const LogistTable = () => {
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
             setData(response.data);
-            headers.current = response.headers;
+            //headers.current = response.headers;
+            columns.current = createColumns(response.headers);
             setShowTable(true);
+
         } else {
             setLoadError(true);
         }
@@ -89,12 +91,12 @@ const LogistTable = () => {
         );
     }, []);
 
-    const createColumns = useCallback(() => {
+    const createColumns = useCallback((headers) => {
         console.log("создаем колонки");
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
-                headerName: headers.current[columnname],
+                headerName: headers[columnname],
                 flex: 1,
             };
             if (columnname == "fio_doers") {
@@ -119,11 +121,12 @@ const LogistTable = () => {
         return clmns;
     }, [setQty]);
 
-    useEffect(() => {
-        if (!columns.current.length) {
-            columns.current = createColumns();
-        }
-    }, [data, createColumns]);
+    // useEffect(() => {
+    //     if (!columns.current.length && Object.keys(headers.current).length) {
+    //         columns.current = createColumns();
+    //         setShowTable(true);
+    //     }
+    // }, [headers.current, createColumns]);
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data

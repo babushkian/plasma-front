@@ -39,6 +39,7 @@ const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
                 onBlur={updateTable}
                 onChange={hadleSetQty}
                 onKeyDown={handleKeyDown}
+                autoComplete= "off"
             />
         </>
     );
