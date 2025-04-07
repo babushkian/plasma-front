@@ -35,7 +35,7 @@ import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import NewLogist from "./pages/NewLogist/NewLogist.tsx";
 import NewLogistTable from "./pages/NewLogist/NewLogistTable.tsx";
-import NewMaster from "./pages/NewMaster/NewMaster.tsx"
+import {NewMaster} from "./pages/NewMaster/NewMaster.tsx"
 
 
 // const theme = createTheme({

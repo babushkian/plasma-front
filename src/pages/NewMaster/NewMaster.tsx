@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
-import { Box, Typography, Button, } from "@mui/material";
-import { GridColDef, useGridApiRef, } from "@mui/x-data-grid";
+import { Box, Typography, Button } from "@mui/material";
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
 import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests";
-import { DoerType, ProgramExtendedType, changeFieldType } from "../Master/Master.types";
-import { MasterResponseType } from "../../utils/requests.types";
+import { DoerType, ProgramExtendedType, changeFieldType, ProgramType } from "../Master/Master.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
@@ -23,6 +22,7 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "ProgramName",
     "program_priority",
     "doerIds",
+    "doerFio",
     "program_status",
     "wo_numbers",
     "wo_data1",
@@ -31,11 +31,10 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "SheetLength",
 ];
 
-const NewMaster = () => {
+export function NewMaster() {
     const columns = useRef<GridColDef[]>([]); // стабильная переменная, чтобы хоанить описание столбцов
-    //данные пришедшие с свервера и неподготовленные для отображения в таблице
-    const [data, setData] = useState<MasterResponseType>();
-    const [programsData, setProgramsData] = useState<Partial<ProgramExtendedType>[] | null>(null);
+
+    const [data, setData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
 
@@ -54,45 +53,34 @@ const NewMaster = () => {
     /**
      * Загрузка программ и операторов для отображения на странице мастера
      */
-    const loadData = async () => {
-        const rawData = await getProgramsAndDoers();
-        if (rawData?.data) {
-            setData(rawData);
+    const load = async () => {
+        const response = await getProgramsAndDoers();
+        if (response !== undefined) {
+            console.log(response);
+            setData(processData(response.data));
+            doers.current = [...response.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
+            headers.current = response.headers;
         }
     };
 
     useEffect(() => {
         // загрузка данных при загрузке страницы
-        loadData();
+        load();
     }, []);
 
-    /**Когда данные загружаются, их надо подогнать под конкретную таблицу, а именно выделить
-     * из пришедшего с сервера объекта только нужные имена столбцов для отображения их в таблице.
-     * заполняет переменную programsData
-     * необходимые колонки берет из columnFields
-     * */
-    useEffect(() => {
-        if (data?.data !== undefined) {
-            setProgramsData(
-                data.data.map((item) => {
-                    const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
-                        acc[field] = item[field];
-                        return acc;
-                    }, {});
-                    row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
-                    row["doerIds"] = item.fio_doers.map((doer) => doer.id);
-                    row["dimensions"] = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
-                        item.Thickness
-                    }`;
-
-                    return row;
-                })
-            );
-
-            doers.current = [...data.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
-            headers.current = data.headers;
-        }
-    }, [data]);
+    const processData = (data: ProgramType[]) => {
+        const processedData = data.map((item) => {
+            const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
+                acc[field] = item[field];
+                return acc;
+            }, {});
+            row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
+            row["doerIds"] = item.fio_doers.map((doer) => doer.id);
+            return row;
+        });
+        console.log("processedData", processedData);
+        return processedData;
+    };
 
     /**
      * Формирует словарь с записями, которые будут отправлены на сервер для назначения исполнителя на
@@ -106,10 +94,41 @@ const NewMaster = () => {
             setAssignedPrograms((prev) => [...prev, rowId]);
         }
         //изменяем данные в таблице
-        setProgramsData((prev) =>
+        setData((prev) =>
             prev!.map((row) => {
                 if (row.id === rowId) {
                     return { ...row, [field]: value };
+                }
+                return row;
+            })
+        );
+    }, []);
+
+    type changeFieldFunction = (...args: any[]) => any;
+    type changeFieldsCallback = Record<string, changeFieldFunction>
+
+    const callbackChangedCell = useCallback((rowId: number, processObject:changeFieldsCallback) => {
+        // изменяем массив модифицированных строк
+        if (!assignedProgramsRef.current.includes(rowId)) {
+            setAssignedPrograms((prev) => [...prev, rowId]);
+        }
+        //изменяем данные в таблице
+
+        const processFields = Object.keys(processObject);
+        setData((prev) =>
+            prev!.map((row) => {
+                if (row.id === rowId) {
+                    const newRow = columnFields.reduce(
+                        (acc, field) => {
+                            if (processFields.includes(field)) {
+                                acc[field] = processObject[field](row);
+                            }
+                            return acc;
+                        },
+                        { ...row }
+                    );
+
+                    return newRow;
                 }
                 return row;
             })
@@ -130,19 +149,23 @@ const NewMaster = () => {
                 headerName: headers.current[columnname],
                 flex: 1,
             };
-            
-            if (["wo_numbers", "wo_data1"].includes(columnname) ) {
+
+            if (["wo_numbers", "wo_data1"].includes(columnname)) {
                 colTemplate = {
                     ...colTemplate,
-                    valueGetter: (value)=> value.join(", ")
-                };    
-            }                    
+                    valueGetter: (value) => value.join(", "),
+                };
+            }
 
             if (columnname === "ProgramName") {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`${endpoints.MASTER}/${params.row.ProgramName}`}>
+                        <MuiLink
+                            component={Link}
+                            state={params.row}
+                            to={`${endpoints.MASTER}/${params.row.ProgramName}`}
+                        >
                             {params.row.ProgramName}
                         </MuiLink>
                     ),
@@ -152,10 +175,10 @@ const NewMaster = () => {
                 colTemplate = {
                     ...colTemplate,
                     width: 170,
-                    flex:0,
+                    flex: 0,
                     renderCell: (params) => (
                         <PrioritySelect
-                            selectedValue={params.value}
+                            selectedValue={params.row.program_priority}
                             rowId={params.row.id}
                             priorityOptions={priorityArray}
                             assignHandler={handleChangedCell}
@@ -166,15 +189,16 @@ const NewMaster = () => {
             if (columnname === "doerIds") {
                 colTemplate = {
                     ...colTemplate,
-                    headerName: "Исполнители", 
+                    headerName: "Исполнители",
                     width: 330,
-                    flex:0,
+                    flex: 0,
                     renderCell: (params) => (
                         <DumbDoerSelect
                             selectValue={params.row.doerIds}
                             rowId={params.row.id}
                             doers={doers.current}
-                            assignHandler={handleChangedCell}
+                            // assignHandler={handleChangedCell}
+                            assignHandler={callbackChangedCell}
                         />
                     ),
                 };
@@ -187,11 +211,11 @@ const NewMaster = () => {
 
     useEffect(() => {
         columns.current = createColumns();
-    }, [programsData, createColumns, headers]);
+    }, [data, createColumns, headers]);
 
     const handleAssignPrograms = async () => {
-        if (programsData !== null) {
-            const programs = programsData
+        if (data !== null) {
+            const programs = data
                 // рассматриваем только те записи, у которых есть фамилии. Без фамилий приоритет поменять
                 // нельзя, поле с исполнителями обязательно при отправке на сервер
                 ?.filter((item) => assignedPrograms.includes(item.id) && item.doerIds.length)
@@ -212,21 +236,20 @@ const NewMaster = () => {
             // сброс заполненных работников и перезагрузка страницы
             setAssignedPrograms([]);
             setNotification(true);
-            loadData();
+            load();
         }
     };
 
     const gridParams = useMemo(
         () => ({
-            rows: programsData,
-            setRows: setProgramsData,
+            rows: data,
+            setRows: setData,
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
         }),
         [apiRef, data]
     );
-
 
     return (
         <>
@@ -240,8 +263,8 @@ const NewMaster = () => {
                     Отправить в работу
                 </Button>
                 <Notification value={notification} setValue={setNotification} />
-                {programsData == null && ("данных нет")} 
-                {programsData !== null && (
+                {data == null && "данных нет"}
+                {data !== null && (
                     <div style={{ height: 700, width: "100%" }}>
                         <FilteredDataGrid {...gridParams} />
                     </div>
@@ -249,6 +272,4 @@ const NewMaster = () => {
             </Box>
         </>
     );
-};
-
-export default NewMaster;
+}
