@@ -52,7 +52,6 @@ const LogistTable = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    //const headers = useRef<Record<keyof MasterProgramPartsRecordType, string | undefined>>({});
 
     /**Функция загрузки данных о деталях */
     const loader = async () => {
@@ -60,7 +59,6 @@ const LogistTable = () => {
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
             setData(response.data);
-            //headers.current = response.headers;
             columns.current = createColumns(response.headers);
             setShowTable(true);
 
@@ -121,12 +119,6 @@ const LogistTable = () => {
         return clmns;
     }, [setQty]);
 
-    // useEffect(() => {
-    //     if (!columns.current.length && Object.keys(headers.current).length) {
-    //         columns.current = createColumns();
-    //         setShowTable(true);
-    //     }
-    // }, [headers.current, createColumns]);
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data

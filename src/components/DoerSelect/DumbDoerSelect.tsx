@@ -14,26 +14,26 @@ function getStyles(doerId: number, selectedDoers: number[], theme: Theme) {
     };
 }
 
+type ChangeDataCallback<T = any> = (...params: any[])=> T
+type AssignData = {
+    [key: string]: ChangeDataCallback;
+};
+type AssignHandlerType = (rowId: number, data: AssignData) => void;
+
 type DoerSelectPropsType = {
     selectValue: number[];
     rowId: number;
     doers: DoerType[];
-    assignHandler: (programId: number, doerIds: Array<number>, field: changeFieldType) => void;
+    assignHandler: AssignHandlerType;
 };
 
 const DumbDoerSelect = memo(({ selectValue, rowId, doers, assignHandler }: DoerSelectPropsType) => {
     const theme = useTheme();
-    // console.log("перерисовка", rowId);
-    const hadleSelectDoer = (event: SelectChangeEvent) => {
-        const eventValue: number[] = event.target.value;
-        console.log(eventValue);
-
-        //assignHandler(rowId, eventValue, "doerIds");
+    const hadleSelectDoer = (event: SelectChangeEvent<number[]>) => {
+        const eventValue = event.target.value as number[] ;
         assignHandler(rowId, {
             doerIds: () => eventValue,
-            doerFio: (row) => {
-                console.log("доступ к row", row)
-                console.log()
+            doerFio: () => {
                 return doers
                     .filter((item) => eventValue.includes(item.id))
                     .map((item) => item.fio_doer)

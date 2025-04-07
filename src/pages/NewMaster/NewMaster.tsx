@@ -10,7 +10,6 @@ import { assignProgramsRequest, getProgramsAndDoers } from "../../utils/requests
 import { DoerType, ProgramExtendedType, changeFieldType, ProgramType } from "../Master/Master.types";
 import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
-import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { endpoints } from "../../utils/authorization";
 
@@ -31,15 +30,22 @@ const columnFields: (keyof ProgramExtendedType)[] = [
     "SheetLength",
 ];
 
+export const hiddenIdColumn = {
+    columns: {
+        columnVisibilityModel: {
+            id: false,
+            doerFio: false
+        },
+    },
+};
+
+
+
 export function NewMaster() {
     const columns = useRef<GridColDef[]>([]); // стабильная переменная, чтобы хоанить описание столбцов
-
     const [data, setData] = useState<Partial<ProgramExtendedType>[] | null>(null);
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
-    const doers = useRef<DoerType[]>([]);
-
-    // объкт русификации заголовков  таблицы
-    const headers = useRef({});
+    const doers = useRef<DoerType[]>([]);  
     const apiRef = useGridApiRef();
     // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
     // актуальное состояние assignedProgramsRef.current , а не замороженное из-за замыкания assignedPrograms
@@ -59,7 +65,7 @@ export function NewMaster() {
             console.log(response);
             setData(processData(response.data));
             doers.current = [...response.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
-            headers.current = response.headers;
+            columns.current = createColumns(response.headers);
         }
     };
 
@@ -88,32 +94,19 @@ export function NewMaster() {
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
 
-    const handleChangedCell = useCallback((rowId: number, value: string | number[], field: changeFieldType) => {
+
+    type ChangeDataCallback<T = any> = (...params: any[]) => T;
+    type AssignData = {
+        [key: string]: ChangeDataCallback;
+    };
+    type AssignHandlerType = (rowId: number, data: AssignData) => void;
+
+    const callbackChangedCell = useCallback<AssignHandlerType>((rowId: number, processObject) => {
         // изменяем массив модифицированных строк
         if (!assignedProgramsRef.current.includes(rowId)) {
             setAssignedPrograms((prev) => [...prev, rowId]);
         }
         //изменяем данные в таблице
-        setData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    return { ...row, [field]: value };
-                }
-                return row;
-            })
-        );
-    }, []);
-
-    type changeFieldFunction = (...args: any[]) => any;
-    type changeFieldsCallback = Record<string, changeFieldFunction>
-
-    const callbackChangedCell = useCallback((rowId: number, processObject:changeFieldsCallback) => {
-        // изменяем массив модифицированных строк
-        if (!assignedProgramsRef.current.includes(rowId)) {
-            setAssignedPrograms((prev) => [...prev, rowId]);
-        }
-        //изменяем данные в таблице
-
         const processFields = Object.keys(processObject);
         setData((prev) =>
             prev!.map((row) => {
@@ -127,13 +120,13 @@ export function NewMaster() {
                         },
                         { ...row }
                     );
-
                     return newRow;
                 }
                 return row;
             })
         );
     }, []);
+
 
     /**
      * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
@@ -142,11 +135,11 @@ export function NewMaster() {
      * Если функция не обновится, то она будет обрабатывать ланне на момент создания колбэка,
      * так что надо быть аккуратнее.
      */
-    const createColumns = useCallback(() => {
+    const createColumns = useCallback((headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let colTemplate: GridColDef = {
                 field: columnname,
-                headerName: headers.current[columnname],
+                headerName: headers[columnname],
                 flex: 1,
             };
 
@@ -178,10 +171,11 @@ export function NewMaster() {
                     flex: 0,
                     renderCell: (params) => (
                         <PrioritySelect
-                            selectedValue={params.row.program_priority}
+                            selectValue={params.row.program_priority}
                             rowId={params.row.id}
                             priorityOptions={priorityArray}
-                            assignHandler={handleChangedCell}
+                            
+                            assignHandler={callbackChangedCell}
                         />
                     ),
                 };
@@ -197,7 +191,6 @@ export function NewMaster() {
                             selectValue={params.row.doerIds}
                             rowId={params.row.id}
                             doers={doers.current}
-                            // assignHandler={handleChangedCell}
                             assignHandler={callbackChangedCell}
                         />
                     ),
@@ -207,11 +200,8 @@ export function NewMaster() {
         });
 
         return clmns;
-    }, [handleChangedCell, headers]);
+    }, [callbackChangedCell]);
 
-    useEffect(() => {
-        columns.current = createColumns();
-    }, [data, createColumns, headers]);
 
     const handleAssignPrograms = async () => {
         if (data !== null) {
