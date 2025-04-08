@@ -27,7 +27,7 @@ import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
 import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
 import PartsList from "./pages/PartsList/PartsList.tsx";
-import Master from "./pages/Master/Master.tsx";
+import { Master } from "./pages/Master/Master.tsx";
 import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
@@ -35,8 +35,7 @@ import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import NewLogist from "./pages/NewLogist/NewLogist.tsx";
 import NewLogistTable from "./pages/NewLogist/NewLogistTable.tsx";
-import {NewMaster} from "./pages/NewMaster/NewMaster.tsx"
-
+import { NewMaster } from "./pages/Master/Master.tsx";
 
 // const theme = createTheme({
 //     palette: {
@@ -148,16 +147,13 @@ const router = createBrowserRouter(
                                     errorElement: <ErrorPage />,
                                 },
                                 { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
-
                             ],
                         },
                     ],
                 },
 
-
-                { path: "/l", Component: NewLogist  },
-                { path: "/l/:programName", Component: NewLogistTable  },
-                { path: "/m", Component: NewMaster  },
+                { path: "/l", Component: NewLogist },
+                { path: "/l/:programName", Component: NewLogistTable },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

@@ -27,11 +27,11 @@ const columnFields: (keyof ProgramAndFioType)[] = [
 ];
 
 const NewLogist = () => {
-    const [data, setData] = useState<ProgramAndFioType[]>([]);
     const columns = useRef<GridColDef[]>([]);
+    const [data, setData] = useState<ProgramAndFioType[]>([]);
+    const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const apiRef = useGridApiRef();
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -84,6 +84,10 @@ const NewLogist = () => {
         }
     };
 
+    useEffect(() => {
+        loader();
+    }, []);
+
     const gridParams = useMemo(
         () => ({
             rows: data,
@@ -94,10 +98,6 @@ const NewLogist = () => {
         }),
         [apiRef, data]
     );
-
-    useEffect(() => {
-        loader();
-    }, []);
 
     return (
         <>
