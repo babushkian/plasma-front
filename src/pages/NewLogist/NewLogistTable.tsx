@@ -2,21 +2,18 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
 import { Box, Typography, Button } from "@mui/material";
-import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { ProgramExtendedType } from "../Master/Master.types";
 
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
-import QtyInput from "../../components/QtyInput/QtyInput";
+import {QtyInput} from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import {useModifiedRows} from "../../hooks"
-
-type factQtyType = { id: number; qty_fact: number };
-type factQtyRecordType = Record<number, factQtyType>;
+import {updateTableData} from "../../utils/update-any-field-in-table"
 
 const columnFields = [
     "id",
@@ -32,13 +29,13 @@ const columnFields = [
     "qty_fact",
 ] as const;
 
-// так как мы удаляем из таблицы лишние сироки и преобразуем массив работников в строку с перечислением этих работников,
+// так как мы удаляем из таблицы лишние строки и преобразуем массив работников в строку с перечислением этих работников,
 // то нужно из первоначального типа убрать первонеяальне определение поля "fio_doers" и заменить его на строку
 type FilteredMasterProgramParts = Omit<
     Pick<MasterProgramPartsRecordType, (typeof columnFields)[number]>,
     "fio_doers"
 > & { fio_doers: string };
-// type FilteredMasterProgramParts = Pick<MasterProgramPartsRecordType, typeof columnFields[number]> & {fio_doers:string};
+
 
 const NewLogistTable = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -53,6 +50,9 @@ const NewLogistTable = () => {
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
+    
+    const dataUpdater = useMemo( ()=> updateTableData(columnFields, setData), []);
+
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
@@ -72,7 +72,6 @@ const NewLogistTable = () => {
             setData(processedData);
             columns.current = createColumns(response.headers);
             setShowTable(true);
-
         } else {
             setLoadError(true);
         }
@@ -84,17 +83,15 @@ const NewLogistTable = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const setQty = useCallback((rowId: number, qty: number) => {
-        setData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    updateModifiedRows(rowId)
-                    return { ...row, qty_fact: qty };
-                }
-                return row;
-            })
-        );
-    }, []);
+
+    const updateTable = useCallback(
+        (rowId: number, processObject) => {
+            updateModifiedRows(rowId);
+            dataUpdater(rowId, processObject)
+        },
+        [dataUpdater, updateModifiedRows]
+    );
+
 
     const createColumns = useCallback((headers:Record<string, string>) => {
         console.log("создаем колонки");
@@ -111,7 +108,7 @@ const NewLogistTable = () => {
                     flex: 0,
                     width: 100,
                     renderCell: (params) => (
-                        <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} applyQty={setQty} />
+                        <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} assignHandler={updateTable} />
                     ),
                 };
             }
@@ -119,7 +116,7 @@ const NewLogistTable = () => {
             return col;
         });
         return clmns;
-    }, [setQty]);
+    }, [updateTable]);
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data

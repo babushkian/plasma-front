@@ -9,7 +9,7 @@ import { ProgramExtendedType } from "../Master/Master.types";
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
-import QtyInput from "../../components/QtyInput/QtyInput";
+import {QtyInput} from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 

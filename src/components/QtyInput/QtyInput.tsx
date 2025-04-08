@@ -1,12 +1,19 @@
 import { TextField } from "@mui/material";
 import React, { useState } from "react";
+
+type ChangeDataCallback = () => number;
+type AssignData = {
+    [key: string]: ChangeDataCallback;
+};
+type AssignHandlerType = (rowId: number, data: AssignData) => void;
+
 type SetQtyType = {
     rowId: number;
     initialQty: number;
-    applyQty: (rowId: number, qty: number) => void;
+    assignHandler: AssignHandlerType;
 };
 
-const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
+export function QtyInput({ rowId, initialQty, assignHandler }: SetQtyType) {
     const [qty, setQty] = useState(initialQty);
 
     const hadleSetQty = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,12 +21,12 @@ const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
         // В этом случае нужно принудительно заменять NaN на 0
         const converted = Number.parseInt(event.target.value);
         const newValue = !isNaN(converted) ? converted : 0;
-        //applyQty(rowId, newValue);
         setQty(newValue);
     };
 
     const updateTable = () => {
-        if (qty !== initialQty) applyQty(rowId, qty);
+        //if (qty !== initialQty) applyQty(rowId, qty);
+        if (qty !== initialQty) assignHandler(rowId, { qty_fact: () => qty });
     };
 
     // это не работает корректно, так как при нажатии на Enter курсор не перескакиевает в другую ячейку
@@ -39,10 +46,8 @@ const QtyInput = ({ rowId, initialQty, applyQty }: SetQtyType) => {
                 onBlur={updateTable}
                 onChange={hadleSetQty}
                 onKeyDown={handleKeyDown}
-                autoComplete= "off"
+                autoComplete="off"
             />
         </>
     );
-};
-
-export default QtyInput;
+}

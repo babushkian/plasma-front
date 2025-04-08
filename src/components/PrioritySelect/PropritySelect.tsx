@@ -2,7 +2,7 @@ import { memo } from "react";
 import { FormControl, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { ProgramPriorityType } from "../../pages/Logist/Logist.types";
 
-type ChangeDataCallback<T = any> = (...params: any[])=> T
+type ChangeDataCallback = ()=> string
 type AssignData = {
     [key: string]: ChangeDataCallback;
 };
@@ -16,7 +16,6 @@ type PriorityPropsType = {
 
 const PrioritySelect = memo(({ selectValue, rowId, priorityOptions, assignHandler }: PriorityPropsType) => {
     const onChange = (event: SelectChangeEvent) => {
-        //assignHandler(rowId, event.target.value as ProgramPriorityType, "program_priority");
         assignHandler(rowId, {program_priority: ()=> event.target.value as ProgramPriorityType});
         
     };
