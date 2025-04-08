@@ -34,7 +34,7 @@ const PartsList = () => {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
 
-    const processData = (data: MasterProgramPartsRecordType[]) => {
+    const prepareData = (data: MasterProgramPartsRecordType[]) => {
         const processedData = data.map((item) => {
             const row = columnFields.reduce<MasterProgramPartsRecordType>((acc, field) => {
                 acc[field] = item[field];
@@ -66,7 +66,7 @@ const PartsList = () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            setData(processData(response.data));
+            setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
             setShowTable(true);
         } else {

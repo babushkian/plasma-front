@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
+
 import { logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
+
+
+import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
+import { endpoints } from "../../utils/authorization";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -23,13 +27,12 @@ const columnFields: (keyof ProgramAndFioType)[] = [
     //"fio_doers",
 ];
 
-
-const Logist = () => {
-    const [data, setData] = useState<ProgramAndFioType[]>([]);
+function Logist() {
     const columns = useRef<GridColDef[]>([]);
+    const [data, setData] = useState<ProgramAndFioType[]>([]);
+    const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -42,7 +45,7 @@ const Logist = () => {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`/l/${params.row.ProgramName}`}>
+                        <MuiLink component={Link} state={params.row} to={`${endpoints.LOGIST}/${params.row.ProgramName}`}>
                             {params.row.ProgramName}
                         </MuiLink>
                     ),
@@ -56,8 +59,8 @@ const Logist = () => {
             }
             return colTemplate;
         });
-        return clmns;
-    }, []);
+        return clmns
+    },[]);
 
     const loader = async () => {
         setShowTable(false);
@@ -72,8 +75,8 @@ const Logist = () => {
 
                 return { ...item, dimensions };
             });
-
-            columns.current = createColumns(response.headers);
+            
+            columns.current = createColumns(response.headers)
             setData(fioData);
             setLoadError(false);
             setShowTable(true);
@@ -86,26 +89,33 @@ const Logist = () => {
         loader();
     }, []);
 
+    const gridParams = useMemo(
+        () => ({
+            rows: data,
+            setRows: setData,
+            columns: columns.current,
+            initialState: hiddenIdColumn,
+            apiRef: apiRef,
+        }),
+        [apiRef, data]
+    );
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место логиста</Typography>
-
+                {/*тестовая кнопка для проверки, когда перерисовывается таблица (она не должна перерисовываться при нажатии на кнопку) */}
+                {/* <Button onClick={()=>setCounter((prev) => prev + 1)}>нажми {counter}</Button> */}
                 {loadError && <div>Ошибка загрузки</div>}
 
                 {showTable && (
                     <div style={{ height: "800px", width: "100%" }}>
-                        <DataGrid
-                            rows={data}
-                            columns={columns.current}
-                            slots={{ toolbar: CustomToolbar }}
-                            initialState={hiddenIdColumn}
-                            getRowHeight={() => "auto"}
-                        />
+                        <FilteredDataGrid {...gridParams} />
                     </div>
                 )}
             </Box>
         </>
     );
 };
-export default Logist;
+
+export default Logist

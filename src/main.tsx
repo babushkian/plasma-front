@@ -10,7 +10,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import LogistTable from "./pages/LogistTable/LogistTable.tsx";
+import { LogistTable } from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
 import Techman from "./pages/Techman/Techman.tsx";
 import Login from "./pages/Login/Login";
@@ -33,33 +33,9 @@ import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
-import NewLogist from "./pages/NewLogist/NewLogist.tsx";
-import NewLogistTable from "./pages/NewLogist/NewLogistTable.tsx";
-import { NewMaster } from "./pages/Master/Master.tsx";
+// import NewLogist from "./pages/Logist/Logist.tsx";
+// import NewLogistTable from "./pages/Logist/LogistTable.tsx";
 
-// const theme = createTheme({
-//     palette: {
-//         primary: {
-//             main: "#1976d2", // Основной цвет для primary
-//         },
-//         secondary: {
-//             main: "#dc004e", // Основной цвет для secondary
-//         },
-//         background: {
-//             default: "#3B3730",
-//             paper: "##484444",
-//         },
-//         text: {
-//             primary: 'rgba(255,255,255,0.87)',
-//             secondary: 'rgba(218,211,208,0.6)',
-//           },
-
-//     },
-//     ruRU, // x-data-grid translations
-//     coreruRU, // core translations
-//     dateruRU // date-pickers
-
-// });
 
 const theme = createTheme(
     {
@@ -93,11 +69,7 @@ const theme = createTheme(
     dateruRU // date-pickers
 );
 
-// const theme = createTheme( {},
-//     ruRU, // x-data-grid translations
-//     coreruRU, // core translations
-//     dateruRU // date-pickers
-// );
+
 
 const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
 
@@ -152,8 +124,8 @@ const router = createBrowserRouter(
                     ],
                 },
 
-                { path: "/l", Component: NewLogist },
-                { path: "/l/:programName", Component: NewLogistTable },
+                // { path: "/l", Component: NewLogist },
+                // { path: "/l/:programName", Component: NewLogistTable },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

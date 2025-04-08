@@ -62,7 +62,7 @@ export function Master() {
         const response = await getProgramsAndDoers();
         if (response !== undefined) {
             //setData(processData(response.data));
-            setData(processData(response.data));
+            setData(prepareData(response.data));
             doers.current = [...response.doers.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer))];
             columns.current = createColumns(response.headers);
         }
@@ -73,7 +73,7 @@ export function Master() {
         loader();
     }, []);
 
-    const processData = (data: ProgramType[]) => {
+    const prepareData = (data: ProgramType[]) => {
         const processedData = data.map((item) => {
             const row = columnFields.reduce<Partial<ProgramExtendedType>>((acc, field) => {
                 acc[field] = item[field];
