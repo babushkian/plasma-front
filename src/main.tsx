@@ -33,6 +33,8 @@ import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
+import { NewOperator } from "./pages/NewOperator/NewOperator.tsx";
+import { NewOperatorParts } from "./pages/NewOperator/NewOperatorParts.tsx";
 // import NewLogist from "./pages/Logist/Logist.tsx";
 // import NewLogistTable from "./pages/Logist/LogistTable.tsx";
 
@@ -124,8 +126,8 @@ const router = createBrowserRouter(
                     ],
                 },
 
-                // { path: "/l", Component: NewLogist },
-                // { path: "/l/:programName", Component: NewLogistTable },
+                 { path: "/o", Component: NewOperator },
+                { path: "/o/:programName", Component: NewOperatorParts },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

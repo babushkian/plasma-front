@@ -8,13 +8,10 @@ import { logistGetPrograms } from "../../utils/requests";
 import { ProgramType } from "../Master/Master.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 
-
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { endpoints } from "../../utils/authorization";
 
-export type ProgramAndFioType = ProgramType & { dimensions: string };
-
-const columnFields: (keyof ProgramAndFioType)[] = [
+const columnFields: (keyof ProgramType)[] = [
     "id",
     "program_priority",
     "ProgramName",
@@ -29,7 +26,7 @@ const columnFields: (keyof ProgramAndFioType)[] = [
 
 function Logist() {
     const columns = useRef<GridColDef[]>([]);
-    const [data, setData] = useState<ProgramAndFioType[]>([]);
+    const [data, setData] = useState<ProgramType[]>([]);
     const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
@@ -45,49 +42,50 @@ function Logist() {
                 colTemplate = {
                     ...colTemplate,
                     renderCell: (params) => (
-                        <MuiLink component={Link} state={params.row} to={`${endpoints.LOGIST}/${params.row.ProgramName}`}>
+                        <MuiLink
+                            component={Link}
+                            state={params.row}
+                            to={`${endpoints.LOGIST}/${params.row.ProgramName}`}
+                        >
                             {params.row.ProgramName}
                         </MuiLink>
                     ),
                 };
             }
-            if (["wo_numbers", "wo_data1"].includes(columnname)) {
-                colTemplate = {
-                    ...colTemplate,
-                    valueGetter: (value) => value.join(", "),
-                };
-            }
             return colTemplate;
         });
-        return clmns
-    },[]);
+        return clmns;
+    }, []);
 
-    const loader = async () => {
+    const prepareData = (data) => {
+        const prepared = data.map((row) => {
+            let preparedRow = columnFields.reduce<Partial<FilteredMasterProgramParts>>((acc, field) => {
+                acc[field] = row[field];
+                return acc;
+            }, {});
+            preparedRow["wo_numbers"] = row["wo_numbers"].join(", ");
+            preparedRow["wo_data1"] = row["wo_data1"].join(", ");
+            return preparedRow;
+        });
+        return prepared;
+    };
+    const loader = useCallback(async () => {
         setShowTable(false);
         const response = await logistGetPrograms();
 
         if (response !== undefined) {
-            // делаем словарь, где ключи - идентификаторы исполнителей, а значения - имена исполнителей
-            const fioData = response.data.map((item) => {
-                const dimensions = `${Math.round(item.SheetLength)} x ${Math.round(item.SheetWidth)} x ${
-                    item.Thickness
-                }`;
-
-                return { ...item, dimensions };
-            });
-            
-            columns.current = createColumns(response.headers)
-            setData(fioData);
+            setData(prepareData(response.data));
+            columns.current = createColumns(response.headers);
             setLoadError(false);
             setShowTable(true);
         } else {
             setLoadError(true);
         }
-    };
+    }, [createColumns])
 
     useEffect(() => {
         loader();
-    }, []);
+    }, [loader]);
 
     const gridParams = useMemo(
         () => ({
@@ -116,6 +114,6 @@ function Logist() {
             </Box>
         </>
     );
-};
+}
 
-export default Logist
+export default Logist;

@@ -8,12 +8,12 @@ import { ProgramExtendedType } from "../Master/Master.types";
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
-import {QtyInput} from "../../components/QtyInput/QtyInput";
+import { QtyInput } from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
-import {useModifiedRows} from "../../hooks"
-import {updateTableData} from "../../utils/update-any-field-in-table"
+import { useModifiedRows } from "../../hooks";
+import { updateTableData } from "../../utils/update-any-field-in-table";
 
 const columnFields = [
     "id",
@@ -36,7 +36,6 @@ type FilteredMasterProgramParts = Omit<
     "fio_doers"
 > & { fio_doers: string };
 
-
 export function LogistTable() {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
@@ -45,78 +44,84 @@ export function LogistTable() {
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
     const apiRef = useGridApiRef();
-    
+
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
-    
-    const dataUpdater = useMemo( ()=> updateTableData(columnFields, setData), []);
+
+    const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
+
+    const updateTable = useCallback(
+        (rowId: number, processObject) => {
+            updateModifiedRows(rowId);
+            dataUpdater(rowId, processObject);
+        },
+        [dataUpdater, updateModifiedRows]
+    );
+
+    const createColumns = useCallback(
+        (headers: Record<string, string>) => {
+            console.log("создаем колонки");
+            const clmns: GridColDef[] = columnFields.map((columnname) => {
+                let col: GridColDef = {
+                    field: columnname,
+                    headerName: headers[columnname],
+                    flex: 1,
+                };
+
+                if (columnname == "qty_fact") {
+                    col = {
+                        ...col,
+                        flex: 0,
+                        width: 100,
+                        renderCell: (params) => (
+                            <QtyInput
+                                rowId={params.row.id}
+                                initialQty={params.row.qty_fact}
+                                assignHandler={updateTable}
+                            />
+                        ),
+                    };
+                }
+
+                return col;
+            });
+            return clmns;
+        },
+        [updateTable]
+    );
+
+
+    const prepareData = (data) => {
+        const prepared = data.map((row) => {
+            let preparedRow = columnFields.reduce<Partial<FilteredMasterProgramParts>>((acc, field) => {
+                acc[field] = row[field];
+                return acc;
+            }, {});
+            preparedRow["fio_doers"] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
+            return preparedRow;
+        });
+        return prepared;
+    };
 
     /**Функция загрузки данных о деталях */
-    const loader = async () => {
+    const loader = useCallback(async () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
-            const processedData = response.data.map((row) => {
-                const processedRow: FilteredMasterProgramParts = {};
-                columnFields.map((colName) => {
-                    if (colName === "fio_doers") {
-                        processedRow[colName] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
-                    } else {
-                        processedRow[colName] = row[colName];
-                    }
-                });
-                return processedRow;
-            });
-            setData(processedData);
+            setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
             setShowTable(true);
         } else {
             setLoadError(true);
         }
-    };
+    }, [createColumns, state.id]);
 
     /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
         loader();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-
-    const updateTable = useCallback(
-        (rowId: number, processObject) => {
-            updateModifiedRows(rowId);
-            dataUpdater(rowId, processObject)
-        },
-        [dataUpdater, updateModifiedRows]
-    );
-
-
-    const createColumns = useCallback((headers:Record<string, string>) => {
-        console.log("создаем колонки");
-        const clmns: GridColDef[] = columnFields.map((columnname) => {
-            let col: GridColDef = {
-                field: columnname,
-                headerName: headers[columnname],
-                flex: 1,
-            };
-
-            if (columnname == "qty_fact") {
-                col = {
-                    ...col,
-                    flex: 0,
-                    width: 100,
-                    renderCell: (params) => (
-                        <QtyInput rowId={params.row.id} initialQty={params.row.qty_fact} assignHandler={updateTable} />
-                    ),
-                };
-            }
-
-            return col;
-        });
-        return clmns;
-    }, [updateTable]);
+    }, [loader]);
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data
@@ -124,7 +129,7 @@ export function LogistTable() {
             .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
         await logistCalculateParts(partsQty);
         setNotification(true);
-        clearModifiedRows()
+        clearModifiedRows();
         loader();
     };
 
@@ -163,6 +168,4 @@ export function LogistTable() {
             </Box>
         </>
     );
-};
-
-
+}
