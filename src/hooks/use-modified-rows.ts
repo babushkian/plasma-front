@@ -5,10 +5,8 @@ import { useCallback, useEffect, useState } from "react";
  */
 export function useModifiedRows() {
     const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
-    //const prevModifiedRows = useRef<Set<number>>(new Set());
 
     const updateModifiedRows = (rowId: number) => {
-        //prevModifiedRows.current = modifiedRows;
         if (!modifiedRows.has(rowId)) {
             setModifiedRows((prev) => {
                 const next = new Set(prev);

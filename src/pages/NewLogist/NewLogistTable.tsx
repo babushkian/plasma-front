@@ -13,6 +13,8 @@ import QtyInput from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
+import {useModifiedRows} from "../../hooks"
+
 type factQtyType = { id: number; qty_fact: number };
 type factQtyRecordType = Record<number, factQtyType>;
 
@@ -46,11 +48,13 @@ const NewLogistTable = () => {
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
     const apiRef = useGridApiRef();
-    const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
+    
+    //const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
+    
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-
+    const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
@@ -86,11 +90,12 @@ const NewLogistTable = () => {
         setData((prev) =>
             prev!.map((row) => {
                 if (row.id === rowId) {
-                    setModifiedRows((prev) => {
-                        const next = new Set(prev);
-                        next.add(rowId);
-                        return next;
-                    });
+                    // setModifiedRows((prev) => {
+                    //     const next = new Set(prev);
+                    //     next.add(rowId);
+                    //     return next;
+                    // });
+                    updateModifiedRows(rowId)
                     return { ...row, qty_fact: qty };
                 }
                 return row;
@@ -130,7 +135,8 @@ const NewLogistTable = () => {
         await logistCalculateParts(partsQty);
         setNotification(true);
 
-        setModifiedRows(new Set());
+        //setModifiedRows(new Set());
+        clearModifiedRows()
         loader();
     };
 

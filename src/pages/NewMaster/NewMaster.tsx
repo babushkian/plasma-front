@@ -48,17 +48,8 @@ export function NewMaster() {
     // в переменной содержатся сфмилии исполнителей, они не меняются, поэтому useState не нужен
     const doers = useRef<DoerType[]>([]);
     const apiRef = useGridApiRef();
-    // создаем стабильную переменную, чтобы внутри колбэков содержащих обработанные столбцы всегда было
-    // актуальное состояние assignedProgramsRef.current , а не замороженное из-за замыкания assignedPrograms
-    // const [assignedPrograms, setAssignedPrograms] = useState<number[]>([]);
-    // const assignedProgramsRef = useRef<typeof assignedPrograms>([]);
-
+    //измененные строки в таблице, чтобы знать, что отправлять на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
-
-    // useEffect(() => {
-    //     assignedProgramsRef.current = assignedPrograms;
-    // }, [assignedPrograms]);
-
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
     /**
@@ -104,12 +95,7 @@ export function NewMaster() {
     type AssignHandlerType = (rowId: number, data: AssignData) => void;
 
     const callbackChangedCell = useCallback<AssignHandlerType>((rowId: number, processObject) => {
-        // изменяем массив модифицированных строк
-        // if (!assignedProgramsRef.current.includes(rowId)) {
-        //     setAssignedPrograms((prev) => [...prev, rowId]);
-        // }
         updateModifiedRows(rowId);
-
         //изменяем данные в таблице
         const processFields = Object.keys(processObject);
         setData((prev) =>
@@ -129,7 +115,7 @@ export function NewMaster() {
                 return row;
             })
         );
-    }, []);
+    }, [updateModifiedRows]);
 
     /**
      * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
