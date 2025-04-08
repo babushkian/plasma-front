@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 export function useModifiedRows() {
     const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
 
-    const updateModifiedRows = (rowId: number) => {
+    const updateModifiedRows = useCallback((rowId: number) => {
         if (!modifiedRows.has(rowId)) {
             setModifiedRows((prev) => {
                 const next = new Set(prev);
@@ -14,9 +14,10 @@ export function useModifiedRows() {
                 return next;
             });
         }
-    };
+    }, [modifiedRows]);
 
     useEffect(() => console.log("модифицированные столбцы", modifiedRows), [modifiedRows]);
+    
     const clearModifiedRows = useCallback(() => {
         setModifiedRows(new Set());
     }, []);

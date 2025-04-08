@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button } from "@mui/material";
@@ -12,8 +12,8 @@ import { ProgramPriorityType } from "../Logist/Logist.types";
 import Notification from "../../components/Notification/Notification";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { endpoints } from "../../utils/authorization";
-import {useModifiedRows} from "../../hooks"
-
+import { useModifiedRows } from "../../hooks";
+import {updateTableData, UniversalUpdaterType} from "../../utils/update-any-field-in-table"
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
@@ -52,6 +52,9 @@ export function NewMaster() {
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
+    const dataUpdater = useMemo( ()=> updateTableData(columnFields, setData), []);
+    
+
     /**
      * Загрузка программ и операторов для отображения на странице мастера
      */
@@ -87,35 +90,16 @@ export function NewMaster() {
      * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
+    
+    const updateTable = useCallback<UniversalUpdaterType>(
+        (rowId: number, processObject) => {
+            updateModifiedRows(rowId);
+            dataUpdater(rowId, processObject)
+        },
+        [dataUpdater, updateModifiedRows]
+    );
 
-    type ChangeDataCallback<T = any> = (...params: any[]) => T;
-    type AssignData = {
-        [key: string]: ChangeDataCallback;
-    };
-    type AssignHandlerType = (rowId: number, data: AssignData) => void;
 
-    const callbackChangedCell = useCallback<AssignHandlerType>((rowId: number, processObject) => {
-        updateModifiedRows(rowId);
-        //изменяем данные в таблице
-        const processFields = Object.keys(processObject);
-        setData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    const newRow = columnFields.reduce(
-                        (acc, field) => {
-                            if (processFields.includes(field)) {
-                                acc[field] = processObject[field](row);
-                            }
-                            return acc;
-                        },
-                        { ...row }
-                    );
-                    return newRow;
-                }
-                return row;
-            })
-        );
-    }, [updateModifiedRows]);
 
     /**
      * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
@@ -164,7 +148,7 @@ export function NewMaster() {
                                 selectValue={params.row.program_priority}
                                 rowId={params.row.id}
                                 priorityOptions={priorityArray}
-                                assignHandler={callbackChangedCell}
+                                assignHandler={updateTable}
                             />
                         ),
                     };
@@ -180,7 +164,7 @@ export function NewMaster() {
                                 selectValue={params.row.doerIds}
                                 rowId={params.row.id}
                                 doers={doers.current}
-                                assignHandler={callbackChangedCell}
+                                assignHandler={updateTable}
                             />
                         ),
                     };
@@ -190,7 +174,7 @@ export function NewMaster() {
 
             return clmns;
         },
-        [callbackChangedCell]
+        [updateTable]
     );
 
     const handleAssignPrograms = async () => {

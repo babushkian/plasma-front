@@ -49,8 +49,6 @@ const NewLogistTable = () => {
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
     const apiRef = useGridApiRef();
     
-    //const [modifiedRows, setModifiedRows] = useState<Set<number>>(new Set());
-    
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
@@ -90,11 +88,6 @@ const NewLogistTable = () => {
         setData((prev) =>
             prev!.map((row) => {
                 if (row.id === rowId) {
-                    // setModifiedRows((prev) => {
-                    //     const next = new Set(prev);
-                    //     next.add(rowId);
-                    //     return next;
-                    // });
                     updateModifiedRows(rowId)
                     return { ...row, qty_fact: qty };
                 }
@@ -134,8 +127,6 @@ const NewLogistTable = () => {
             .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
         await logistCalculateParts(partsQty);
         setNotification(true);
-
-        //setModifiedRows(new Set());
         clearModifiedRows()
         loader();
     };
