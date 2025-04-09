@@ -53,6 +53,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
+        console.log(error)
         if (error.response && error.response.status === 401) {            
             // Токен недействителен или истек
             clearStore(); // Удаляем токен из хранилища

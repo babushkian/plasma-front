@@ -165,6 +165,9 @@ export function OperatorParts() {
                     ...col,
                     type: "actions",
                     width: 150,
+                    renderHeader: (params) =>  {
+                        //console.log("header params", params)
+                        return <Checkbox />}, 
                     renderCell: (params) => (
                         <Checkbox
                             checked={params.row.checkBox.checked}
