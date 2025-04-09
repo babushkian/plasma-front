@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useContext, useMemo } from "r
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
@@ -10,6 +10,7 @@ import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "..
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { OperatorSelectContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
+import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 
 type DoersRecord = Record<number, DoerType>;
 
@@ -50,9 +51,10 @@ const OperatorParts = () => {
     }
     const { selectedOperatorId } = operatorIdContext;
     const currentUserName = useRef<string>("");
-    const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramPartsProcessedType[]>([]);
+    const [doers, setDoers] = useState<DoersRecord>({});
+    const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
@@ -100,20 +102,12 @@ const OperatorParts = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const getCurrentUserName = useCallback((currentUserId: number, doers: DoersRecord) => {
-        if (Object.keys(doers).length) {
-            console.log("список операторов:", doers);
-            return doers[currentUserId].fio_doer;
-        }
-        return "";
-    }, []);
 
     useEffect(() => {
-        console.log("СПИСОК ПОЛЬЗОВАТЕЛЕЙ ИЗМЕНИЛСЯ!!!");
-        if (selectedOperatorId) {
-            currentUserName.current = getCurrentUserName(selectedOperatorId, doers);
+        if (selectedOperatorId && Object.keys(doers).length) {
+            currentUserName.current = doers[selectedOperatorId].fio_doer
         }
-    }, [selectedOperatorId, doers, getCurrentUserName]);
+    }, [selectedOperatorId, doers]);
 
     const createColumns = () => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -208,6 +202,8 @@ const OperatorParts = () => {
         }
     };
 
+
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -229,6 +225,7 @@ const OperatorParts = () => {
                                 initialState={hiddenIdColumn}
                                 getRowHeight={() => "auto"}
                             />
+                             
                         </div>
                     </>
                 )}

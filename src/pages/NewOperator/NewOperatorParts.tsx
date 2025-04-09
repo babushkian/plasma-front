@@ -10,13 +10,15 @@ import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "..
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { OperatorSelectContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
+import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
+import { useModifiedRows } from "../../hooks";
+import { updateTableData } from "../../utils/update-any-field-in-table";
 
 type DoersRecord = Record<number, DoerType>;
 
 type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
     checkBox: { checked: boolean; disabled: boolean };
 } & { done_by_fio: string };
-
 
 const initialClumnFields: (keyof MasterProgramPartsRecordType)[] = [
     "id",
@@ -41,8 +43,11 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "PartWidth",
     "Thickness",
     "fio_doers",
-    "done_by_fio",// добавилась эта колонка
-];
+    "done_by_fio", // добавилась эта колонка
+    "checkBox",
+] 
+
+
 export function NewOperatorParts() {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
@@ -60,12 +65,20 @@ export function NewOperatorParts() {
     const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const [checkedParts, setCheckedParts] = useState<number[]>([]);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const headers = useRef<Record<string, string>>({});
 
+    const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
+    const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
-    const prepareData = (data:MasterProgramPartsRecordType[], doersProcessed: DoersRecord) => {
+    const updateTable = useCallback(
+        (rowId: number, processObject) => {
+            updateModifiedRows(rowId);
+            dataUpdater(rowId, processObject);
+        },
+        [dataUpdater, updateModifiedRows]
+    );
+
+    const prepareData = (data: MasterProgramPartsRecordType[], doersProcessed: DoersRecord) => {
         const prepared = data.map((row) => {
             let preparedRow = initialClumnFields.reduce((acc, field) => {
                 acc[field] = row[field];
@@ -73,26 +86,26 @@ export function NewOperatorParts() {
             }, {});
             preparedRow["checkBox"] = {
                 checked: Boolean(row.done_by_fio_doer_id),
-                disabled: false
-            }
+                disabled: false,
+                //disabled: row.done_by_fio_doer_id && selectedOperatorId !== row.done_by_fio_doer_id ? true : false,
+            };
             preparedRow["done_by_fio"] = doersProcessed[row.done_by_fio_doer_id]
-            ? doersProcessed[row.done_by_fio_doer_id].fio_doer
-            : ""
-            preparedRow["fio_doers"]= ((value) => {
+                ? doersProcessed[row.done_by_fio_doer_id].fio_doer
+                : "";
+            preparedRow["fio_doers"] = ((value) => {
                 if (Array.isArray(value)) {
                     return value.map((item) => item.fio_doer).join(", ");
                 }
-                return value
-            })(row.fio_doers)
+                return value;
+            })(row.fio_doers);
             return preparedRow;
         });
-        return prepared as ProgramPartsProcessedType[] ;
+        return prepared as ProgramPartsProcessedType[];
     };
 
-
     /**
-     * Функция загрузки данных о деталях 
-     * Сначала загружаются операторы (для отображения фамилий  в таблице). 
+     * Функция загрузки данных о деталях
+     * Сначала загружаются операторы (для отображения фамилий  в таблице).
      * А когда они загрузились, загружаются данные.
      */
     const loader = async () => {
@@ -105,18 +118,23 @@ export function NewOperatorParts() {
                 return acc;
             }, {});
         } else {
-            setLoadError(true)
-            throw new Error("Не удалось получить список операторов на стрнице деталей.")
+            setLoadError(true);
+            throw new Error("Не удалось получить список операторов на стрнице деталей.");
         }
         setDoers(doersProcessed);
         const response = await masterGetDetailsByProgramId(state.program.id, selectedOperatorId);
-        if (response !== undefined ) {
+        if (response !== undefined) {
             setData(prepareData(response.data, doersProcessed));
-            headers.current = {...response.headers, done_by_fio:"Сделал"};
-            
+            columns.current = createColumns({
+                ...response.headers,
+                done_by_fio: "Сделал",
+                checkBox: "отметить сделанное",
+            });
+
+            setShowTable(true);
         } else {
             setLoadError(true);
-            throw new Error(`Не удалось получить детали программы ${state.program.ProgramName}.`)
+            throw new Error(`Не удалось получить детали программы ${state.program.ProgramName}.`);
         }
     };
 
@@ -126,103 +144,74 @@ export function NewOperatorParts() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-
-
-    const getCurrentUserName = useCallback((currentUserId: number, doers: DoersRecord) => {
-        if (Object.keys(doers).length) {
-            console.log("список операторов:", doers);
-            return doers[currentUserId].fio_doer;
-        }
-        return "";
-    }, []);
-
+    /**
+     * Определяем имя текущего оператора для вывода на кнопке
+     */
     useEffect(() => {
-        console.log("СПИСОК ПОЛЬЗОВАТЕЛЕЙ ИЗМЕНИЛСЯ!!!");
-        if (selectedOperatorId) {
-            currentUserName.current = getCurrentUserName(selectedOperatorId, doers);
+        if (selectedOperatorId && Object.keys(doers).length) {
+            currentUserName.current = doers[selectedOperatorId].fio_doer;
         }
-    }, [selectedOperatorId, doers, getCurrentUserName]);
+    }, [selectedOperatorId, doers]);
 
-    const createColumns = () => {
+    const createColumns = (headers:Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
-                headerName: headers.current[columnname],
+                headerName: headers[columnname],
                 flex: 1,
             };
+            if (columnname === "checkBox") {
+                col = {
+                    ...col,
+                    type: "actions",
+                    width: 150,
+                    renderCell: (params) => (
+                        <Checkbox
+                            checked={params.row.checkBox.checked}
+                            disabled={params.row.checkBox.disabled}
+                            onChange={() => {
+                                const checkedObj = { ...params.row.checkBox, checked: !params.row.checkBox.checked };
+                                updateTable(params.id, { checkBox: () => checkedObj });
+                            }}
+                        />
+                    ),
+                };
+            }
             return col;
         });
-
-        clmns.push({
-            field: "actions",
-            headerName: "Выбрать для загрузки",
-            type: "actions",
-            width: 150,
-            renderCell: (params) => (
-                <Checkbox
-                    checked={params.row.checkBox.checked}
-                    disabled={params.row.checkBox.disabled}
-                    onChange={() => processChecked(params.id as number)}
-                />
-            ),
-        });
-
         return clmns;
     };
 
-    /**
-     * Обработка выбора детали с помощью чекбокса. Модифицируются данные в таблице.
-     * А именно поле checkBox.checked в редактируемой строке помещается актуальное состояние чекера.
-     * Так же в массив сheckedParts идентификатор записи - это означает, что текущий пользователь работал
-     * с конкретной строкой таблицы, и содержимое чекера из этой строки скорее всего придется отприть на сервер.
-     * @param rowId  - идентификатор записи, содержащей информацию о конкретной детали
-     */
-    const processChecked = (rowId: number) => {
-        // массив рядов, которые чекнул конкретный оператор.
-        // Номера рядов могут повторяться, перед отправкой на сервер будут отсеяны только уникальные значения
-        setCheckedParts((prev) => [...prev, rowId]);
-        setData((prev) =>
-            prev!.map((row) => {
-                if (row.id === rowId) {
-                    return { ...row, checkBox: { disabled: row.checkBox.disabled, checked: !row.checkBox.checked } };
-                }
-                return row;
-            })
-        );
-    };
-
-    /**
-     * Создаем столбцы таблицы после того как данные загрузились
-     */
-    useEffect(() => {
-        if (data.length) {
-            columns.current = createColumns();
-            //console.log(data);
-            setShowTable(true);
-        }
-    }, [data]);
 
     /**
      * Отправляем отмеченные чекбоксом делати на сервер
      */
     const setMyParts = () => {
-        const uniqueProcessedParts = [...new Set(checkedParts)];
-        // чекбоксы отмеченные галочкой
-        const uniqueCheckedParts = uniqueProcessedParts.filter(
-            (part) => data.find((item) => item.id === part)!.checkBox.checked === true
-        );
-        if (uniqueCheckedParts.length) {
-            const props = {
-                program_id: state.program.id,
-                fio_doer_id: selectedOperatorId,
-                parts_ids: uniqueCheckedParts,
-            };
-            OperatorSetMyPrograms(props);
-            setNotification(true);
-            loader();
-            setShowTable(true);
-        }
+        const checkedParts = data
+            .filter((item) => modifiedRows.has(item.id) && item.checkBox.checked)
+            .map((item) => item.id);
+        const props = {
+            program_id: state.program.id,
+            fio_doer_id: selectedOperatorId!,
+            parts_ids: checkedParts,
+        };
+        OperatorSetMyPrograms(props);
+        setNotification(true);
+        clearModifiedRows();
+        loader();
+
     };
+
+    const gridParams = useMemo(
+        () => ({
+            rows: data,
+            setRows: setData,
+            columns: columns.current,
+            initialState: hiddenIdColumn,
+            apiRef: apiRef,
+        }),
+        [apiRef, data]
+    );
 
     return (
         <>
@@ -234,23 +223,15 @@ export function NewOperatorParts() {
                 <Notification value={notification} setValue={setNotification} />
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={setMyParts}>
+                        <Button variant="contained" onClick={setMyParts} disabled={!modifiedRows.size}>
                             Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
                         <div style={{ height: 600, width: "100%" }}>
-                            <DataGrid
-                                rows={data}
-                                columns={columns.current}
-                                slots={{ toolbar: CustomToolbar }}
-                                initialState={hiddenIdColumn}
-                                getRowHeight={() => "auto"}
-                            />
+                            <FilteredDataGrid {...gridParams} />
                         </div>
                     </>
                 )}
             </Box>
         </>
     );
-};
-
-
+}

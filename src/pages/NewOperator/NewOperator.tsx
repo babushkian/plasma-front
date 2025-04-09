@@ -84,7 +84,7 @@ export function NewOperator() {
     );
 
     const createColumns = useCallback(
-        (headers) => {
+        (headers:Record<string, string>) => {
             const clmns: GridColDef[] = columnFields.map((columnname) => {
                 let col: GridColDef = {
                     field: columnname,
