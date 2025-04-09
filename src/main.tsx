@@ -12,7 +12,7 @@ import "@fontsource/roboto/700.css";
 
 import { LogistTable } from "./pages/LogistTable/LogistTable.tsx";
 import Navbar from "./layouts/NavBar/NavBar.tsx";
-import Techman from "./pages/Techman/Techman.tsx";
+import {Techman} from "./pages/Techman/Techman.tsx";
 import Login from "./pages/Login/Login";
 import {Operator} from "./pages/Operator/Operator.tsx";
 import {OperatorParts} from "./pages/Operator/OperatorParts.tsx";
@@ -33,7 +33,7 @@ import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
-import {NewTechman} from "./pages/NewTechman/NewTechman.tsx"
+
 
 // import NewLogist from "./pages/Logist/Logist.tsx";
 // import NewLogistTable from "./pages/Logist/LogistTable.tsx";
@@ -125,7 +125,6 @@ const router = createBrowserRouter(
                         },
                     ],
                 },
-                { path: "t", element: <NewTechman /> },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

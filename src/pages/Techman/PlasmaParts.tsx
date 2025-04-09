@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { ProgramExtendedType } from "../Master/Master.types";
 
@@ -9,8 +9,10 @@ import { getProgramParts } from "../../utils/requests";
 
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
+import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 
 const columnFields: string[] = [
+    "id",
     "PartName",
     "WONumber",
     //"WOData1",
@@ -29,10 +31,26 @@ const PlasmaParts = () => {
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
-
+    const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const counter = useRef(1);
+
+
+    const prepareData = (data: MasterProgramPartsRecordType[]) => {
+        const processedData = data.map((item) => {
+            const row = columnFields.reduce<MasterProgramPartsRecordType>((acc, field) => {
+                acc[field] = item[field];
+                return acc;
+            }, {});            
+            //////////////////////////
+            // так быть не должно, нужно поле  id для деталей
+            row["id"] = item.PK_PIP;
+            return row;
+        });
+        return processedData;
+    };
+
+
 
     /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
@@ -40,7 +58,9 @@ const PlasmaParts = () => {
             setShowTable(false);
             const response = await getProgramParts(state.ProgramName);
             if (response !== undefined) {
-                setData(response);
+                setData(prepareData(response));
+                columns.current = createColumns();
+                setShowTable(true);
             } else {
                 setLoadError(true);
             }
@@ -50,14 +70,6 @@ const PlasmaParts = () => {
     }, []);
 
     const createColumns = useCallback(() => {
-        // const clmns: GridColDef[] = Object.keys(data[0]).map((columnname) => {
-        //     const col: GridColDef = {
-        //         field: columnname,
-        //         headerName: columnname,
-        //         flex: 1,
-        //     };
-        //     return col;
-        // });
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
@@ -78,16 +90,20 @@ const PlasmaParts = () => {
 
             return col;
         });
-
-        setShowTable(true);
         return clmns;
     }, []);
 
-    useEffect(() => {
-        if (data.length) {
-            columns.current = createColumns();
-        }
-    }, [createColumns, data]);
+
+    const gridParams = useMemo(
+        () => ({
+            rows: data,
+            setRows: setData,
+            columns: columns.current,
+            initialState: hiddenIdColumn,
+            apiRef: apiRef,
+        }),
+        [apiRef, data]
+    );
 
     return (
         <>
@@ -99,14 +115,7 @@ const PlasmaParts = () => {
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <div style={{ height: 600, width: "100%" }}>
-                        <DataGrid
-                            rows={data}
-                            columns={columns.current}
-                            getRowId={(row) => row.PK_PIP}
-                            slots={{ toolbar: CustomToolbar }}
-                            initialState={hiddenIdColumn}
-                            getRowHeight={() => "auto"}
-                        />
+                        <FilteredDataGrid {...gridParams} />
                     </div>
                 )}
             </Box>
