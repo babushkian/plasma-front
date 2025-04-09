@@ -69,6 +69,7 @@ function Logist() {
         });
         return prepared;
     };
+    
     const loader = useCallback(async () => {
         setShowTable(false);
         const response = await logistGetPrograms();

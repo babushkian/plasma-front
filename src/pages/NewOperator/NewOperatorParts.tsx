@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useContext, useMemo } from "r
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
 import { DoerType, ProgramExtendedType } from "../Master/Master.types";
 import Notification from "../../components/Notification/Notification";
@@ -17,17 +17,21 @@ type ProgramPartsProcessedType = MasterProgramPartsRecordType & {
     checkBox: { checked: boolean; disabled: boolean };
 } & { done_by_fio: string };
 
-// столбцы, отображаемые в таблице
-// const columnFields: (keyof ProgramPartsProcessedType)[] = [
-//     "id",
-//     "ProgramName",
-//     "program_status",
-//     "part_status",
-//     "QtyInProcess",
-//     "WONumber",
-//     "done_by_fio",
-// ];
+
+const initialClumnFields: (keyof MasterProgramPartsRecordType)[] = [
+    "id",
+    "PartName",
+    "WONumber",
+    "WOData1",
+    "QtyInProcess",
+    "qty_fact",
+    "PartLength",
+    "PartWidth",
+    "Thickness",
+];
+
 const columnFields: (keyof ProgramPartsProcessedType)[] = [
+    "id",
     "PartName",
     "WONumber",
     "WOData1",
@@ -37,7 +41,7 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "PartWidth",
     "Thickness",
     "fio_doers",
-    "done_by_fio",
+    "done_by_fio",// добавилась эта колонка
 ];
 export function NewOperatorParts() {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -50,47 +54,69 @@ export function NewOperatorParts() {
     }
     const { selectedOperatorId } = operatorIdContext;
     const currentUserName = useRef<string>("");
-    const [doers, setDoers] = useState<DoersRecord>({});
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramPartsProcessedType[]>([]);
+    const [doers, setDoers] = useState<DoersRecord>({});
+    const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [checkedParts, setCheckedParts] = useState<number[]>([]);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const headers = useRef<Record<string, string>>({});
 
-    /**Функция загрузки данных о деталях */
+
+    const prepareData = (data:MasterProgramPartsRecordType[], doersProcessed: DoersRecord) => {
+        const prepared = data.map((row) => {
+            let preparedRow = initialClumnFields.reduce((acc, field) => {
+                acc[field] = row[field];
+                return acc;
+            }, {});
+            preparedRow["checkBox"] = {
+                checked: Boolean(row.done_by_fio_doer_id),
+                disabled: false
+            }
+            preparedRow["done_by_fio"] = doersProcessed[row.done_by_fio_doer_id]
+            ? doersProcessed[row.done_by_fio_doer_id].fio_doer
+            : ""
+            preparedRow["fio_doers"]= ((value) => {
+                if (Array.isArray(value)) {
+                    return value.map((item) => item.fio_doer).join(", ");
+                }
+                return value
+            })(row.fio_doers)
+            return preparedRow;
+        });
+        return prepared as ProgramPartsProcessedType[] ;
+    };
+
+
+    /**
+     * Функция загрузки данных о деталях 
+     * Сначала загружаются операторы (для отображения фамилий  в таблице). 
+     * А когда они загрузились, загружаются данные.
+     */
     const loader = async () => {
         setShowTable(false);
-        // найти способ добавить сюда идентификатор пользователя
-        // нужно его держать в глобальном состоянии
         const responseDoers = await getDoers();
-        let doersProcessed: DoersRecord;
+        let doersProcessed: DoersRecord | undefined = undefined;
         if (responseDoers) {
             doersProcessed = responseDoers.reduce((acc, item) => {
                 acc[item.id] = item;
                 return acc;
             }, {});
+        } else {
+            setLoadError(true)
+            throw new Error("Не удалось получить список операторов на стрнице деталей.")
         }
         setDoers(doersProcessed);
         const response = await masterGetDetailsByProgramId(state.program.id, selectedOperatorId);
-        if (response !== undefined && responseDoers !== undefined) {
-            const procesedResponse = response.data.map((item) => ({
-                ...item,
-                checkBox: {
-                    checked: Boolean(item.done_by_fio_doer_id),
-                    disabled: false
-                        //item.done_by_fio_doer_id && selectedOperatorId !== item.done_by_fio_doer_id ? true : false,
-                },
-                done_by_fio: doersProcessed[item.done_by_fio_doer_id]
-                    ? doersProcessed[item.done_by_fio_doer_id].fio_doer
-                    : "",
-            }));
-            setData(procesedResponse);
+        if (response !== undefined ) {
+            setData(prepareData(response.data, doersProcessed));
             headers.current = {...response.headers, done_by_fio:"Сделал"};
             
         } else {
             setLoadError(true);
+            throw new Error(`Не удалось получить детали программы ${state.program.ProgramName}.`)
         }
     };
 
@@ -99,6 +125,8 @@ export function NewOperatorParts() {
         loader();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+
 
     const getCurrentUserName = useCallback((currentUserId: number, doers: DoersRecord) => {
         if (Object.keys(doers).length) {
@@ -122,18 +150,6 @@ export function NewOperatorParts() {
                 headerName: headers.current[columnname],
                 flex: 1,
             };
-            if (columnname == "fio_doers") {
-                col = {
-                    ...col,
-                    valueGetter: (value) => {
-                        if (Array.isArray(value)) {
-                            return value.map((item) => item.fio_doer).join(", ");
-                        }
-                        return value.fio_doer
-                    },
-                };
-            }
-
             return col;
         });
 

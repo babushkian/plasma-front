@@ -1,14 +1,5 @@
 import { useRef, useState, useEffect, useContext, useMemo, useCallback } from "react";
-import {
-    Box,
-    Button,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    OutlinedInput,
-    Select,
-    Typography,
-} from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
@@ -21,6 +12,7 @@ import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 
 const columnFields = [
+    "id",
     "program_priority",
     "ProgramName",
     "program_status",
@@ -31,7 +23,6 @@ const columnFields = [
     "SheetWidth",
     "SheetLength",
 ];
-
 
 export function NewOperator() {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -57,8 +48,12 @@ export function NewOperator() {
         if (response) {
             setDoers(response.sort((a, b) => a.fio_doer.localeCompare(b.fio_doer)));
             //определяем опцию по умолчанию в выпадающем списке операторов
-            const userOperator = response.find((item) => item.user_id === currentUser.id);
-            setSelectedOperatorId(userOperator ? userOperator.id : response[0].id);
+            const currentOperator = response.find((item) => item.user_id === currentUser.id);
+            // если текущий оператор уже хранится в контексте, то при заходе на страницу, оставляем его как есть
+            if (!selectedOperatorId) {                
+                // если юзер не является оперптором, то просто выбираем первого опреатора из списка
+                setSelectedOperatorId(currentOperator ? currentOperator.id : response[0].id);
+            }
             setOperatorsLoaded(true);
         }
     };
@@ -67,110 +62,131 @@ export function NewOperator() {
         loadOperators();
     }, []);
 
-
-    const reloadTable = useCallback(async (fio_id: number) => {        
+    const reloadTable = useCallback(async (fio_id: number) => {
         const response = await getMyPrograms(fio_id);
         if (response !== undefined) {
-            setData(response.data.sort((a, b) => a.id - b.id));            
+            setData(response.data.sort((a, b) => a.id - b.id));
         }
     }, []);
 
-
-    const changeProgramStatus = useCallback(async (rowId: number, new_status?: string) => {
-        const result = await OperatorStartProgram(rowId, new_status);
-        if (result?.msg) {
-            console.log(result);
-            if (selectedOperatorId) {
-                reloadTable(selectedOperatorId);
-                setShowTable(true);
-            }
-        }
-    },[reloadTable, selectedOperatorId]);
-
-
-
-    const createColumns = useCallback((headers) => {
-        const clmns: GridColDef[] = columnFields.map((columnname) => {
-            let col: GridColDef = {
-                field: columnname,
-                headerName: headers[columnname],
-                flex: 1,
-            };
-            if (columnname == "ProgramName") {
-                col = {
-                    ...col,
-                    renderCell: (params) => (
-                        <MuiLink
-                            component={Link}
-                            state={{ program: params.row }}
-                            to={`/o/${params.row.ProgramName}`}
-                        >
-                            {params.row.ProgramName}
-                        </MuiLink>
-                    ),
-                };
-            }
-            if (["wo_numbers", "wo_data1"].includes(columnname)) {
-                colTemplate = {
-                    ...colTemplate,
-                    valueGetter: (value) => value.join(", "),
-                };
-            }
-            if (columnname == "fio_doer") {
-                col = {
-                    ...col,
-                    valueGetter: (value) => value.fio_doer,
-                };
-            }
-
-            return col;
-        });
-        clmns.push({
-            field: "action",
-            headerName: "Действия",
-            flex: 0,
-            width: 180,
-            renderCell: (params) => {
-                switch (params.row.program_status) {
-                    case "распределена":
-                        return (
-                            <Button sx={{ my: 0.5 }} variant="contained" onClick={() => changeProgramStatus(params.id)}>
-                                в работу
-                            </Button>
-                        );
-                    case "в работе":
-                        return (
-                            <Button  sx={{ my: 0.5 }} variant="contained" onClick={() => changeProgramStatus(params.id, "распределена")}>
-                                остановить
-                            </Button>
-                        );
-                    default:
-                        return <p></p>;
+    const changeProgramStatus = useCallback(
+        async (rowId: number, new_status?: string) => {
+            const result = await OperatorStartProgram(rowId, new_status);
+            if (result?.msg) {
+                console.log(result);
+                if (selectedOperatorId) {
+                    reloadTable(selectedOperatorId);
+                    setShowTable(true);
                 }
-            },
+            }
+        },
+        [reloadTable, selectedOperatorId]
+    );
+
+    const createColumns = useCallback(
+        (headers) => {
+            const clmns: GridColDef[] = columnFields.map((columnname) => {
+                let col: GridColDef = {
+                    field: columnname,
+                    headerName: headers[columnname],
+                    flex: 1,
+                };
+                if (columnname == "ProgramName") {
+                    col = {
+                        ...col,
+                        renderCell: (params) => (
+                            <MuiLink
+                                component={Link}
+                                state={{ program: params.row }}
+                                to={`/o/${params.row.ProgramName}`}
+                            >
+                                {params.row.ProgramName}
+                            </MuiLink>
+                        ),
+                    };
+                }
+                if (["wo_numbers", "wo_data1"].includes(columnname)) {
+                    const colTemplate = {
+                        ...colTemplate,
+                        valueGetter: (value) => value.join(", "),
+                    };
+                }
+                if (columnname == "fio_doer") {
+                    col = {
+                        ...col,
+                        valueGetter: (value) => value.fio_doer,
+                    };
+                }
+
+                return col;
+            });
+            clmns.push({
+                field: "action",
+                headerName: "Действия",
+                flex: 0,
+                width: 180,
+                renderCell: (params) => {
+                    switch (params.row.program_status) {
+                        case "распределена":
+                            return (
+                                <Button
+                                    sx={{ my: 0.5 }}
+                                    variant="contained"
+                                    onClick={() => changeProgramStatus(params.id)}
+                                >
+                                    в работу
+                                </Button>
+                            );
+                        case "в работе":
+                            return (
+                                <Button
+                                    sx={{ my: 0.5 }}
+                                    variant="contained"
+                                    onClick={() => changeProgramStatus(params.id, "распределена")}
+                                >
+                                    остановить
+                                </Button>
+                            );
+                        default:
+                            return <p></p>;
+                    }
+                },
+            });
+            return clmns;
+        },
+        [changeProgramStatus]
+    );
+
+    /**
+     * Очистка данных от лишних колонок чтобы можно было наримальн делать глобальную фильтрацию 
+     * */
+    const prepareData = (data) => {
+        const prepared = data.map((row) => {
+            let preparedRow = columnFields.reduce<Partial<ProgramType>>((acc, field) => {
+                acc[field] = row[field];
+                return acc;
+            }, {});
+            return preparedRow;
         });
-        return clmns;
-    }, [changeProgramStatus]);
+        return prepared;
+    };
 
     /**
      * Загрузка программы для отображения в таблице по идентификатору оператора
      * @param fio_id - идентификатор оператора
      */
-
-
-
-
-    const loadTable = useCallback(async (fio_id: number) => {
-        setShowTable(false);
-        const response = await getMyPrograms(fio_id);
-        if (response !== undefined) {
-            setData(response.data.sort((a, b) => a.id - b.id));
-            columns.current = createColumns(response.headers);
-            setShowTable(true);            
-            
-        }
-    }, [createColumns]);
-
+    const loadTable = useCallback(
+        async (fio_id: number) => {
+            setShowTable(false);
+            const response = await getMyPrograms(fio_id);
+            if (response !== undefined) {
+                setData(prepareData(response.data).sort((a:ProgramType, b:ProgramType) => a.id - b.id));
+                columns.current = createColumns(response.headers);
+                setShowTable(true);
+            }
+        },
+        [createColumns]
+    );
 
     useEffect(() => {
         if (operatorsLoaded) {
@@ -178,14 +194,12 @@ export function NewOperator() {
         }
     }, [selectedOperatorId, operatorsLoaded, loadTable]);
 
-
     const hadleSelectDoer = (event) => {
         console.log("выбрали работника:", event.target.value);
         const selectedDoer = doers.filter((item) => item.id == event.target.value)[0];
         // даем изменить значение селекта тольо если юзер не является оператором
         if (!doers.find((item) => item.user_id === currentUser.id)) setSelectedOperatorId(selectedDoer.id);
     };
-
 
     const gridParams = useMemo(
         () => ({
@@ -198,14 +212,13 @@ export function NewOperator() {
         [apiRef, data]
     );
 
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место оператора</Typography>
                 {operatorsLoaded && (
                     <>
-                        <FormControl sx={{ m: 1, width: 300 }} size="small" >
+                        <FormControl sx={{ m: 1, width: 300 }} size="small">
                             <InputLabel id="master-program-doers">Оператор</InputLabel>
                             <Select
                                 labelId="master-program-doers"
@@ -231,5 +244,4 @@ export function NewOperator() {
             </Box>
         </>
     );
-};
-
+}
