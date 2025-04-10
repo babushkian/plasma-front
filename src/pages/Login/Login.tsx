@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -30,14 +30,14 @@ const Login = () => {
         throw new Error("Не определено значение для конекста авторизации");
     }
     const { currentUser, login } = authContext;
-    
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [openSnackbar, setOpenSnackbar] = useState(false)
-    const errorMessage = "Неверное имя пользователя или пароль."
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const errorMessage = "Неверное имя пользователя или пароль.";
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = React.useState(false);
-    
+
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -54,27 +54,25 @@ const Login = () => {
             const response = await axios.post<loginResponse>("http://192.168.8.163:8000/auth/login", userobj, {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
-            // Проверка успешности логина
-            if (response.status === 200) {
-                const token = response.data.access_token;
-                console.log("получили токен после логина:", token)
-                login(token)
-                console.log("юзер", currentUser)
-                // не работает, потому что пользователя нет(состояние не применилось после логина)
-                //navigate(getDefaultPage(currentUser)); // переход на дефолтный адрес после логина
-                
-            }
+            const token = response.data.access_token;
+            login(token);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 400) {
-                    setOpenSnackbar(true)
-                    console.log("ошибка авторизации")
+                    setOpenSnackbar(true);
+                    console.log("ошибка авторизации");
                 } else {
                     console.error("Ошибка в ходе авторизации:", error);
                 }
             }
         }
     };
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate(getDefaultPage(currentUser)); // переход на дефолтный адрес после логина
+        }
+    }, [currentUser, navigate]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -98,7 +96,7 @@ const Login = () => {
                     Вход
                 </Typography>
 
-                <Stack sx={{ backgroundColor: "background.paper", borderRadius: 1, padding: 1, rowGap:1 }}>
+                <Stack sx={{ backgroundColor: "background.paper", borderRadius: 1, padding: 1, rowGap: 1 }}>
                     <TextField
                         name="username"
                         value={username}
@@ -135,11 +133,15 @@ const Login = () => {
                         {" "}
                         Войти
                     </Button>
-                    <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={()=>setOpenSnackbar(false)}>
-                <Alert /*variant="filled"*/ onClose={()=>setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
+                    <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+                        <Alert
+                            /*variant="filled"*/ onClose={() => setOpenSnackbar(false)}
+                            severity="error"
+                            sx={{ width: "100%" }}
+                        >
+                            {errorMessage}
+                        </Alert>
+                    </Snackbar>
                 </Stack>
 
                 <Stack spacing={2}>
