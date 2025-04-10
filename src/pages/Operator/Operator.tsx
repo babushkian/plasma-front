@@ -10,6 +10,7 @@ import { OperatorSelectContext, UserContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { endpoints } from "../../utils/authorization.ts";
+import { useAuth } from "../../AuthContext.tsx";
 
 const columnFields = [
     "id",
@@ -26,15 +27,15 @@ const columnFields = [
 
 export function Operator() {
     const operatorIdContext = useContext(OperatorSelectContext);
-    const currentUserContext = useContext(UserContext);
     if (!operatorIdContext) {
         throw new Error("не определено начальное значение для конекста оператора");
     }
-    if (!currentUserContext) {
-        throw new Error("не определено начальное значение для конекста пользователя");
+    const authContext = useAuth();
+    if (!authContext) {
+        throw new Error("Не определено значение для конекста авторизации");
     }
-      
-    const { currentUser } = currentUserContext;
+    const { currentUser } = authContext;
+
     const { selectedOperatorId, setSelectedOperatorId } = operatorIdContext;
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramType[] | null>(null);
@@ -50,7 +51,7 @@ export function Operator() {
             //определяем опцию по умолчанию в выпадающем списке операторов
             const currentOperator = response.find((item) => item.user_id === currentUser.id);
             // если текущий оператор уже хранится в контексте, то при заходе на страницу, оставляем его как есть
-            if (!selectedOperatorId) {                
+            if (!selectedOperatorId) {
                 // если юзер не является оперптором, то просто выбираем первого опреатора из списка
                 setSelectedOperatorId(currentOperator ? currentOperator.id : response[0].id);
             }
@@ -84,7 +85,7 @@ export function Operator() {
     );
 
     const createColumns = useCallback(
-        (headers:Record<string, string>) => {
+        (headers: Record<string, string>) => {
             const clmns: GridColDef[] = columnFields.map((columnname) => {
                 let col: GridColDef = {
                     field: columnname,
@@ -158,7 +159,7 @@ export function Operator() {
     );
 
     /**
-     * Очистка данных от лишних колонок чтобы можно было наримальн делать глобальную фильтрацию 
+     * Очистка данных от лишних колонок чтобы можно было наримальн делать глобальную фильтрацию
      * */
     const prepareData = (data) => {
         const prepared = data.map((row) => {
@@ -180,7 +181,7 @@ export function Operator() {
             setShowTable(false);
             const response = await getMyPrograms(fio_id);
             if (response !== undefined) {
-                setData(prepareData(response.data).sort((a:ProgramType, b:ProgramType) => a.id - b.id));
+                setData(prepareData(response.data).sort((a: ProgramType, b: ProgramType) => a.id - b.id));
                 columns.current = createColumns(response.headers);
                 setShowTable(true);
             }

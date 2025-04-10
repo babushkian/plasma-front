@@ -1,8 +1,7 @@
 import axios from "axios";
 import { getTokenFromStore, clearStore } from "./local-storage";
-import { replace } from "react-router-dom";
 import {endpoints} from "./authorization"
-
+import { NavigateFunction } from "react-router-dom";
 export const BASE_URL = "http://192.168.8.163:8000";
 
 export const URL_AUTH_LOGIN = "auth/login";
@@ -33,45 +32,12 @@ export const LOGIST_CALCULATE_PARTS = "logist/calculate_parts";
 
 export const REPORT_PARTS_FULL = "reports/parts_full";
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
     baseURL: BASE_URL,
 });
 
 
-
-apiClient.interceptors.request.use(
-    (config) => {
-        const token = getTokenFromStore()
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
-apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.log(error)
-        if (error.response && error.response.status === 401) {            
-            // Токен недействителен или истек
-            clearStore(); // Удаляем токен из хранилища
-            // Перенаправляем пользователя на страницу логина
-            // const navigate = useNavigate()
-            // navigate(URL_AUTH_LOGIN)   
-        }
-        return Promise.reject(error);
-    }
-);
-
-export default apiClient;
-
-
-
-export const setupInterceptors = (navigate) => {
+export const setupInterceptors = (navigate:NavigateFunction) => {
     apiClient.interceptors.request.use(
         (config) => {
             const token = getTokenFromStore();
@@ -88,10 +54,9 @@ export const setupInterceptors = (navigate) => {
     apiClient.interceptors.response.use(
         (response) => response,
         (error) => {
+            // Токен недействителен или истек
             if (error.response && error.response.status === 401) {
-                // Токен недействителен или истек
-
-                navigate(endpoints.LOGIN, replace); // Перенаправляем пользователя на страницу логина
+                navigate(endpoints.LOGIN); // Перенаправляем пользователя на страницу логина
                 clearStore(); // Удаляем токен из хранилища
             }
             return Promise.reject(error);

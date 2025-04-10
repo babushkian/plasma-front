@@ -3,7 +3,7 @@ import { MasterResponseType } from "./requests.types";
 import { LogistResponseType } from "./requests.types";
 import { OperatorResponseType } from "./requests.types";
 
-import apiClient, {
+import  { apiClient,
     URL_GET_PROGRAM_PARTS,
     URL_CREATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,

@@ -1,14 +1,13 @@
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { clearStore } from "../../utils/local-storage";
-import { useContext } from "react";
-import { UserContext } from "../../context.tsx";
+import {useAuth} from "../../AuthContext.tsx"
 import { logout } from "../../utils/requests";
 import { endpoints } from "../../utils/authorization.ts";
 
 const LogoutButton = () => {
     const navigate = useNavigate();
-    const uc = useContext(UserContext);
+    const uc = useAuth();
     if (uc) {
         const { setCurrentUser } = uc;
         const handleLogout = async () => {

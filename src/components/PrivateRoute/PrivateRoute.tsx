@@ -1,16 +1,21 @@
-import { useContext } from "react";
-import { Navigate, useLocation, Outlet} from "react-router-dom";
-import { UserContext } from "../../context.tsx";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { isEndpointPermitted, getDefaultPage } from "../../utils/authorization.ts";
 import { useAxiosInterceptors } from "../../hooks";
+import { useAuth } from "../../AuthContext.tsx";
 
 const PrivateRoute = () => {
-    const user = useContext(UserContext);
-    const { pathname } = useLocation();  
-    useAxiosInterceptors() // при невалидном токене переадресация в логин
-    return isEndpointPermitted(user?.currentUser, pathname) ? <Outlet /> : <Navigate to={getDefaultPage(user?.currentUser)} />;
-    
+    const authContext = useAuth();
+    if (!authContext) {
+        throw new Error("Не определено значение для конекста авторизации");
+    }
+    const { currentUser } = authContext;
+    const { pathname } = useLocation();
+    useAxiosInterceptors(); // при невалидном токене переадресация в логин
+    return isEndpointPermitted(currentUser, pathname) ? (
+        <Outlet />
+    ) : (
+        <Navigate to={getDefaultPage(currentUser)} />
+    );
 };
-
 
 export default PrivateRoute;

@@ -1,12 +1,11 @@
 
 import { Navigate } from "react-router-dom";
 import { getDefaultPage } from "../../utils/authorization";
-import { useContext } from "react";
-import { UserContext } from "../../context";
+import { useAuth } from "../../AuthContext";
 
 export const RedirectByRole = () => {
-    const user = useContext(UserContext);
-    return <Navigate to={getDefaultPage(user?.currentUser)} />;
+    const { currentUser } = useAuth();
+    return <Navigate to={getDefaultPage(currentUser)} />;
 }
 
 export default RedirectByRole;

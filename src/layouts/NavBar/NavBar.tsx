@@ -5,11 +5,11 @@ import dayjs from "dayjs";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
-import { UserContext } from "../../context";
 import { endpoints, getUserEndpoints } from "../../utils/authorization";
+import { useAuth } from "../../AuthContext";
 
 const Navbar: React.FC = () => {
-    const { currentUser } = useContext(UserContext);
+    const { currentUser } = useAuth();
     const { pathname } = useLocation();
     const login = (
         <>

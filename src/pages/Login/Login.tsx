@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getCurrentUser } from "../../utils/requests";
-import { saveTokenToStore, saveUserToStore } from "../../utils/local-storage";
-import { UserContext } from "../../context.tsx";
+
+
 import {
     Alert,
     Box,
@@ -21,12 +21,18 @@ import {
 
 import { getDefaultPage } from "../../utils/authorization.ts";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useAuth } from "../../AuthContext.tsx";
 
 type loginResponse = { access_token: string; token_type: string };
 type userLoginType = { username: string; password: string };
 
 const Login = () => {
-    const { currentUser, setCurrentUser } = useContext(UserContext);
+    const authContext = useAuth();
+    if (!authContext) {
+        throw new Error("Не определено значение для конекста авторизации");
+    }
+    const {token, login } = authContext;
+    
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [openSnackbar, setOpenSnackbar] = useState(false)
@@ -51,16 +57,12 @@ const Login = () => {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
             // Проверка успешности логина
-            console.log(response);
             if (response.status === 200) {
                 const token = response.data.access_token;
-                saveTokenToStore(token);
-                const user = await getCurrentUser();
-                if (user) {
-                    saveUserToStore(user);
-                    setCurrentUser(user);
-                    navigate(getDefaultPage(user)); // переход на дефолтный адрес после логина
-                }
+                login(token)
+
+                navigate(getDefaultPage(user)); // переход на дефолтный адрес после логина
+                
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -68,7 +70,7 @@ const Login = () => {
                     setOpenSnackbar(true)
                     console.log("ошибка авторизации")
                 } else {
-                    console.error("Error during login:", error);
+                    console.error("Ошибка в ходе авторизации:", error);
                 }
             }
         }
