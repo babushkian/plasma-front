@@ -16,8 +16,6 @@ export function useModifiedRows() {
         }
     }, [modifiedRows]);
 
-    useEffect(() => console.log("модифицированные столбцы", modifiedRows), [modifiedRows]);
-    
     const clearModifiedRows = useCallback(() => {
         setModifiedRows(new Set());
     }, []);

@@ -15,6 +15,7 @@ import { endpoints } from "../../utils/authorization";
 import { useModifiedRows } from "../../hooks";
 import {updateTableData, UniversalUpdaterType} from "../../utils/update-any-field-in-table"
 
+
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
@@ -53,7 +54,6 @@ export function Master() {
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
     const dataUpdater = useMemo( ()=> updateTableData(columnFields, setData), []);
-    
 
     /**
      * Загрузка программ и операторов для отображения на странице мастера

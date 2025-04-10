@@ -1,6 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useContext, useMemo } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
 import { TechProgramType, ProcessedPrognameType, DateDiapazonType, ICreateData } from "./Techman.types.ts";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon.tsx";
@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
 import { endpoints } from "../../utils/authorization.ts";
 
+
 type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
 
 const blancOption = "---";
@@ -37,7 +38,7 @@ const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
 };
 
 const initialColumnFields = ["PostDateTime", "ProgramName", "program_status", "UserName", "Material"];
-const columnFields = ["id","PostDateTime", "ProgramName", "program_status", "UserName", "Material", "checked"];
+const columnFields = ["id", "PostDateTime", "ProgramName", "program_status", "UserName", "Material", "checked"];
 
 // структура, формирующая опуии для авпадающих списков для полей типа "singleSelect"
 type selecOptionsType = Partial<{ [key in ProgNameKeysType]: string[] }> | undefined;
@@ -63,9 +64,7 @@ export function Techman() {
     // стабильная переменная для храенеия данных о столбцах таблицы]
     const columns = useRef<GridColDef[]>([]);
     const [noData, setNoData] = useState(false);
-    // объект русификации заголовков  таблицы
-    const navigate = useNavigate();
-
+    
     const createColumns = (headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const colName = columnname as keyof typeof columnDict;
@@ -95,7 +94,7 @@ export function Techman() {
                     renderCell: (params: GridRenderCellParams<ProcessedPrognameType>) => (
                         <Checkbox checked={params.row.checked} onChange={() => handleSelect(params)} />
                     ),
-                }
+                };
             }
             return col;
         });
@@ -118,7 +117,7 @@ export function Techman() {
                 checked: false,
                 PostDateTime: dayjs(item.PostDateTime).format("YYYY-MM-DD"),
             };
-        });        
+        });
         return prepared;
     };
 
@@ -126,28 +125,21 @@ export function Techman() {
     const loader = async (diapazon: DateDiapazonType) => {
         setShowTable(false);
         setNoData(false);
-        try {
-            const response = await getNewPrograms({
-                start_date: diapazon.startDate.format("YYYY-MM-DD"),
-                end_date: diapazon.endDate.format("YYYY-MM-DD"),
-            });
-            if (response) {
-                if ( response.data.length > 0) {
-                    const processed = prepareData(response.data);
-                    setData(processed);
-                    
-                    columns.current = createColumns({...response.headers, checked: "выбрать для загрузки"});
-                    setShowTable(true);
-                } else {
-                    setNoData(true);
-                }
+
+        const response = await getNewPrograms({
+            start_date: diapazon.startDate.format("YYYY-MM-DD"),
+            end_date: diapazon.endDate.format("YYYY-MM-DD"),
+        });
+        if (response) {
+            if (response.data.length > 0) {
+                const processed = prepareData(response.data);
+                setData(processed);
+
+                columns.current = createColumns({ ...response.headers, checked: "выбрать для загрузки" });
+                setShowTable(true);
+            } else {
+                setNoData(true);
             }
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                console.error("Ошибка авторизации: требуется вход в систему.");
-                navigate(endpoints.LOGIN);
-            }
-            console.error("Error fetching protected data:", error);
         }
     };
 
@@ -155,8 +147,6 @@ export function Techman() {
     useEffect(() => {
         loader(dateDiapazon);
     }, []);
-
-    
 
     /**
      * Отправлем данные программы для загрузки из базы Плазмы в нашу базу.
@@ -214,7 +204,6 @@ export function Techman() {
         }),
         [apiRef, data]
     );
-
 
     return (
         <>

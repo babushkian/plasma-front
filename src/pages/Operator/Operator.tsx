@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect, useContext, useMemo, useCallback } from "react";
 import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
-
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests.ts";
@@ -34,7 +33,7 @@ export function Operator() {
     if (!currentUserContext) {
         throw new Error("не определено начальное значение для конекста пользователя");
     }
-
+      
     const { currentUser } = currentUserContext;
     const { selectedOperatorId, setSelectedOperatorId } = operatorIdContext;
     const columns = useRef<GridColDef[]>([]);
