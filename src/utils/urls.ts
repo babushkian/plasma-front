@@ -1,7 +1,3 @@
-import axios from "axios";
-import { getTokenFromStore, clearStore } from "./local-storage";
-import {endpoints} from "./authorization"
-import { NavigateFunction } from "react-router-dom";
 export const BASE_URL = "http://192.168.8.163:8000";
 
 export const URL_AUTH_LOGIN = "auth/login";
@@ -32,36 +28,8 @@ export const LOGIST_CALCULATE_PARTS = "logist/calculate_parts";
 
 export const REPORT_PARTS_FULL = "reports/parts_full";
 
-export const apiClient = axios.create({
-    baseURL: BASE_URL,
-});
 
 
-export const setupInterceptors = (navigate:NavigateFunction) => {
-    apiClient.interceptors.request.use(
-        (config) => {
-            const token = getTokenFromStore();
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-            return config;
-        },
-        (error) => {
-            return Promise.reject(error);
-        }
-    );
 
-    apiClient.interceptors.response.use(
-        (response) => response,
-        (error) => {
-            // Токен недействителен или истек
-            if (error.response && error.response.status === 401) {
-                navigate(endpoints.LOGIN); // Перенаправляем пользователя на страницу логина
-                clearStore(); // Удаляем токен из хранилища
-            }
-            return Promise.reject(error);
-        }
-    );
-};
 
 

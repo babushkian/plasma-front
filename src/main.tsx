@@ -33,6 +33,7 @@ import MasterContext from "./context.tsx";
 import MainReport from "./pages/MainReport/MainReport.tsx";
 import RedirectByRole from "./pages/MainPage/MainPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
+import { setupInterceptors } from "./utils/axiosSetup.ts";
 
 
 // import NewLogist from "./pages/Logist/Logist.tsx";
@@ -137,8 +138,10 @@ const router = createBrowserRouter(
         },
     }
 );
-console.log("список маршрутов");
-console.log(router.routes);
+
+//если не запустить настройку запросов здесь, то не будут посылаться заголовки с токеном 
+// и нельзя будет получить пользователя после логина
+setupInterceptors()
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

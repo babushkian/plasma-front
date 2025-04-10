@@ -1,23 +1,17 @@
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { clearStore } from "../../utils/local-storage";
-import {useAuth} from "../../AuthContext.tsx"
-import { logout } from "../../utils/requests";
+import { useAuth } from "../../hooks";
 import { endpoints } from "../../utils/authorization.ts";
 
 const LogoutButton = () => {
     const navigate = useNavigate();
     const uc = useAuth();
     if (uc) {
-        const { setCurrentUser } = uc;
+        const { logout } = uc;
         const handleLogout = async () => {
-            console.log("разлогиниваюсь");
             clearStore();
-            // Отправка POST-запроса на сервер с использованием axios
-            const response = logout();
-
-            console.log("разлогинились:", response);
-            setCurrentUser(undefined);
+            logout()
             navigate(endpoints.LOGIN);
         };
 

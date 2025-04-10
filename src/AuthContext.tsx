@@ -1,52 +1,64 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { UserType } from "./pages/Login/Login.types";
-import { getUserFromStore, getTokenFromStore, saveTokenToStore, saveUserToStore } from "./utils/local-storage";
+import {
+    getUserFromStore,
+    getTokenFromStore,
+    saveTokenToStore,
+    saveUserToStore,
+    clearStore,
+} from "./utils/local-storage";
+import { logout as apiLogout } from "./utils/requests";
 import { getCurrentUser } from "./utils/requests";
-type UserContextType = {
+import { useNavigate } from "react-router-dom";
+import { getDefaultPage } from "./utils/authorization.ts";
+
+
+export type UserContextType = {
     token: string | undefined;
     currentUser: UserType | undefined;
-    setCurrentUser: React.Dispatch<React.SetStateAction<UserType | undefined>>;
     login: (newToken: string) => void;
     logout: () => void;
 };
 export const AuthContext = createContext<UserContextType | undefined>(undefined);
 
-export function AuthProvider({ children }) {
+type childrenProps = { children: React.ReactNode };
+export function AuthProvider({ children }: childrenProps) {
     const [token, setToken] = useState<string | undefined>(getTokenFromStore);
     const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);
-
-    useEffect(()=>{
-        const getUser = () =>{
-            return getCurrentUser();
-        }
-        if (token) {
-            saveTokenToStore(token)
-            const user = getUser()
-            if (user) {
-                saveUserToStore(user);
-                setCurrentUser(user);
-                //navigate(getDefaultPage(user)); // переход на дефолтный адрес после логина
-            }
-            
-        }
-        else{}
-    }, [token])
-
-    function login(newToken: string) {
+    //const navigate = useNavigate()
+    const login = useCallback((newToken: string) => {
         setToken(newToken);
-    }
-    
-    function logout() {
+    }, []);
+
+    const logout = useCallback(() => {
         setToken(undefined);
-    }
+        setCurrentUser(undefined);
+        apiLogout();
+    }, []);
 
-    return (
-        <AuthContext.Provider value={{ token, currentUser, setCurrentUser, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+    useEffect(() => {
+        const fetchuser = async () => {
+            if (token) {
+                saveTokenToStore(token);
+                try {
+                    const user = await getCurrentUser();
+                    setCurrentUser(user);
+                    saveUserToStore(user);
+                    //navigate(getDefaultPage(user)); // переход на дефолтный адрес после логина
+                } catch (error) {
+                    console.error("Ошибка загрузки пользователя:", error);
+                    logout(); // если не удалось получить пользователя — разлогинивае
+                }
+            } else {
+                clearStore();
+            }
+        };
+        fetchuser();
+    }, [logout, token]);
+
+    const contextObject = useMemo(() => ({ currentUser, token, login, logout }), [currentUser, login, logout, token]);
+
+    return <AuthContext.Provider value={contextObject}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-    return useContext(AuthContext);
-}
+

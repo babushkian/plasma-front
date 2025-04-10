@@ -6,10 +6,15 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
 import { endpoints, getUserEndpoints } from "../../utils/authorization";
-import { useAuth } from "../../AuthContext";
+import { useAuth } from "../../hooks/use-auth";
 
 const Navbar: React.FC = () => {
-    const { currentUser } = useAuth();
+
+    const authContext = useAuth();
+    if (!authContext) {
+        throw new Error("Не определено значение для конекста авторизации");
+    }
+    const { currentUser } = authContext;
     const { pathname } = useLocation();
     const login = (
         <>
@@ -34,8 +39,6 @@ const Navbar: React.FC = () => {
         <>
             <nav>
                 <ul className={styles.navbar}>
-
-
                     {getUserEndpoints(currentUser).map((item) => (
                         <li key={item.name}>
                             <NavLink

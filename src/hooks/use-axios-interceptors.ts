@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { setupInterceptors } from "../utils/urls";
+import { setupInterceptors } from "../utils/axiosSetup";
 
 
 /**

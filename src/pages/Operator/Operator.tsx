@@ -10,7 +10,7 @@ import { OperatorSelectContext, UserContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { endpoints } from "../../utils/authorization.ts";
-import { useAuth } from "../../AuthContext.tsx";
+import { useAuth } from "../../hooks/use-auth.tsx";
 
 const columnFields = [
     "id",

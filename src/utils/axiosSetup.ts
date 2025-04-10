@@ -1,0 +1,44 @@
+import axios from "axios";
+import { getTokenFromStore, clearStore } from "./local-storage";
+import {endpoints} from "./authorization"
+import { NavigateFunction } from "react-router-dom";
+import {BASE_URL} from "./urls"
+
+
+
+export const apiClient = axios.create({
+    baseURL: BASE_URL,
+});
+
+
+let navigateFunction: NavigateFunction | null = null;
+
+export const setupInterceptors = (navigate?:NavigateFunction) => {
+    if (navigate) {
+        navigateFunction = navigate;
+    }
+    apiClient.interceptors.request.use(
+        (config) => {
+            const token = getTokenFromStore();
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
+        }
+    );
+
+    apiClient.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            // Токен недействителен или истек
+            if (error.response && error.response.status === 401) {
+                clearStore(); // Удаляем токен из хранилища
+                if (navigateFunction) navigateFunction(endpoints.LOGIN); // Перенаправляем пользователя на страницу логина
+            }
+            return Promise.reject(error);
+        }
+    );
+};

@@ -3,7 +3,7 @@ import { MasterResponseType } from "./requests.types";
 import { LogistResponseType } from "./requests.types";
 import { OperatorResponseType } from "./requests.types";
 
-import  { apiClient,
+import  {
     URL_GET_PROGRAM_PARTS,
     URL_CREATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,
@@ -26,6 +26,7 @@ import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.t
 import {ResponsePartsType} from "./requests.types"
 import { AssignProgramRequestType, DoerType } from "../pages/Master/Master.types";
 import { UserType } from "../pages/Login/Login.types";
+import { apiClient } from "./axiosSetup";
 
 
 /**
@@ -200,7 +201,7 @@ export const getCurrentUser = async () => {
         const { data } = await apiClient.get<UserType>(USER_ME);
         return data;
     } catch (error) {
-        if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
+        return Promise.reject(error)
     }
 };
 

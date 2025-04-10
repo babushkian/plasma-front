@@ -1,7 +1,7 @@
 import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { isEndpointPermitted, getDefaultPage } from "../../utils/authorization.ts";
 import { useAxiosInterceptors } from "../../hooks";
-import { useAuth } from "../../AuthContext.tsx";
+import { useAuth } from "../../hooks";
 
 const PrivateRoute = () => {
     const authContext = useAuth();

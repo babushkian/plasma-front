@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getCurrentUser } from "../../utils/requests";
-
 
 import {
     Alert,
@@ -21,7 +19,7 @@ import {
 
 import { getDefaultPage } from "../../utils/authorization.ts";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useAuth } from "../../AuthContext.tsx";
+import { useAuth } from "../../hooks";
 
 type loginResponse = { access_token: string; token_type: string };
 type userLoginType = { username: string; password: string };
@@ -31,7 +29,7 @@ const Login = () => {
     if (!authContext) {
         throw new Error("Не определено значение для конекста авторизации");
     }
-    const {token, login } = authContext;
+    const { currentUser, login } = authContext;
     
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -59,9 +57,11 @@ const Login = () => {
             // Проверка успешности логина
             if (response.status === 200) {
                 const token = response.data.access_token;
+                console.log("получили токен после логина:", token)
                 login(token)
-
-                navigate(getDefaultPage(user)); // переход на дефолтный адрес после логина
+                console.log("юзер", currentUser)
+                // не работает, потому что пользователя нет(состояние не применилось после логина)
+                //navigate(getDefaultPage(currentUser)); // переход на дефолтный адрес после логина
                 
             }
         } catch (error) {
