@@ -3,6 +3,7 @@ export const BASE_URL = "http://192.168.8.163:8000";
 export const AUTH_LOGIN = "auth/login";
 export const AUTH_LOGOUT = "auth/logout";
 export const URL_AUTH_AUTHENTICATED = "auth/authenticated-route";
+export const AUTH_REGISTER = "auth/register"
 
 export const TECHMAN_GET_PROGRAMS = "techman/get_programs";
 export const TECHMAN_GET_PROGRAM_PARTS = "techman/get_program_parts";

@@ -1,8 +1,8 @@
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {  RouterProvider } from "react-router-dom";
 
-import { endpoints } from "./utils/authorization.ts";
+
 
 import "./index.css";
 import "@fontsource/roboto/300.css";
@@ -10,13 +10,6 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import { LogistTable } from "./pages/LogistTable/LogistTable.tsx";
-import Navbar from "./layouts/NavBar/NavBar.tsx";
-import {Techman} from "./pages/Techman/Techman.tsx";
-import Login from "./pages/Login/Login";
-import {Operator} from "./pages/Operator/Operator.tsx";
-import {OperatorParts} from "./pages/Operator/OperatorParts.tsx";
-import PrivateRoute from "./components/PrivateRoute/PrivateRoute.tsx";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
@@ -26,15 +19,10 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ruRU } from "@mui/x-data-grid/locales";
 import { ruRU as coreruRU } from "@mui/material/locale";
 import { ruRU as dateruRU } from "@mui/x-date-pickers/locales";
-import PartsList from "./pages/PartsList/PartsList.tsx";
-import { Master } from "./pages/Master/Master.tsx";
-import PlasmaParts from "./pages/Techman/PlasmaParts.tsx";
 import MasterContext from "./context.tsx";
-import MainReport from "./pages/MainReport/MainReport.tsx";
-import RedirectByRole from "./pages/MainPage/MainPage.tsx";
-import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import { setupInterceptors } from "./utils/axiosSetup.ts";
 
+import {router} from "./routes"
 
 // import NewLogist from "./pages/Logist/Logist.tsx";
 // import NewLogistTable from "./pages/Logist/LogistTable.tsx";
@@ -74,70 +62,6 @@ const theme = createTheme(
 
 
 
-const LazyLogist = lazy(() => import("./pages/Logist/Logist"));
-
-export const ErrorPage = () => <div className="errormessage">Не удалось загрузить страницу</div>;
-export const LoadingPlaceholder = () => <div>Загрузка...</div>;
-
-const router = createBrowserRouter(
-    [
-        { path: "/", element: <RedirectByRole /> },
-        {
-            element: <Navbar />,
-            children: [
-                {
-                    Component: PrivateRoute,
-                    children: [
-                        {
-                            path: endpoints.TECHMAN,
-                            children: [
-                                { index: true, element: <Techman /> },
-                                { path: ":programName", Component: PlasmaParts, errorElement: <ErrorPage /> },
-                            ],
-                        },
-                        {
-                            path: endpoints.MASTER,
-                            children: [
-                                { index: true, Component: Master, errorElement: <ErrorPage /> },
-                                { path: ":programName", Component: PartsList, errorElement: <ErrorPage /> },
-                            ],
-                        },
-                        {
-                            path: endpoints.OPERATOR,
-                            children: [
-                                { index: true, element: <Operator /> },
-                                { path: ":programName", element: <OperatorParts /> },
-                            ],
-                        },
-                        {
-                            path: endpoints.LOGIST,
-                            children: [
-                                {
-                                    index: true,
-                                    element: (
-                                        <Suspense fallback={<LoadingPlaceholder />}>
-                                            <LazyLogist />
-                                        </Suspense>
-                                    ),
-                                    errorElement: <ErrorPage />,
-                                },
-                                { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
-                            ],
-                        },
-                    ],
-                },
-                { path: endpoints.LOGIN, element: <Login /> },
-                { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
-                { path: "*", element: <NotFoundPage /> },
-            ],
-        },
-    ],
-    {
-        future: {
-            v7_relativeSplatPath: true,
-        },
-    }
-);
 
 //если не запустить настройку запросов здесь, то не будут посылаться заголовки с токеном 
 // и нельзя будет получить пользователя после логина

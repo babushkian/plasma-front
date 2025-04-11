@@ -20,6 +20,7 @@ import  {
     TECHMAN_GET_PROGRAMS,
     USER_ME,
     REPORT_PARTS_FULL,
+    AUTH_REGISTER,
 } from "./urls";
 
 
@@ -28,6 +29,23 @@ import {ResponsePartsType} from "./requests.types"
 import { AssignProgramRequestType, DoerType } from "../pages/Master/Master.types";
 import { UserType } from "../pages/Login/Login.types";
 import { apiClient } from "./axiosSetup";
+
+
+/**
+ * Записывает новые программы для резки в нашу базу
+ * @param params
+ */
+export const userRegister = async (params) => {
+    try {
+        // Отправка POST-запроса на сервер с использованием axios
+        const response = await apiClient.post(AUTH_REGISTER, params);
+        console.log("Ответ сервера: ", response);
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при содании нового пользователя:", error);
+        return Promise.reject(error)
+    }
+};
+
 
 
 /**

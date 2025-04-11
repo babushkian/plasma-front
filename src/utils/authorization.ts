@@ -25,6 +25,7 @@ export const endpoints = {
     LOGIST: "/logist",
     LOGIN: "/login",
     MAIN_REPORT: "/report",
+    ADD_OPERATOR: "/add-operator",
 } as const;
 
 type EndpointValues = (typeof endpoints)[keyof typeof endpoints];
@@ -33,11 +34,12 @@ export type EndpointData = { endpoint: EndpointValues; name: string };
 
 export const appMenuItems: Record<keyof typeof endpoints, EndpointData> = {
     TECHMAN: { endpoint: endpoints.TECHMAN, name: "Технолог" },
-    MASTER: { endpoint: endpoints.MASTER, name: "Мастер" },
+    MASTER: { endpoint: endpoints.MASTER, name: "Мастер" , },
     OPERATOR: { endpoint: endpoints.OPERATOR, name: "Оператор" },
     LOGIST: { endpoint: endpoints.LOGIST, name: "Логист" },
     LOGIN: { endpoint: endpoints.LOGIN, name: "Логин" },
     MAIN_REPORT: { endpoint: endpoints.MAIN_REPORT, name: "Отчет" },
+    ADD_OPERATOR: { endpoint: endpoints.ADD_OPERATOR, name: "Добавить оператора" },
 };
 
 export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
@@ -45,12 +47,13 @@ export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
     ADMIN: [
         appMenuItems.TECHMAN,
         appMenuItems.MASTER,
+        appMenuItems.ADD_OPERATOR,
         appMenuItems.OPERATOR,
         appMenuItems.LOGIST,
         appMenuItems.MAIN_REPORT,
     ],
     TECHMAN: [appMenuItems.TECHMAN, appMenuItems.MAIN_REPORT],
-    MASTER: [appMenuItems.MASTER, appMenuItems.OPERATOR, appMenuItems.MAIN_REPORT],
+    MASTER: [appMenuItems.MASTER, appMenuItems.ADD_OPERATOR, appMenuItems.OPERATOR, appMenuItems.MAIN_REPORT],
     OPERATOR: [appMenuItems.OPERATOR, appMenuItems.MAIN_REPORT],
     LOGIST: [appMenuItems.LOGIST, appMenuItems.MAIN_REPORT],
 };
