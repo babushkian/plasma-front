@@ -20,6 +20,7 @@ import {
 import { getDefaultPage } from "../../utils/authorization.ts";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuth } from "../../hooks";
+import { BASE_URL, URL_AUTH_LOGIN } from "../../utils/urls.ts";
 
 type loginResponse = { access_token: string; token_type: string };
 type userLoginType = { username: string; password: string };
@@ -51,7 +52,7 @@ const Login = () => {
         try {
             // Отправка POST-запроса на сервер с использованием axios
 
-            const response = await axios.post<loginResponse>("http://192.168.8.163:8000/auth/login", userobj, {
+            const response = await axios.post<loginResponse>(`${BASE_URL}/${URL_AUTH_LOGIN}`, userobj, {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
             const token = response.data.access_token;

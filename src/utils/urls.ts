@@ -10,9 +10,6 @@ export const URL_CREATE_PROGRAM_DATA = "techman/create_data";
 
 export const USER_ME = "user/me"
 
-/**
- * получение всех нераспределенных заданий и фамилий раюотников для распределения
- */
 export const MASTER_GET_PROGRAMS_AND_DOERS = "master/get_programs_for_assignment_and_doers";
 export const MASTER_ASSIGN_PROGRAMS = "master/assign_program";
 export const MASTER_GET_DOERS = "master/get_doers";

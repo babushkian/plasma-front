@@ -21,10 +21,7 @@ import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
 import { endpoints } from "../../utils/authorization.ts";
 
-
 type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
-
-const blancOption = "---";
 
 type ProgNameKeysType = keyof PrognameAndIdType;
 
@@ -37,11 +34,12 @@ const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
     Material: "string",
 };
 
-const initialColumnFields = ["PostDateTime", "ProgramName", "program_status", "UserName", "Material"];
-const columnFields = ["id", "PostDateTime", "ProgramName", "program_status", "UserName", "Material", "checked"];
+type ProgramFilterStatusType = "новые" | "загруженные";
 
-// структура, формирующая опуии для авпадающих списков для полей типа "singleSelect"
-type selecOptionsType = Partial<{ [key in ProgNameKeysType]: string[] }> | undefined;
+type originalDataType = Record<ProgramFilterStatusType, ProcessedPrognameType[]> | undefined;
+
+//const initialColumnFields = ["PostDateTime", "ProgramName", "program_status", "UserName", "Material"];
+const columnFields = ["id", "PostDateTime", "ProgramName", "program_status", "UserName", "Material", "checked"];
 
 /**
  * Сам компонент
@@ -56,7 +54,7 @@ export function Techman() {
         throw new Error("не определено начальное значение для диапазона загрузки программ");
     }
     const { dateDiapazon, setDateDiapazon } = dateDiapazonContext;
-
+    const [originalData, setOriginalData] = useState<originalDataType>(undefined);
     // данные, обработанные для отображения в таблице(все данные целиком, в том числе и те, которые не показываются)
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
     // количество программ, выделенных для загрузки в нашу таблицу из сигмы
@@ -65,6 +63,8 @@ export function Techman() {
     const columns = useRef<GridColDef[]>([]);
     const [noData, setNoData] = useState(false);
     
+    const programFilterStatus = useRef<ProgramFilterStatusType>("новые");
+
     const createColumns = (headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const colName = columnname as keyof typeof columnDict;
@@ -109,16 +109,23 @@ export function Techman() {
     //если появились данные, нужно сформировать колонки таблицы
     // Добавляем к исходным данным колокии
     const prepareData: (data: TechProgramType[]) => ProcessedPrognameType[] = (data) => {
-        const prepared = data.map((item) => {
-            // возвращаем данные с добавлением колонок id и checked
-            return {
+        const newProgams: ProcessedPrognameType[] = [];
+        const loadedProgams: ProcessedPrognameType[] = [];
+        data.forEach((item) => {
+            const prepared = {
                 ...item,
                 id: item.ProgramName,
                 checked: false,
                 PostDateTime: dayjs(item.PostDateTime).format("YYYY-MM-DD"),
             };
+
+            if (item.program_status === "новая") {
+                newProgams.push(prepared);
+            } else {
+                loadedProgams.push(prepared);
+            }
         });
-        return prepared;
+        return { новые: newProgams, загруженные: loadedProgams } satisfies Exclude<originalDataType, undefined>;
     };
 
     /*загружаем даные о програмах с сервера*/
@@ -133,7 +140,8 @@ export function Techman() {
         if (response) {
             if (response.data.length > 0) {
                 const processed = prepareData(response.data);
-                setData(processed);
+                setOriginalData(processed);
+                setData(processed[programFilterStatus.current]);
 
                 columns.current = createColumns({ ...response.headers, checked: "выбрать для загрузки" });
                 setShowTable(true);
@@ -175,6 +183,21 @@ export function Techman() {
         );
     };
 
+    const switchTableData = () => {
+        const cuttentFilter = programFilterStatus.current !== "новые" ? "новые" : "загруженные"
+        const temp = [...data]
+        setOriginalData(prev => ({...prev, [programFilterStatus.current]: temp} as originalDataType))
+        programFilterStatus.current = cuttentFilter
+
+    };
+
+    useEffect(() => {
+        if (originalData) {
+            setData(originalData[programFilterStatus.current]);            
+        }
+    }, [originalData]);
+
+
     /**Считает количество выделенных чекбоксами строк*/
     useEffect(() => {
         if (data?.length > 0) {
@@ -209,17 +232,22 @@ export function Techman() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Загрузка программ</Typography>
-                <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon} />
                 <Stack spacing={2} direction="row">
+                    <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon} />
+                    <Button variant="contained" onClick={() => loader(dateDiapazon)}>
+                        за период
+                    </Button>
+                    <Box width={50} />
                     <Button variant="contained" onClick={selectCurrentday}>
                         за сегодня
                     </Button>
                     <Button variant="contained" onClick={selectWeek}>
                         за неделю
                     </Button>
-
-                    <Button variant="contained" onClick={() => loader(dateDiapazon)}>
-                        за период
+                </Stack>
+                <Stack spacing={2} direction="row">
+                    <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
+                        {programFilterStatus.current}
                     </Button>
 
                     <Button
