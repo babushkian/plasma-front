@@ -1,12 +1,13 @@
 export const BASE_URL = "http://192.168.8.163:8000";
 
-export const URL_AUTH_LOGIN = "auth/login";
-export const URL_AUTH_LOGOUT = "auth/logout";
+export const AUTH_LOGIN = "auth/login";
+export const AUTH_LOGOUT = "auth/logout";
 export const URL_AUTH_AUTHENTICATED = "auth/authenticated-route";
 
-export const URL_GET_PROGRAMS = "techman/get_programs";
-export const URL_GET_PROGRAM_PARTS = "techman/get_program_parts";
-export const URL_CREATE_PROGRAM_DATA = "techman/create_data";
+export const TECHMAN_GET_PROGRAMS = "techman/get_programs";
+export const TECHMAN_GET_PROGRAM_PARTS = "techman/get_program_parts";
+export const TECHMAN_CREATE_PROGRAM_DATA = "techman/create_data";
+export const TECHMAN_UPDATE_PROGRAM_DATA = "techman/update_data";
 
 export const USER_ME = "user/me"
 

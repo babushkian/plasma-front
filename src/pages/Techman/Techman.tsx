@@ -1,11 +1,9 @@
 import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useContext, useMemo } from "react";
-
 import { Link } from "react-router-dom";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
 import { TechProgramType, ProcessedPrognameType, DateDiapazonType, ICreateData } from "./Techman.types.ts";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon.tsx";
 import Notification from "../../components/Notification/Notification.tsx";
-import { createDataRequest, getNewPrograms } from "../../utils/requests.ts";
+import { techmanCreateData, getNewPrograms, techmanUpdateData } from "../../utils/requests.ts";
 import { Box, Typography, Button, Stack, Checkbox, Link as MuiLink } from "@mui/material";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
@@ -39,7 +37,20 @@ type ProgramFilterStatusType = "новые" | "загруженные";
 type originalDataType = Record<ProgramFilterStatusType, ProcessedPrognameType[]> | undefined;
 
 //const initialColumnFields = ["PostDateTime", "ProgramName", "program_status", "UserName", "Material"];
-const columnFields = ["id", "PostDateTime", "ProgramName", "program_status", "UserName", "Material", "checked"];
+
+// беда в том, что у этих данных id - поле необязательное. У новых программ его нет, а у добавленных оно есть.
+// и при отправке на сервер из плазмы новых данных в запросе должен фигуроировать id
+// так что я его
+const columnFields = [
+    "id",
+    "program_id",
+    "PostDateTime",
+    "ProgramName",
+    "program_status",
+    "UserName",
+    "Material",
+    "checked",
+];
 
 /**
  * Сам компонент
@@ -62,8 +73,10 @@ export function Techman() {
     // стабильная переменная для храенеия данных о столбцах таблицы]
     const columns = useRef<GridColDef[]>([]);
     const [noData, setNoData] = useState(false);
-    
+
     const programFilterStatus = useRef<ProgramFilterStatusType>("новые");
+
+    const notificationMessage = useRef("Записи обновлены");
 
     const createColumns = (headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -117,6 +130,7 @@ export function Techman() {
                 id: item.ProgramName,
                 checked: false,
                 PostDateTime: dayjs(item.PostDateTime).format("YYYY-MM-DD"),
+                program_id: item.id,
             };
 
             if (item.program_status === "новая") {
@@ -160,11 +174,43 @@ export function Techman() {
      * Отправлем данные программы для загрузки из базы Плазмы в нашу базу.
      */
     const handleCreateData = async () => {
-        const createRecords: ICreateData[] = data
+        const records: ICreateData[] = data
             .filter((item) => item.checked === true)
             .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
-        console.log(createRecords);
-        await createDataRequest(createRecords);
+        console.log(records);
+        try {
+            await techmanCreateData(records);
+            notificationMessage.current = "Программы загружены";
+        } catch {
+            notificationMessage.current = "ОШИБКА!";
+        }
+    };
+
+    const handleUpdateData = async () => {
+        const records: ICreateData[] = data
+            .filter((item) => item.checked === true)
+            .map((item) => ({
+                program_status: item.program_status,
+                ProgramName: item.ProgramName,
+                id: item.program_id,
+            }));
+        console.log(records);
+        try {
+            await techmanUpdateData(records);
+            notificationMessage.current = "Программы обновлены";
+        } catch {
+            notificationMessage.current = "ОШИБКА!";
+        }
+    };
+
+    const sendData = async () => {
+        if (programFilterStatus.current === "новые") {
+            await handleCreateData();
+        } else {
+            await handleUpdateData();
+            setNotification(true);
+        }
+
         setNotification(true);
         loader(dateDiapazon);
     };
@@ -184,19 +230,17 @@ export function Techman() {
     };
 
     const switchTableData = () => {
-        const cuttentFilter = programFilterStatus.current !== "новые" ? "новые" : "загруженные"
-        const temp = [...data]
-        setOriginalData(prev => ({...prev, [programFilterStatus.current]: temp} as originalDataType))
-        programFilterStatus.current = cuttentFilter
-
+        const cuttentFilter = programFilterStatus.current !== "новые" ? "новые" : "загруженные";
+        const temp = [...data];
+        setOriginalData((prev) => ({ ...prev, [programFilterStatus.current]: temp } as originalDataType));
+        programFilterStatus.current = cuttentFilter;
     };
 
     useEffect(() => {
         if (originalData) {
-            setData(originalData[programFilterStatus.current]);            
+            setData(originalData[programFilterStatus.current]);
         }
     }, [originalData]);
-
 
     /**Считает количество выделенных чекбоксами строк*/
     useEffect(() => {
@@ -250,17 +294,11 @@ export function Techman() {
                         {programFilterStatus.current}
                     </Button>
 
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            handleCreateData();
-                        }}
-                        disabled={!Boolean(selectedPrograms).valueOf()}
-                    >
+                    <Button variant="contained" onClick={sendData} disabled={!Boolean(selectedPrograms).valueOf()}>
                         Отправить выбранные программы
                     </Button>
                 </Stack>
-                <Notification value={notification} setValue={setNotification} />
+                <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
                 {noData && <Typography variant="h6">Данные за указанный период отсутствуют.</Typography>}
                 {showTable && (
                     <div style={{ height: "600px", width: "100%" }}>

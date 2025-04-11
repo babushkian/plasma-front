@@ -12,7 +12,7 @@ import { TechProgramType, ProcessedPrognameType, DateDiapazonType } from "./Tech
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon.tsx";
 import Notification from "../../components/Notification/Notification.tsx";
 import GlobalFilter from "../../components/GlobalFilter/GlobalFilter.tsx";
-import { createDataRequest, getNewPrograms } from "../../utils/requests.ts";
+import { techmanCreateData, getNewPrograms } from "../../utils/requests.ts";
 import { ICreateData } from "./Techman.types.ts";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from "@mui/material";
@@ -213,7 +213,7 @@ const Techman = () => {
             .filter((item) => item.checked === true)
             .map((item) => ({ program_status: item.program_status, ProgramName: item.ProgramName }));
         console.log(createRecords);
-        await createDataRequest(createRecords);
+        await techmanCreateData(createRecords);
         setNotification(true);
         loadData(dateDiapazon);
     };

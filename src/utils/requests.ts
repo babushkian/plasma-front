@@ -4,8 +4,9 @@ import { LogistResponseType } from "./requests.types";
 import { OperatorResponseType } from "./requests.types";
 
 import  {
-    URL_GET_PROGRAM_PARTS,
-    URL_CREATE_PROGRAM_DATA,
+    TECHMAN_GET_PROGRAM_PARTS,
+    TECHMAN_CREATE_PROGRAM_DATA,
+    TECHMAN_UPDATE_PROGRAM_DATA,
     MASTER_GET_PROGRAMS_AND_DOERS,
     MASTER_ASSIGN_PROGRAMS,
     LOGIST_GET_PROGRAMS,
@@ -16,7 +17,7 @@ import  {
     OPERATOR_GET_MY_PROGRAMS,
     OPERATOR_START_PROGRAM,
     OPERATOR_SET_MY_PARTS,
-    URL_GET_PROGRAMS,
+    TECHMAN_GET_PROGRAMS,
     USER_ME,
     REPORT_PARTS_FULL,
 } from "./urls";
@@ -37,7 +38,7 @@ import { apiClient } from "./axiosSetup";
 export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<TechResponseType>(URL_GET_PROGRAMS, {params:dates});
+        const { data } = await apiClient.get<TechResponseType>(TECHMAN_GET_PROGRAMS, {params:dates});
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
@@ -54,7 +55,7 @@ export const getNewPrograms = async (dates:{start_date: string, end_date:string}
 export const getProgramParts = async (programName:string) => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<TechResponseType>(`${URL_GET_PROGRAM_PARTS}/${programName}`);
+        const { data } = await apiClient.get<TechResponseType>(`${TECHMAN_GET_PROGRAM_PARTS}/${programName}`);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
@@ -68,15 +69,30 @@ export const getProgramParts = async (programName:string) => {
  * Записывает новые программы для резки в нашу базу
  * @param params
  */
-export const createDataRequest = async (params: ICreateData[]) => {
+export const techmanCreateData = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const response = await apiClient.post(URL_CREATE_PROGRAM_DATA, params);
+        const response = await apiClient.post(TECHMAN_CREATE_PROGRAM_DATA, params);
         console.log("Ответ сервера: ", response);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на создание программ:", error);
+        return Promise.reject(error)
     }
 };
+
+
+
+export const techmanUpdateData = async (params: ICreateData[]) => {
+    try {
+        // Отправка POST-запроса на сервер с использованием axios
+        const response = await apiClient.put(TECHMAN_UPDATE_PROGRAM_DATA, params);
+        console.log("Ответ сервера: ", response);
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе на обновление программ:", error);
+        return Promise.reject(error)
+    }
+};
+
 
 export const assignProgramsRequest = async (params: AssignProgramRequestType[]) => {
     try {

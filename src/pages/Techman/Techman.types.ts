@@ -6,6 +6,8 @@ export const enum ProgramStatus {
 }
 
 export type TechProgramType = {
+    id?: number;
+    program_id: number | undefined
     ProgramName: string;
     program_status: ProgramStatus;
     UserName: string;
