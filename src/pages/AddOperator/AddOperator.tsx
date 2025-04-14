@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./AddOperator.module.css";
+
+
 import {
     Alert,
     Box,
@@ -144,12 +144,10 @@ export function AddOperator() {
                                 label="Email"
                                 sx={{ m: 1 }}
                                 variant="outlined"
+                                error = {!formValid.email}
+                                helperText={!formValid.email?"Поле некрооектно заполнено": ""}
+
                             />
-                            {!formValid.email && (
-                                <Typography variant="body2" className={styles.error} align="center" gutterBottom>
-                                    Поле некрооектно заполнено
-                                </Typography>
-                            )}
 
                             <TextField
                                 name="first_name"
@@ -158,12 +156,9 @@ export function AddOperator() {
                                 label="Имя"
                                 sx={{ m: 1 }}
                                 variant="outlined"
+                                error = {!formValid.first_name}
+                                helperText={!formValid.first_name?"Поле некрооектно заполнено": ""}
                             />
-                            {!formValid.first_name && (
-                                <Typography variant="body2" className={styles.error} align="center" gutterBottom>
-                                    Поле некрооектно заполнено
-                                </Typography>
-                            )}
 
                             <TextField
                                 name="last_name"
@@ -172,12 +167,10 @@ export function AddOperator() {
                                 label="Фамилия"
                                 sx={{ m: 1 }}
                                 variant="outlined"
+                                error = {!formValid.last_name}
+                                helperText={!formValid.last_name?"Поле некрооектно заполнено": ""}
+
                             />
-                            {!formValid.last_name && (
-                                <Typography variant="body2" className={styles.error} align="center" gutterBottom>
-                                    Поле некрооектно заполнено
-                                </Typography>
-                            )}
                             <TextField
                                 name="password"
                                 value={formData.password}
@@ -185,12 +178,10 @@ export function AddOperator() {
                                 label="Пароль"
                                 sx={{ m: 1 }}
                                 variant="outlined"
+                                error = {!formValid.password}
+                                helperText={!formValid.password?"Поле некрооектно заполнено": ""}
+                                
                             />
-                            {!formValid.password && (
-                                <Typography variant="body2" className={styles.error} align="center" gutterBottom>
-                                    Поле некрооектно заполнено
-                                </Typography>
-                            )}
                             <Button variant="contained" type="submit">
                                 Создать
                             </Button>
