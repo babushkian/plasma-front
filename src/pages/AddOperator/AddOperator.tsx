@@ -24,7 +24,9 @@ import {
 
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { getDoers, userRegister } from "../../utils/requests";
+import Notification from "../../components/Notification/Notification.tsx";
 import { DoerType } from "../Master/Master.types";
+import axios from "axios";
 
 type OperatorFormType = {
     email: string;
@@ -60,31 +62,48 @@ export function AddOperator() {
     const [formData, setFormData] = useState<OperatorFormType>(initialdata);
     const [formValid, setFormValid] = useState(initFormValid);
     const [doers, setDoers] = useState<DoerType[] | undefined>(undefined);
+    const [notification, setNotification] = useState(false);
+    const notificationMessage = useRef("Введены неверные данные.");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         console.log("регистрируем оператора");
         event.preventDefault();
         const isValid = validate();
         console.log("провалидировали", isValid);
+        notificationMessage.current = "Введены неверные данные.";
         if (isValid) {
-            const response = await userRegister(formData);
-            console.log(response);
-            setFormData(initialdata)
-            setFormValid(initFormValid)
-            loadOperators();
-
+            try {
+                const response = await userRegister(formData);
+                notificationMessage.current = "Оператор добавлен";
+                console.log(response);
+                setFormData(initialdata);
+                setFormValid(initFormValid);
+                loadOperators();
+            } catch (error) {
+                console.log(error);
+                if (axios.isAxiosError(error)) {
+                    if (error.status === 400 && error.response?.data.detail === "REGISTER_USER_ALREADY_EXISTS") {
+                        notificationMessage.current = "Оператор с таким логином уже существует.";
+                    } else {
+                        notificationMessage.current = "Ошибка регистраци оператора.";
+                    }
+                } else {
+                    notificationMessage.current = "Ошибка регистраци оператора.";
+                }
+            }
         }
+        setNotification(true);
     };
 
     const validate = () => {
-        console.log("валидируем");
         const errors = { ...initFormValid };
         for (const field in formData) {
-            console.log(field, "данные", formData[field]);
             if (formData[field].trim() === "") {
                 errors[field] = false;
             }
-            console.log("ошибки", errors);
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailMatch = formData["email"].match(emailPattern);
+            if (!emailMatch) errors["email"] = false;
             setFormValid({ ...errors });
         }
         return Object.values(errors).every((item) => item);
@@ -190,7 +209,8 @@ export function AddOperator() {
                         ))}
                     </List>
                 </Grid2>
-                {/* здесь нужно вывести всполывающее сообщение, что пользователь добавлен */}
+
+                <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
             </Grid2>
         </Box>
     );
