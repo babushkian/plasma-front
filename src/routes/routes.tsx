@@ -17,7 +17,7 @@ import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { AddOperator } from "../pages/AddOperator/AddOperator.tsx";
 
 import { endpoints } from "../utils/authorization";
-import { OrdersReport } from "../pages/DetailReoirt/OrdersReport.tsx";
+import { OrdersReport, OrderDetails } from "../pages/DetailReoirt";
 
 const LazyLogist = lazy(() => import("../pages/Logist/Logist"));
 
@@ -72,9 +72,23 @@ export const router = createBrowserRouter(
                         },
                     ],
                 },
-                { path: "detail-report", element: <OrdersReport /> },
+
+                {
+                    path: endpoints.MAIN_REPORT,
+                    children: [
+                        { index: true, Component: MainReport, errorElement: <ErrorPage /> },
+                        {
+                            path: endpoints.DETAIL_REPORT,
+                            children: [
+                                { index: true, element: <OrdersReport /> },
+                                { path: ":WONumber", element: <OrderDetails /> },
+                            ],
+                        },
+                    ],
+                },
+
                 { path: endpoints.LOGIN, element: <Login /> },
-                { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
+
                 { path: "*", element: <NotFoundPage /> },
             ],
         },

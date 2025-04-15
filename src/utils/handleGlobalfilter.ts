@@ -20,7 +20,6 @@ export const filterRows = (rows: GridRowModel[], filterText: string) => {
     const res = rows.filter((row) => { 
         return Object.values(row).some((value) => {
             const isContains = String(value).toLowerCase().includes(lowercasedFilter)
-            if (isContains) {console.log(row.id, "ячейка", value, String(value).toLowerCase(),  "содержит", filterText )}
             return isContains
         })})
     return res

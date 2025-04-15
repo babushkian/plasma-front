@@ -14,6 +14,7 @@ import { DateDiapazonType } from "../Techman/Techman.types";
 import dayjs from "dayjs";
 import axios from "axios";
 import { getVisibilityModelToStore, saveVisibilityModelToStore } from "../../utils/local-storage";
+import { endpoints } from "../../utils/authorization";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -115,7 +116,7 @@ export function MainReport() {
                     Получить данные за период
                 </Button>
 
-                <Link to="/detail-report">
+                <Link to={endpoints.DETAIL_REPORT}>
                     <Button variant="contained">К детальному отчету</Button>
                 </Link>
                 {loadError && <div>{errorMessage.current}</div>}

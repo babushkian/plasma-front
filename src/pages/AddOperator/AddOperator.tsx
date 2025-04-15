@@ -191,12 +191,12 @@ export function AddOperator() {
                 <Grid2 size={6}>
                     <List sx={{ width: "100%", minWidth: 360, bgcolor: "background.paper", borderRadius: 1 }}>
                         {doers?.map((item, index) => (
-                            <>
+                            <div key={item.id}>
                                 {index > 0 && <Divider variant="middle" />}
-                                <ListItemButton key={item.id} sx={{ width: "100%" }}>
+                                <ListItemButton sx={{ width: "100%" }}>
                                     <ListItemText primary={item.fio_doer} />
                                 </ListItemButton>
-                            </>
+                            </div>
                         ))}
                     </List>
                 </Grid2>

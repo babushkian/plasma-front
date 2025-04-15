@@ -20,5 +20,16 @@ export type AssignProgramRequestType = {
     program_priority?: ProgramPriorityType;
 };
 
+export type OrderReportType = {
+            WONumber: string;
+            CustomerName: string;
+            WODate: string;
+            OrderDate: string;
+            WOData1: string;
+            WOData2: string;
+            DateCreated: string;
+}
+
+
 //показывает, какще из полей в таблице мастера повергается изменению
 export type changeFieldType = "program_priority" | "doerIds";

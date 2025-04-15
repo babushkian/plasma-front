@@ -1,1 +1,2 @@
-export {OrdersReport as Orders} from "./OrdersReport"
+export { OrdersReport} from "./OrdersReport";
+export { OrderDetails} from "./OrderDetails";

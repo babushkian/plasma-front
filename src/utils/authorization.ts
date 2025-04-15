@@ -25,6 +25,7 @@ export const endpoints = {
     LOGIST: "/logist",
     LOGIN: "/login",
     MAIN_REPORT: "/report",
+    DETAIL_REPORT: "details",
     ADD_OPERATOR: "/add-operator",
 } as const;
 
