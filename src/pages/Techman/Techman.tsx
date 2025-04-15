@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useRef,  useContext, useMemo } from "react";
+import React, { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { TechProgramType, ProcessedPrognameType, DateDiapazonType, ICreateData } from "./Techman.types.ts";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon.tsx";
 import Notification from "../../components/Notification/Notification.tsx";
 import { techmanCreateData, getNewPrograms, techmanUpdateData } from "../../utils/requests.ts";
-import { Box, Typography, Button, Stack, Checkbox, Link as MuiLink } from "@mui/material";
+import { Box, Typography, Button, Stack, Checkbox, Link as MuiLink, Grid2 } from "@mui/material";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
-import {
-    GridColDef,
-    GridRenderCellParams,
-    useGridApiRef,
-} from "@mui/x-data-grid";
+import { GridColDef, GridRenderCellParams, useGridApiRef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
 import { endpoints } from "../../utils/authorization.ts";
@@ -57,7 +53,6 @@ const hiddenIdColumn = {
         },
     },
 };
-
 
 /**
  * Сам компонент
@@ -328,20 +323,25 @@ export function Techman() {
                         за неделю
                     </Button>
                 </Stack>
-                <Stack spacing={2} direction="row" justifyContent="space-between">
-                    <Box sx={{ minWidth: 100, flexGrow: 1 }} />
-                    <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
-                        {programFilterStatus.current}
-                    </Button>
-
-                    <Button variant="contained" onClick={sendData} disabled={!Boolean(selectedPrograms).valueOf()}>
-                        Отправить выбранные программы
-                    </Button>
-                    <Box sx={{ minWidth: 200, flexGrow: 3 }} />
-                    <Button variant="contained" sx={{ marginRight: "auto", width: 180 }} onClick={handleSelectAll}>
-                        {allCheckboxesButtonText[Number(allCheckboxesAction[programFilterStatus.current])]}
-                    </Button>
-                </Stack>
+                <Grid2 container spacing={3} sx={{ width: "90%" }}>
+                    <Grid2 size={10} spacing={2} container>
+                    <Grid2 size={3}>
+                        <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
+                            {programFilterStatus.current}
+                        </Button>
+                        </Grid2>
+                        <Grid2 size={9}>
+                        <Button variant="contained" onClick={sendData} disabled={!Boolean(selectedPrograms).valueOf()}>
+                            Отправить выбранные программы
+                        </Button>
+                        </Grid2>
+                    </Grid2>
+                    <Grid2 size={2}>
+                        <Button variant="contained" sx={{ marginRight: "auto", width: 180 }} onClick={handleSelectAll}>
+                            {allCheckboxesButtonText[Number(allCheckboxesAction[programFilterStatus.current])]}
+                        </Button>
+                    </Grid2>
+                </Grid2>
                 <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
                 {noData && <Typography variant="h6">Данные за указанный период отсутствуют.</Typography>}
                 {showTable && (

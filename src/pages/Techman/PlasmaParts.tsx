@@ -58,8 +58,8 @@ const PlasmaParts = () => {
             setShowTable(false);
             const response = await getProgramParts(state.ProgramName);
             if (response !== undefined) {
-                setData(prepareData(response));
-                columns.current = createColumns();
+                setData(prepareData(response.data));
+                columns.current = createColumns(response.headers);
                 setShowTable(true);
             } else {
                 setLoadError(true);
@@ -69,11 +69,11 @@ const PlasmaParts = () => {
         loader();
     }, []);
 
-    const createColumns = useCallback(() => {
+    const createColumns = useCallback((headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
-                headerName: columnname,
+                headerName: headers[columnname],
                 flex: 1,
             };
             if (columnname == "fio_doers") {

@@ -49,6 +49,7 @@ export function LogistTable() {
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
+    const notificationMessage =useRef("Ошибка при отправке данных!")
 
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
@@ -152,7 +153,6 @@ export function LogistTable() {
                 <Typography variant="h5">
                     Тестовое редактирование деталей программы № {state.ProgramName} на странице логиста
                 </Typography>
-                <Notification value={notification} setValue={setNotification} />
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
@@ -163,6 +163,7 @@ export function LogistTable() {
                             {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
                             <FilteredDataGrid {...gridParams} />
                         </div>
+                        <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
                     </>
                 )}
             </Box>

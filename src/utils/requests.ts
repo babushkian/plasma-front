@@ -71,9 +71,10 @@ export const getNewPrograms = async (dates:{start_date: string, end_date:string}
  * @returns 
  */
 export const getProgramParts = async (programName:string) => {
+    
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<TechResponseType>(`${TECHMAN_GET_PROGRAM_PARTS}/${programName}`);
+        const { data } = await apiClient.get<ResponsePartsType>(`${TECHMAN_GET_PROGRAM_PARTS}/${programName}`);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);

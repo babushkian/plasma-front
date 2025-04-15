@@ -59,7 +59,8 @@ const Navbar: React.FC = () => {
                 </li> */}
                 </ul>
             </nav>
-            <div className={styles.background}>
+            {/* <div className={styles.background}> */}
+            <div >
             <Outlet/>
             </div>
         </>
