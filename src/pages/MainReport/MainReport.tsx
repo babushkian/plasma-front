@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import axios from "axios";
 import { getVisibilityModelToStore, saveVisibilityModelToStore } from "../../utils/local-storage";
 import { endpoints } from "../../utils/authorization";
+import { ReportDateDiapazonContext } from "../../context";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -24,7 +25,11 @@ const defaultDates: DateDiapazonType = {
 };
 
 export function MainReport() {
-    const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
+    const dateDiapazonContext = useContext(ReportDateDiapazonContext);
+    if (!dateDiapazonContext) {
+        throw new Error("не определено начальное значение для диапазона загрузки программ");
+    }
+    const { dateDiapazon, setDateDiapazon } = dateDiapazonContext;
 
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
@@ -67,8 +72,8 @@ export function MainReport() {
     const loader = async () => {
         setShowTable(false);
         const datesObj = {
-            start_date: dates.startDate.format("YYYY-MM-DD"),
-            end_date: dates.endDate.format("YYYY-MM-DD"),
+            start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),
+            end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
         };
         try {
             const responseData = await getReportData(datesObj);
@@ -111,11 +116,12 @@ export function MainReport() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Отчет</Typography>
-                <DateDiapazon dates={dates} setDates={setDates} />
-                <Button variant="contained" onClick={loader}>
-                    Получить данные за период
-                </Button>
-
+                <Stack direction={"row"} gap={2}>
+                    <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon} />
+                    <Button variant="contained" onClick={loader}>
+                        Получить данные за период
+                    </Button>
+                </Stack>
                 <Link to={endpoints.DETAIL_REPORT}>
                     <Button variant="contained">К детальному отчету</Button>
                 </Link>
@@ -138,5 +144,4 @@ export function MainReport() {
             </Box>
         </>
     );
-};
-
+}

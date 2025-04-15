@@ -15,13 +15,10 @@ import dayjs from "dayjs";
 import axios from "axios";
 
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
+import { ReportDateDiapazonContext } from "../../context";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
-const defaultDates: DateDiapazonType = {
-    startDate: dayjs().subtract(dayjs().date() - 1, "day"), //начало месяца
-    endDate: dayjs(),
-};
 
 
 const columnFields: (keyof OrderReportType )[] = [
@@ -35,7 +32,12 @@ const columnFields: (keyof OrderReportType )[] = [
 
 
 export function OrdersReport () {
-    const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
+    const dateDiapazonContext = useContext(ReportDateDiapazonContext);
+    if (!dateDiapazonContext) {
+        throw new Error("не определено начальное значение для диапазона загрузки программ");
+    }
+    const { dateDiapazon, setDateDiapazon } = dateDiapazonContext;   
+
 
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
@@ -75,8 +77,8 @@ export function OrdersReport () {
     const loader = async () => {
         setShowTable(false);
         const datesObj = {
-            start_date: dates.startDate.format("YYYY-MM-DD"),
-            end_date: dates.endDate.format("YYYY-MM-DD"),
+            start_date: dateDiapazon.startDate.format("YYYY-MM-DD"),
+            end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
         };
         try {
             const response = await getOrders(datesObj);
@@ -124,11 +126,12 @@ export function OrdersReport () {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Отчет</Typography>
-                <DateDiapazon dates={dates} setDates={setDates} />
+                <Stack direction={"row"} gap={2}>
+                <DateDiapazon dates={dateDiapazon} setDates={setDateDiapazon} />
                 <Button variant="contained" onClick={loader}>
                     Получить данные за период
                 </Button>
-
+                </Stack>
                 <Link to="/report">
                     <Button variant="contained">К основному отчету</Button>
                 </Link>
