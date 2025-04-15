@@ -22,7 +22,7 @@ const defaultDates: DateDiapazonType = {
     endDate: dayjs(),
 };
 
-export function MainReport() {
+ export function OrdersReport () {
     const [dates, setDates] = useState<DateDiapazonType>(defaultDates);
 
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);

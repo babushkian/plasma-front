@@ -1,23 +1,23 @@
-import { lazy, Suspense} from "react";
+import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 import { LogistTable } from "../pages/LogistTable/LogistTable.tsx";
 import Navbar from "../layouts/NavBar/NavBar.tsx";
-import {Techman} from "../pages/Techman/Techman.tsx";
+import { Techman } from "../pages/Techman/Techman.tsx";
 import Login from "../pages/Login/Login";
-import {Operator} from "../pages/Operator/Operator.tsx";
-import {OperatorParts} from "../pages/Operator/OperatorParts.tsx";
+import { Operator } from "../pages/Operator/Operator.tsx";
+import { OperatorParts } from "../pages/Operator/OperatorParts.tsx";
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.tsx";
 import PartsList from "../pages/PartsList/PartsList.tsx";
 import { Master } from "../pages/Master/Master.tsx";
 import PlasmaParts from "../pages/Techman/PlasmaParts.tsx";
-import MainReport from "../pages/MainReport/MainReport.tsx";
+import { MainReport } from "../pages/MainReport/MainReport.tsx";
 import RedirectByRole from "../pages/MainPage/MainPage.tsx";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import { AddOperator } from "../pages/AddOperator/AddOperator.tsx";
 
-
 import { endpoints } from "../utils/authorization";
+import { OrdersReport } from "../pages/DetailReoirt/OrdersReport.tsx";
 
 const LazyLogist = lazy(() => import("../pages/Logist/Logist"));
 
@@ -47,7 +47,7 @@ export const router = createBrowserRouter(
                                 { path: ":programName", Component: PartsList, errorElement: <ErrorPage /> },
                             ],
                         },
-                        {path: endpoints.ADD_OPERATOR, Component: AddOperator},
+                        { path: endpoints.ADD_OPERATOR, Component: AddOperator },
                         {
                             path: endpoints.OPERATOR,
                             children: [
@@ -72,6 +72,7 @@ export const router = createBrowserRouter(
                         },
                     ],
                 },
+                { path: "detail-report", element: <OrdersReport /> },
                 { path: endpoints.LOGIN, element: <Login /> },
                 { path: endpoints.MAIN_REPORT, Component: MainReport, errorElement: <ErrorPage /> },
                 { path: "*", element: <NotFoundPage /> },

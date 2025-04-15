@@ -39,6 +39,7 @@ const columnFields = [
     "program_id",
     "PostDateTime",
     "ProgramName",
+    "WONumber",
     "program_status",
     "UserName",
     "Material",

@@ -3,33 +3,13 @@ import { MasterResponseType } from "./requests.types";
 import { LogistResponseType } from "./requests.types";
 import { OperatorResponseType } from "./requests.types";
 
-import  {
-    TECHMAN_GET_PROGRAM_PARTS,
-    TECHMAN_CREATE_PROGRAM_DATA,
-    TECHMAN_UPDATE_PROGRAM_DATA,
-    MASTER_GET_PROGRAMS_AND_DOERS,
-    MASTER_ASSIGN_PROGRAMS,
-    LOGIST_GET_PROGRAMS,
-    MASTER_GET_DOERS,
-    MASTER_GET_PARTS_BY_PROGRAM_ID,
-    LOGIST_CALCULATE_PARTS,
-    MASTER_GET_PARTS_BY_STATUSES,
-    OPERATOR_GET_MY_PROGRAMS,
-    OPERATOR_START_PROGRAM,
-    OPERATOR_SET_MY_PARTS,
-    TECHMAN_GET_PROGRAMS,
-    USER_ME,
-    REPORT_PARTS_FULL,
-    AUTH_REGISTER,
-} from "./urls";
-
+import { urls } from "./urls";
 
 import { MasterProgramPartsRecordType } from "../pages/LogistTable/LogistTable.types";
-import {ResponsePartsType} from "./requests.types"
+import { ResponsePartsType } from "./requests.types";
 import { AssignProgramRequestType, DoerType } from "../pages/Master/Master.types";
 import { UserType } from "../pages/Login/Login.types";
 import { apiClient } from "./axiosSetup";
-
 
 /**
  * Записывает новые программы для резки в нашу базу
@@ -38,51 +18,55 @@ import { apiClient } from "./axiosSetup";
 export const userRegister = async (params) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const response = await apiClient.post(AUTH_REGISTER, params);
+        const response = await apiClient.post(urls.AUTH_REGISTER, params);
         console.log("Ответ сервера: ", response);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при содании нового пользователя:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
-
-
 
 /**
  * Получаем программы из плазмы за определенный период
- * @param dates 
- * @returns 
+ * @param dates
+ * @returns
  */
-export const getNewPrograms = async (dates:{start_date: string, end_date:string}) => {
+export const getNewPrograms = async (dates: { start_date: string; end_date: string }) => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<TechResponseType>(TECHMAN_GET_PROGRAMS, {params:dates});
+        const { data } = await apiClient.get<TechResponseType>(urls.TECHMAN_GET_PROGRAMS, { params: dates });
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
 
+export const getOrders = async (dates: { start_date: string; end_date: string }) => {
+    try {
+        const { data } = await apiClient.get<TechResponseType>(urls.TECHMAN_GET_ORDERS, { params: dates });
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
+        return Promise.reject(error);
+    }
+};
 
 /**
  * Получаем детали конкретной програмы из плазмы
- * @param programName 
- * @returns 
+ * @param programName
+ * @returns
  */
-export const getProgramParts = async (programName:string) => {
-    
+export const getProgramParts = async (programName: string) => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<ResponsePartsType>(`${TECHMAN_GET_PROGRAM_PARTS}/${programName}`);
+        const { data } = await apiClient.get<ResponsePartsType>(`${urls.TECHMAN_GET_PROGRAM_PARTS}/${programName}`);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для добавления в базу:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
-
-
 
 /**
  * Записывает новые программы для резки в нашу базу
@@ -91,31 +75,28 @@ export const getProgramParts = async (programName:string) => {
 export const techmanCreateData = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const response = await apiClient.post(TECHMAN_CREATE_PROGRAM_DATA, params);
+        const response = await apiClient.post(urls.TECHMAN_CREATE_PROGRAM_DATA, params);
         console.log("Ответ сервера: ", response);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на создание программ:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
-
-
 
 export const techmanUpdateData = async (params: ICreateData[]) => {
     try {
         // Отправка POST-запроса на сервер с использованием axios
-        const response = await apiClient.put(TECHMAN_UPDATE_PROGRAM_DATA, params);
+        const response = await apiClient.put(urls.TECHMAN_UPDATE_PROGRAM_DATA, params);
         console.log("Ответ сервера: ", response);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на обновление программ:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
 
-
 export const assignProgramsRequest = async (params: AssignProgramRequestType[]) => {
     try {
-        await apiClient.post(MASTER_ASSIGN_PROGRAMS, params);
+        await apiClient.post(urls.MASTER_ASSIGN_PROGRAMS, params);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе на создание программ:", error);
     }
@@ -127,7 +108,7 @@ export const assignProgramsRequest = async (params: AssignProgramRequestType[]) 
 export const getProgramsAndDoers = async () => {
     console.log("Запрос программ и работников");
     try {
-        const { data } = await apiClient.get<MasterResponseType>(MASTER_GET_PROGRAMS_AND_DOERS);
+        const { data } = await apiClient.get<MasterResponseType>(urls.MASTER_GET_PROGRAMS_AND_DOERS);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе программ для распределения:", error);
@@ -136,7 +117,7 @@ export const getProgramsAndDoers = async () => {
 
 export const getDoers = async () => {
     try {
-        const { data } = await apiClient.get<DoerType[]>(MASTER_GET_DOERS);
+        const { data } = await apiClient.get<DoerType[]>(urls.MASTER_GET_DOERS);
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе работников:", error);
@@ -145,7 +126,7 @@ export const getDoers = async () => {
 
 export const logistGetPrograms = async () => {
     try {
-        const { data } = await apiClient.get<LogistResponseType>(LOGIST_GET_PROGRAMS);
+        const { data } = await apiClient.get<LogistResponseType>(urls.LOGIST_GET_PROGRAMS);
         return data;
     } catch (error) {
         console.error("Error fetching protected data:", error);
@@ -155,7 +136,7 @@ export const logistGetPrograms = async () => {
 
 export const masterGetDetailsByProgramId = async (program_id: number, fio_doer_id?: number) => {
     try {
-        const { data } = await apiClient.get<ResponsePartsType>(MASTER_GET_PARTS_BY_PROGRAM_ID, {
+        const { data } = await apiClient.get<ResponsePartsType>(urls.MASTER_GET_PARTS_BY_PROGRAM_ID, {
             params: { program_id, fio_doer_id },
         });
         //console.log(data);
@@ -170,7 +151,7 @@ export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number
     params
 ) => {
     try {
-        const result = await apiClient.post(LOGIST_CALCULATE_PARTS, params);
+        const result = await apiClient.post(urls.LOGIST_CALCULATE_PARTS, params);
         console.log(result);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при отправке фактического количества деталей:", error);
@@ -180,12 +161,9 @@ export const logistCalculateParts: (params: Array<{ id: number; qty_fact: number
 export const getPartsByStatuses = async () => {
     const params = { include_program_statuses: ["создана", "распределена"] };
     try {
-        const { data } = await apiClient.get<MasterProgramPartsRecordType[]>(
-            MASTER_GET_PARTS_BY_STATUSES,
-            {
-                params: params,
-            }
-        );
+        const { data } = await apiClient.get<MasterProgramPartsRecordType[]>(urls.MASTER_GET_PARTS_BY_STATUSES, {
+            params: params,
+        });
         return data;
     } catch (error) {
         console.error("Ошибка получения деталей по идентификатору программы:", error);
@@ -195,7 +173,7 @@ export const getPartsByStatuses = async () => {
 
 export const getMyPrograms = async (fio_id: number) => {
     try {
-        const { data } = await apiClient.get<OperatorResponseType>(OPERATOR_GET_MY_PROGRAMS, {
+        const { data } = await apiClient.get<OperatorResponseType>(urls.OPERATOR_GET_MY_PROGRAMS, {
             params: { fio_id },
         });
         return data;
@@ -207,7 +185,7 @@ export const getMyPrograms = async (fio_id: number) => {
 
 export const OperatorStartProgram = async (program_id: number, new_status?: string) => {
     try {
-        const { data } = await apiClient.get<{ msg: string }>(OPERATOR_START_PROGRAM, {
+        const { data } = await apiClient.get<{ msg: string }>(urls.OPERATOR_START_PROGRAM, {
             params: { program_id, new_status },
         });
         return data;
@@ -224,46 +202,41 @@ export const OperatorSetMyPrograms = async (params: {
 }) => {
     console.log(JSON.stringify(params));
     try {
-        await apiClient.post(OPERATOR_SET_MY_PARTS, params);
+        await apiClient.post(urls.OPERATOR_SET_MY_PARTS, params);
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при присвоении деталей оператору:", error);
     }
 };
 
-
 export const getCurrentUser = async () => {
     try {
-        const { data } = await apiClient.get<UserType>(USER_ME);
+        const { data } = await apiClient.get<UserType>(urls.USER_ME);
         return data;
     } catch (error) {
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };
 
-
-export const logout =  async () => {
-    try{
-    const response = await apiClient.post("auth/logout", "");
-    return response
-    } catch(error) {
+export const logout = async () => {
+    try {
+        const response = await apiClient.post(urls.AUTH_LOGOUT, "");
+        return response;
+    } catch (error) {
         if (error instanceof Error) console.error("Ошибка при логауте:", error);
     }
-
-}
-
+};
 
 /**
  * Получаем данные для отчета за определенный период
- * @param dates 
- * @returns 
+ * @param dates
+ * @returns
  */
-export const getReportData = async (dates:{start_date: string, end_date:string}) => {
-    
+export const getReportData = async (dates: { start_date: string; end_date: string }) => {
     try {
-        const {data} = await apiClient.get<ResponsePartsType>(REPORT_PARTS_FULL, {params:dates});
+        const { data } = await apiClient.get<ResponsePartsType>(urls.REPORT_PARTS_FULL, { params: dates });
         return data;
     } catch (error) {
         if (error instanceof Error) console.error("Ошибка при запросе отсета за период:", error);
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 };

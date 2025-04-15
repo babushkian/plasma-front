@@ -1,7 +1,5 @@
-import bgImage from "../../assets/about-bg.jpg"
 import React, { useContext } from "react";
 import styles from "./NavBar.module.css";
-import dayjs from "dayjs";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
