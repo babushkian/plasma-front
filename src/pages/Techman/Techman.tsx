@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useRef, ChangeEvent, useContext, useMemo } from "react";
+import React, { useState, useEffect, useRef,  useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { TechProgramType, ProcessedPrognameType, DateDiapazonType, ICreateData } from "./Techman.types.ts";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon.tsx";
@@ -6,13 +6,9 @@ import Notification from "../../components/Notification/Notification.tsx";
 import { techmanCreateData, getNewPrograms, techmanUpdateData } from "../../utils/requests.ts";
 import { Box, Typography, Button, Stack, Checkbox, Link as MuiLink } from "@mui/material";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
-import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import {
-    DataGrid,
     GridColDef,
-    GridColType,
     GridRenderCellParams,
-    GridSingleSelectColDef,
     useGridApiRef,
 } from "@mui/x-data-grid";
 import dayjs from "dayjs";
@@ -34,9 +30,10 @@ const columnDict: Partial<{ [key in ProgNameKeysType]: string }> = {
 
 type ProgramFilterStatusType = "новые" | "загруженные";
 
-type originalDataType = Record<ProgramFilterStatusType, ProcessedPrognameType[]> | undefined;
+type originalDataType = Record<ProgramFilterStatusType, ProcessedPrognameType[]>;
 
-//const initialColumnFields = ["PostDateTime", "ProgramName", "program_status", "UserName", "Material"];
+type selectAllType = Record<ProgramFilterStatusType, boolean>;
+const initialSelectAll: selectAllType = { новые: false, загруженные: false };
 
 // беда в том, что у этих данных id - поле необязательное. У новых программ его нет, а у добавленных оно есть.
 // и при отправке на сервер из плазмы новых данных в запросе должен фигуроировать id
@@ -52,6 +49,16 @@ const columnFields = [
     "checked",
 ];
 
+const hiddenIdColumn = {
+    columns: {
+        columnVisibilityModel: {
+            id: false,
+            program_id: false,
+        },
+    },
+};
+
+
 /**
  * Сам компонент
  * @returns
@@ -65,18 +72,33 @@ export function Techman() {
         throw new Error("не определено начальное значение для диапазона загрузки программ");
     }
     const { dateDiapazon, setDateDiapazon } = dateDiapazonContext;
-    const [originalData, setOriginalData] = useState<originalDataType>(undefined);
+    const [originalData, setOriginalData] = useState<originalDataType | undefined>(undefined);
     // данные, обработанные для отображения в таблице(все данные целиком, в том числе и те, которые не показываются)
     const [data, setData] = useState<ProcessedPrognameType[]>([]);
     // количество программ, выделенных для загрузки в нашу таблицу из сигмы
+    // служит для активации кнопки  отправки данных на сервер
     const [selectedPrograms, setSelectedPrograms] = useState<number>(0);
     // стабильная переменная для храенеия данных о столбцах таблицы]
     const columns = useRef<GridColDef[]>([]);
     const [noData, setNoData] = useState(false);
-
+    // объект, показывающий, что сделать с каждой половинкой данных: либо снять выделение, либо выделить всё
+    const [allCheckboxesAction, setAllCheckboxesAction] = useState<selectAllType>(initialSelectAll);
+    // подписи для кнопки управления галочками.
+    // В зависимости от значения selectAllCheckboxes выводит на кнопке соответствующие надписи
+    const allCheckboxesButtonText: Record<number, string> = { 0: "выделить все", 1: "снять выделение" };
+    // значение, которое определяет, какие программы сечас отображаются, новые или загруженные
     const programFilterStatus = useRef<ProgramFilterStatusType>("новые");
 
     const notificationMessage = useRef("Записи обновлены");
+
+    console.log("действия с чекбоксами:", allCheckboxesAction);
+    console.log("текущее действия:", allCheckboxesAction[programFilterStatus.current]);
+
+    console.log("текст кнопок:", allCheckboxesButtonText);
+    console.log("что показываем:", programFilterStatus.current);
+    console.log("индекс подписи к кнопке", Number(allCheckboxesAction[programFilterStatus.current]));
+    console.log(allCheckboxesButtonText[0], allCheckboxesButtonText[1]);
+    console.log("итог", allCheckboxesButtonText[Number(allCheckboxesAction[programFilterStatus.current])]);
 
     const createColumns = (headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -121,7 +143,7 @@ export function Techman() {
 
     //если появились данные, нужно сформировать колонки таблицы
     // Добавляем к исходным данным колокии
-    const prepareData: (data: TechProgramType[]) => ProcessedPrognameType[] = (data) => {
+    const prepareData: (data: TechProgramType[]) => originalDataType = (data) => {
         const newProgams: ProcessedPrognameType[] = [];
         const loadedProgams: ProcessedPrognameType[] = [];
         data.forEach((item) => {
@@ -139,7 +161,7 @@ export function Techman() {
                 loadedProgams.push(prepared);
             }
         });
-        return { новые: newProgams, загруженные: loadedProgams } satisfies Exclude<originalDataType, undefined>;
+        return { новые: newProgams, загруженные: loadedProgams } satisfies originalDataType;
     };
 
     /*загружаем даные о програмах с сервера*/
@@ -236,11 +258,28 @@ export function Techman() {
         programFilterStatus.current = cuttentFilter;
     };
 
+    /**
+     * при изменении оригинальных данных (например, потвторный запрос после отправки) загружает в таблицу
+     * выбранный кусок данных (новые или загруженные программы)
+     */
     useEffect(() => {
         if (originalData) {
             setData(originalData[programFilterStatus.current]);
         }
     }, [originalData]);
+
+    /**
+     * Ставит (или снимает) галочки на все программы в списке(в переменную data)
+     */
+    const handleSelectAll = () => {
+        setData((prevRows) =>
+            prevRows.map((row) => ({ ...row, checked: !allCheckboxesAction[programFilterStatus.current] }))
+        );
+        setAllCheckboxesAction((prev) => ({
+            ...prev,
+            [programFilterStatus.current]: !prev[programFilterStatus.current],
+        }));
+    };
 
     /**Считает количество выделенных чекбоксами строк*/
     useEffect(() => {
@@ -289,13 +328,18 @@ export function Techman() {
                         за неделю
                     </Button>
                 </Stack>
-                <Stack spacing={2} direction="row">
+                <Stack spacing={2} direction="row" justifyContent="space-between">
+                    <Box sx={{ minWidth: 100, flexGrow: 1 }} />
                     <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
                         {programFilterStatus.current}
                     </Button>
 
                     <Button variant="contained" onClick={sendData} disabled={!Boolean(selectedPrograms).valueOf()}>
                         Отправить выбранные программы
+                    </Button>
+                    <Box sx={{ minWidth: 200, flexGrow: 3 }} />
+                    <Button variant="contained" sx={{ marginRight: "auto", width: 180 }} onClick={handleSelectAll}>
+                        {allCheckboxesButtonText[Number(allCheckboxesAction[programFilterStatus.current])]}
                     </Button>
                 </Stack>
                 <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
