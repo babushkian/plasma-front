@@ -28,6 +28,7 @@ export type LogistProgramType = TechProgramType & {
     updated_at: string;
     wo_numbers: string;
     wo_data1: string;
+    program_pic: string;
 };
 // export type ProgramPriorityType = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 

@@ -10,6 +10,8 @@ import { GridColDef, GridRenderCellParams, useGridApiRef } from "@mui/x-data-gri
 import dayjs from "dayjs";
 import { DateDiapazonContext } from "../../context.tsx";
 import { endpoints } from "../../utils/authorization.ts";
+import { BASE_URL } from "../../utils/urls.ts";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
 
 type PrognameAndIdType = Exclude<TechProgramType, undefined> & { id: string; checked: boolean };
 
@@ -37,6 +39,7 @@ const initialSelectAll: selectAllType = { новые: false, загруженн�
 const columnFields = [
     "id",
     "program_id",
+    "program_pic",
     "PostDateTime",
     "ProgramName",
     "WONumber",
@@ -87,15 +90,6 @@ export function Techman() {
 
     const notificationMessage = useRef("Записи обновлены");
 
-    console.log("действия с чекбоксами:", allCheckboxesAction);
-    console.log("текущее действия:", allCheckboxesAction[programFilterStatus.current]);
-
-    console.log("текст кнопок:", allCheckboxesButtonText);
-    console.log("что показываем:", programFilterStatus.current);
-    console.log("индекс подписи к кнопке", Number(allCheckboxesAction[programFilterStatus.current]));
-    console.log(allCheckboxesButtonText[0], allCheckboxesButtonText[1]);
-    console.log("итог", allCheckboxesButtonText[Number(allCheckboxesAction[programFilterStatus.current])]);
-
     const createColumns = (headers) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             const colName = columnname as keyof typeof columnDict;
@@ -104,6 +98,16 @@ export function Techman() {
                 headerName: headers[colName],
                 flex: 1,
             };
+            if (columnname === "program_pic") {
+                col = {
+                    ...col,
+                    width: 300,
+                    flex:0,
+                    renderCell: (params) => (
+                        <ImageWidget source={params.value} />
+                    ),
+                };
+            }
             if (columnname === "ProgramName") {
                 col = {
                     ...col,
@@ -146,6 +150,7 @@ export function Techman() {
             const prepared = {
                 ...item,
                 id: item.ProgramName,
+                program_pic: `${BASE_URL}${item.program_pic}`,
                 checked: false,
                 PostDateTime: dayjs(item.PostDateTime).format("YYYY-MM-DD"),
                 program_id: item.id,
@@ -326,15 +331,19 @@ export function Techman() {
                 </Stack>
                 <Grid2 container spacing={3} sx={{ width: "90%" }}>
                     <Grid2 size={10} spacing={2} container>
-                    <Grid2 size={3}>
-                        <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
-                            {programFilterStatus.current}
-                        </Button>
+                        <Grid2 size={3}>
+                            <Button variant="contained" onClick={switchTableData} sx={{ width: 150 }}>
+                                {programFilterStatus.current}
+                            </Button>
                         </Grid2>
                         <Grid2 size={9}>
-                        <Button variant="contained" onClick={sendData} disabled={!Boolean(selectedPrograms).valueOf()}>
-                            Отправить выбранные программы
-                        </Button>
+                            <Button
+                                variant="contained"
+                                onClick={sendData}
+                                disabled={!Boolean(selectedPrograms).valueOf()}
+                            >
+                                Отправить выбранные программы
+                            </Button>
                         </Grid2>
                     </Grid2>
                     <Grid2 size={2}>

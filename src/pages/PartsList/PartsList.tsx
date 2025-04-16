@@ -9,16 +9,19 @@ import { masterGetDetailsByProgramId } from "../../utils/requests";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
+import { BASE_URL } from "../../utils/urls";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     //обязательно нужен id
     "PartName",
     "WONumber",
+    "part_pic",
+    "PartLength",
+    "PartWidth",
     "WOData1",
     "QtyInProcess",
     "qty_fact",
-    "PartLength",
-    "PartWidth",
     "Thickness",
     "fio_doers",
 ];
@@ -33,13 +36,14 @@ const PartsList = () => {
     const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-
+    const programImg = useRef<string | null>(null)
     const prepareData = (data: MasterProgramPartsRecordType[]) => {
         const processedData = data.map((item) => {
             const row = columnFields.reduce<MasterProgramPartsRecordType>((acc, field) => {
                 acc[field] = item[field];
                 return acc;
             }, {});
+            row["part_pic"] = item.part_pic?`${BASE_URL}${item.part_pic}`: null;
             row["fio_doers"] = item.fio_doers.map((item) => item.fio_doer).join(", ");
             //////////////////////////
             // так быть не должно, нужно поле  id для деталей
@@ -56,6 +60,15 @@ const PartsList = () => {
                 headerName: headers[columnname],
                 flex: 1,
             };
+            if (columnname === "part_pic") {
+                col = {
+                    ...col,
+                    width: 130,
+                    flex: 0,
+                    renderCell: (params) => <ImageWidget source={params.value} />,
+                };
+            }
+            
             return col;
         });
         return clmns;
@@ -66,9 +79,12 @@ const PartsList = () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
+            console.log(response)
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
+            programImg.current = response.program_pic?`${BASE_URL}${response.program_pic}`: null;
             setShowTable(true);
+            setLoadError(false);
         } else {
             setLoadError(true);
         }
@@ -94,10 +110,11 @@ const PartsList = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Информация о деталях программы № {state.ProgramName}</Typography>
-
+                
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
+                    <ImageWidget source={programImg.current}/>
                         <div style={{ height: 700, width: "100%" }}>
                             <FilteredDataGrid {...gridParams} />
                         </div>

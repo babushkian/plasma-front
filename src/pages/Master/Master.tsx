@@ -13,14 +13,16 @@ import Notification from "../../components/Notification/Notification";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { endpoints } from "../../utils/authorization";
 import { useModifiedRows } from "../../hooks";
-import {updateTableData, UniversalUpdaterType} from "../../utils/update-any-field-in-table"
-
+import { updateTableData, UniversalUpdaterType } from "../../utils/update-any-field-in-table";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
+import { BASE_URL } from "../../utils/urls";
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
 //колонки, которые будут обображаться в таблице
 const columnFields: (keyof ProgramExtendedType)[] = [
     "id",
+    "program_pic",
     "ProgramName",
     "program_priority",
     "doerIds",
@@ -42,7 +44,6 @@ const hiddenIdColumn = {
     },
 };
 
-
 export function Master() {
     const columns = useRef<GridColDef[]>([]); // стабильная переменная, чтобы хоанить описание столбцов
     const [data, setData] = useState<Partial<ProgramExtendedType>[] | null>(null);
@@ -53,7 +54,7 @@ export function Master() {
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
 
-    const dataUpdater = useMemo( ()=> updateTableData(columnFields, setData), []);
+    const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
     /**
      * Загрузка программ и операторов для отображения на странице мастера
@@ -79,6 +80,7 @@ export function Master() {
                 acc[field] = item[field];
                 return acc;
             }, {});
+            row["program_pic"] = `${BASE_URL}${item.program_pic}`;
             row["doerFio"] = item.fio_doers.map((doer) => doer.fio_doer).join(", ");
             row["doerIds"] = item.fio_doers.map((doer) => doer.id);
             return row;
@@ -91,16 +93,14 @@ export function Master() {
      * конкретную программу. Если работник назначается на программу, в массив assignedPrograms добавляется
      * соответствующая запись. Если в селекте выбриается пустая опция - запись удаляетс яиз масива.
      */
-    
+
     const updateTable = useCallback<UniversalUpdaterType>(
         (rowId: number, processObject) => {
             updateModifiedRows(rowId);
-            dataUpdater(rowId, processObject)
+            dataUpdater(rowId, processObject);
         },
         [dataUpdater, updateModifiedRows]
     );
-
-
 
     /**
      * Описываем столбцы таблицы. Внутри отдельных столбцов помещаются другие компоненты.
@@ -117,6 +117,15 @@ export function Master() {
                     headerName: headers[columnname],
                     flex: 1,
                 };
+
+                if (columnname === "program_pic") {
+                    colTemplate = {
+                        ...colTemplate,
+                        width: 300,
+                        flex: 0,
+                        renderCell: (params) => <ImageWidget source={params.value} />,
+                    };
+                }
 
                 if (["wo_numbers", "wo_data1"].includes(columnname)) {
                     colTemplate = {

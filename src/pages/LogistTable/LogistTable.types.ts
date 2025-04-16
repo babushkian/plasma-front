@@ -67,4 +67,7 @@ export type MasterProgramPartsRecordType = {
     part_status: string;
     qty_fact: number;
     SourceFileName: string | null;
+    program_pic:string
+    part_pic:string
+
 };

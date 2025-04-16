@@ -13,6 +13,7 @@ export type TechProgramType = {
     UserName: string;
     PostDateTime: string;
     Material: string;
+    program_pic: string
 };
 
 export type TechResponseType = {data: TechProgramType[], headers: Record<string, string>}

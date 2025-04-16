@@ -1,12 +1,11 @@
 import { useRef, useState, useEffect, useContext, useMemo, useCallback } from "react";
 import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
-import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
+import {  GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests.ts";
 import { DoerType, ProgramType } from "../Master/Master.types.ts";
-import { OperatorSelectContext, UserContext } from "../../context.tsx";
+import { OperatorSelectContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { endpoints } from "../../utils/authorization.ts";
