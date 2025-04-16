@@ -81,6 +81,11 @@ export function OrderDetails() {
         saveVisibilityModelToStore(newModel, VISIBILITY_MODEL_STORAGE_KEY);
     };
 
+    const getFilname = () => {
+        return `детали заказа ${state.WONumber}.xlsx`;
+    };
+
+
 
     return (
         <>
@@ -94,7 +99,7 @@ export function OrderDetails() {
                             rows={data}
                             columns={columns.current}
                             slots={{ toolbar: ReportToolbar }}
-                            slotProps={{ toolbar: { columns: columns.current } }}
+                            slotProps={{ toolbar: { columns: columns.current, filename: getFilname() } }}
                             initialState={hiddenIdColumn}
                             getRowHeight={() => "auto"}
                             columnVisibilityModel={columnVisibilityModel}

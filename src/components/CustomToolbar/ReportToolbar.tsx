@@ -8,7 +8,7 @@ function ReportToolbar(props) {
             <GridToolbarColumnsButton />
             <GridToolbarFilterButton />
             <Box flex={1}/>
-            <GridExcelExportMenuItem columns={props.columns} />
+            <GridExcelExportMenuItem columns={props.columns} filename={props.filename}/>
         </GridToolbarContainer>
     );
 }

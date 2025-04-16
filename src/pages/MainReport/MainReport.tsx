@@ -35,7 +35,7 @@ export function MainReport() {
     const columns = useRef<GridColDef[]>([]);
 
     const errorMessage = useRef("Ошибка загрузки");
-    
+
     const createColumns = useCallback((headers: Record<string, string>) => {
         const columns: GridColDef[] = Object.keys(headers).map((columnname) => {
             let colTemplate: GridColDef = {
@@ -103,6 +103,12 @@ export function MainReport() {
         saveVisibilityModelToStore(newModel, VISIBILITY_MODEL_STORAGE_KEY);
     };
 
+    const getFilname = () => {
+        return `программы за ${dateDiapazon.startDate.format("DD.MM.YYYY")}-${dateDiapazon.endDate.format(
+            "DD.MM.YYYY"
+        )}.xlsx`;
+    };
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -124,7 +130,7 @@ export function MainReport() {
                             rows={data}
                             columns={columns.current}
                             slots={{ toolbar: ReportToolbar }}
-                            slotProps={{ toolbar: { columns: columns.current } }}
+                            slotProps={{ toolbar: { columns: columns.current, filename: getFilname() } }}
                             initialState={hiddenIdColumn}
                             getRowHeight={() => "auto"}
                             columnVisibilityModel={columnVisibilityModel}

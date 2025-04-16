@@ -1,3 +1,4 @@
+import React from "react"
 // код позаимствован из https://github.com/prettyblueberry/mui-datagrid-full-edit/blob/main/src/lib/components/GridExcelExportMenuItem.js
 import { Button } from "@mui/material";
 import * as XLSX from "xlsx";
@@ -8,8 +9,9 @@ import {
     useGridApiContext,
 } from "@mui/x-data-grid";
 import { columnTypes } from "./reportColumnTypes";
+import { GridApiCommunity } from "@mui/x-data-grid/internals";
 
-function getExcelData(apiRef) {
+function getExcelData(apiRef:React.RefObject<GridApiCommunity>) {
     // Select rows and columns
     const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
     const visibleColumnsField = gridVisibleColumnFieldsSelector(apiRef);
@@ -23,7 +25,7 @@ function getExcelData(apiRef) {
     });
 }
 
-function handleExport(apiRef, columns: GridColDef[]) {
+function handleExport(apiRef:React.RefObject<GridApiCommunity>, columns: GridColDef[], filename: string) {
     const data = getExcelData(apiRef);
     const fields = Object.keys(data[0]);
     const translateObj = columns.reduce((acc, item) => {
@@ -52,21 +54,22 @@ function handleExport(apiRef, columns: GridColDef[]) {
     });
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-    console.log(workbook);
-    XLSX.writeFile(workbook, document.title + ".xlsx", { compression: true });
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Лист1");
+    console.log(workbook, filename);
+
+    XLSX.writeFile(workbook, filename, { compression: true });
 }
 
-type ExportType = { columns:GridColDef[] }
+type ExportType = { columns:GridColDef[], filename:string }
 
-export default function GridExcelExportMenuItem({ columns }: ExportType) {
+export default function GridExcelExportMenuItem({ columns, filename }: ExportType) {
     const apiRef = useGridApiContext();
     return (
         <Button
             variant="contained"
             size="small"
             onClick={() => {
-                handleExport(apiRef, columns);
+                handleExport(apiRef, columns, filename);
             }}
         >
             Скачать XLSX
