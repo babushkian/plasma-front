@@ -121,7 +121,7 @@ export function Master() {
                 if (columnname === "program_pic") {
                     colTemplate = {
                         ...colTemplate,
-                        width: 300,
+                        width: 320,
                         flex: 0,
                         renderCell: (params) => <ImageWidget source={params.value} />,
                     };

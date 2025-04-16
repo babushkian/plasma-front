@@ -179,7 +179,6 @@ export function Techman() {
                 const processed = prepareData(response.data);
                 setOriginalData(processed);
                 setData(processed[programFilterStatus.current]);
-
                 columns.current = createColumns({ ...response.headers, checked: "выбрать для загрузки" });
                 setShowTable(true);
             } else {

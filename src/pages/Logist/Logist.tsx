@@ -10,11 +10,15 @@ import { hiddenIdColumn } from "../../utils/tableInitialState";
 
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { endpoints } from "../../utils/authorization";
+import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
+import { BASE_URL } from "../../utils/urls";
 
 const columnFields: (keyof ProgramType)[] = [
     "id",
-    "program_priority",
+    "program_pic",
     "ProgramName",
+    "program_priority",
     "program_status",
     "wo_numbers",
     "wo_data1",
@@ -33,14 +37,22 @@ function Logist() {
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
-            let colTemplate: GridColDef = {
+            let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
                 flex: 1,
             };
+            if (columnname === "program_pic") {
+                col = {
+                    ...col,
+                    width: 320,
+                    flex: 0,
+                    renderCell: (params) => <ImageWidget source={params.value} />,
+                };
+            }
             if (columnname === "ProgramName") {
-                colTemplate = {
-                    ...colTemplate,
+                col = {
+                    ...col,
                     renderCell: (params) => (
                         <MuiLink
                             component={Link}
@@ -52,24 +64,25 @@ function Logist() {
                     ),
                 };
             }
-            return colTemplate;
+            return col;
         });
         return clmns;
     }, []);
 
     const prepareData = (data) => {
         const prepared = data.map((row) => {
-            let preparedRow = columnFields.reduce<Partial<FilteredMasterProgramParts>>((acc, field) => {
+            let preparedRow = columnFields.reduce<Partial<MasterProgramPartsRecordType>>((acc, field) => {
                 acc[field] = row[field];
                 return acc;
             }, {});
+            preparedRow["program_pic"] = `${BASE_URL}${row.program_pic}`;
             preparedRow["wo_numbers"] = row["wo_numbers"].join(", ");
             preparedRow["wo_data1"] = row["wo_data1"].join(", ");
             return preparedRow;
         });
         return prepared;
     };
-    
+
     const loader = useCallback(async () => {
         setShowTable(false);
         const response = await logistGetPrograms();
@@ -82,7 +95,7 @@ function Logist() {
         } else {
             setLoadError(true);
         }
-    }, [createColumns])
+    }, [createColumns]);
 
     useEffect(() => {
         loader();

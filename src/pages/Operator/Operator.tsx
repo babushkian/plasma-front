@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useContext, useMemo, useCallback } from "r
 import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
-import {  GridColDef, useGridApiRef } from "@mui/x-data-grid";
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { getDoers, getMyPrograms, OperatorStartProgram } from "../../utils/requests.ts";
 import { DoerType, ProgramType } from "../Master/Master.types.ts";
 import { OperatorSelectContext } from "../../context.tsx";
@@ -10,9 +10,12 @@ import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { endpoints } from "../../utils/authorization.ts";
 import { useAuth } from "../../hooks";
+import { BASE_URL } from "../../utils/urls.ts";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
 
 const columnFields = [
     "id",
+    "program_pic",
     "program_priority",
     "ProgramName",
     "program_status",
@@ -91,6 +94,14 @@ export function Operator() {
                     headerName: headers[columnname],
                     flex: 1,
                 };
+                if (columnname === "program_pic") {
+                    col = {
+                        ...col,
+                        width: 320,
+                        flex: 0,
+                        renderCell: (params) => <ImageWidget source={params.value} />,
+                    };
+                }
                 if (columnname == "ProgramName") {
                     col = {
                         ...col,
@@ -166,6 +177,7 @@ export function Operator() {
                 acc[field] = row[field];
                 return acc;
             }, {});
+            preparedRow["program_pic"] = `${BASE_URL}${row.program_pic}`;
             return preparedRow;
         });
         return prepared;

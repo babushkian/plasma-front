@@ -13,6 +13,8 @@ import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
 import { useModifiedRows } from "../../hooks/index.ts";
 import { updateTableData } from "../../utils/update-any-field-in-table.ts";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
+import { BASE_URL } from "../../utils/urls.ts";
 
 type DoersRecord = Record<number, DoerType>;
 
@@ -36,11 +38,12 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "id",
     "PartName",
     "WONumber",
+    "part_pic",
+    "PartLength",
+    "PartWidth",
     "WOData1",
     "QtyInProcess",
     "qty_fact",
-    "PartLength",
-    "PartWidth",
     "Thickness",
     "fio_doers",
     "done_by_fio", // добавилась эта колонка
@@ -66,6 +69,7 @@ export function OperatorParts() {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+    const programImg = useRef<string | null>(null)
 
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
@@ -84,6 +88,7 @@ export function OperatorParts() {
                 acc[field] = row[field];
                 return acc;
             }, {});
+            preparedRow["part_pic"] = row.part_pic?`${BASE_URL}${row.part_pic}`: null;
             preparedRow["checkBox"] = {
                 checked: Boolean(row.done_by_fio_doer_id),
                 disabled: false,
@@ -130,7 +135,7 @@ export function OperatorParts() {
                 done_by_fio: "Сделал",
                 checkBox: "отметить сделанное",
             });
-
+            programImg.current = response.program_pic?`${BASE_URL}${response.program_pic}`: null;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -160,14 +165,20 @@ export function OperatorParts() {
                 headerName: headers[columnname],
                 flex: 1,
             };
+            if (columnname === "part_pic") {
+                col = {
+                    ...col,
+                    width: 130,
+                    flex: 0,
+                    renderCell: (params) => <ImageWidget source={params.value} />,
+                };
+            }
+
             if (columnname === "checkBox") {
                 col = {
                     ...col,
                     type: "actions",
                     width: 150,
-                    renderHeader: (params) =>  {
-                        //console.log("header params", params)
-                        return <Checkbox />}, 
                     renderCell: (params) => (
                         <Checkbox
                             checked={params.row.checkBox.checked}
@@ -229,6 +240,7 @@ export function OperatorParts() {
                         <Button variant="contained" onClick={setMyParts} disabled={!modifiedRows.size}>
                             Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
+                        <ImageWidget source={programImg.current}/>
                         <div style={{ height: 600, width: "100%" }}>
                             <FilteredDataGrid {...gridParams} />
                         </div>

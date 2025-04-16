@@ -14,14 +14,17 @@ import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { useModifiedRows } from "../../hooks";
 import { updateTableData } from "../../utils/update-any-field-in-table";
+import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
+import { BASE_URL } from "../../utils/urls";
 
 const columnFields = [
     "id",
     "PartName",
     "WONumber",
-    "WOData1",
+    "part_pic",
     "PartLength",
     "PartWidth",
+    "WOData1",
     "Thickness",
     "fio_doers", // надо замениь на done_by_fio
     "QtyInProcess",
@@ -50,7 +53,7 @@ export function LogistTable() {
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
     const notificationMessage =useRef("Ошибка при отправке данных!")
-
+    const programImg = useRef<string | null>(null)
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
     const updateTable = useCallback(
@@ -70,6 +73,15 @@ export function LogistTable() {
                     headerName: headers[columnname],
                     flex: 1,
                 };
+                if (columnname === "part_pic") {
+                    col = {
+                        ...col,
+                        width: 130,
+                        flex: 0,
+                        renderCell: (params) => <ImageWidget source={params.value} />,
+                    };
+                }
+                
 
                 if (columnname == "qty_fact") {
                     col = {
@@ -100,6 +112,7 @@ export function LogistTable() {
                 acc[field] = row[field];
                 return acc;
             }, {});
+            preparedRow["part_pic"] = row.part_pic?`${BASE_URL}${row.part_pic}`: null;
             preparedRow["fio_doers"] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
             return preparedRow;
         });
@@ -113,6 +126,7 @@ export function LogistTable() {
         if (response !== undefined) {
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
+            programImg.current = response.program_pic?`${BASE_URL}${response.program_pic}`: null;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -159,6 +173,7 @@ export function LogistTable() {
                         <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
                             Применить фактическое количество деталей
                         </Button>
+                        <ImageWidget source={programImg.current}/>
                         <div style={{ height: 600, width: "100%" }}>
                             {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
                             <FilteredDataGrid {...gridParams} />

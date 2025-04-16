@@ -22,7 +22,7 @@ export function ImageWidget({ source }: ImageWidgetProps) {
                     height: 120,
                     width: "auto",
                     maxWidth: "100%",
-                    objectFit: "contain",
+                    objectFit: "cover",
                     cursor: "pointer",
                 }}
                 onClick={()=>setOpenModal(true)}
