@@ -20,6 +20,7 @@ export type UserContextType = {
 export const AuthContext = createContext<UserContextType | undefined>(undefined);
 
 type childrenProps = { children: React.ReactNode };
+
 export function AuthProvider({ children }: childrenProps) {
     const [token, setToken] = useState<string | undefined>(getTokenFromStore);
     const [currentUser, setCurrentUser] = useState<UserType | undefined>(getUserFromStore);

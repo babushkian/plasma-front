@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, useContext, useMemo } from "react";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { DataGrid, GridColDef, useGridApiRef, GridColumnVisibilityModel } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
@@ -12,8 +12,9 @@ import ReportToolbar from "../../components/CustomToolbar/ReportToolbar";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
 import axios from "axios";
 import { getVisibilityModelToStore, saveVisibilityModelToStore } from "../../utils/local-storage";
-import { endpoints } from "../../utils/authorization";
+import { endpoints, getUserRole } from "../../utils/authorization";
 import { ReportDateDiapazonContext } from "../../context";
+import { useAuth } from "../../hooks";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
@@ -33,8 +34,10 @@ export function MainReport() {
         getVisibilityModelToStore(VISIBILITY_MODEL_STORAGE_KEY)
     );
     const columns = useRef<GridColDef[]>([]);
-
     const errorMessage = useRef("Ошибка загрузки");
+    const { currentUser } = useAuth();
+    console.log(currentUser);
+    console.log(getUserRole(currentUser), currentUser);
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         const columns: GridColDef[] = Object.keys(headers).map((columnname) => {
@@ -109,6 +112,17 @@ export function MainReport() {
         )}.xlsx`;
     };
 
+    // кнопка перехода к тетальному отчету, которая появляется только тогда, когда пользователь - админ или технолог
+    const detailReportButton = useMemo( () => {
+        if (["ADMIN", "TECHMAN"].includes(getUserRole(currentUser))) {
+            return (
+                <Link to={endpoints.DETAIL_REPORT}>
+                    <Button variant="contained">К детальному отчету</Button>
+                </Link>
+            );
+        }
+    }, [currentUser]);
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
@@ -119,9 +133,7 @@ export function MainReport() {
                         Получить данные за период
                     </Button>
                 </Stack>
-                <Link to={endpoints.DETAIL_REPORT}>
-                    <Button variant="contained">К детальному отчету</Button>
-                </Link>
+                {detailReportButton}
                 {loadError && <div>{errorMessage.current}</div>}
 
                 {showTable && (

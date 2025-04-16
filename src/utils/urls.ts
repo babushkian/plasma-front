@@ -17,8 +17,8 @@ export const urls = {
     MASTER_GET_PROGRAMS_AND_DOERS: "master/get_programs_for_assignment_and_doers",
     MASTER_ASSIGN_PROGRAMS: "master/assign_program",
     MASTER_GET_DOERS: "master/get_doers",
-    MASTER_GET_PARTS_BY_PROGRAM_ID: "master/get_parts_by_program_id",
-    MASTER_GET_PARTS_BY_STATUSES: "master/get_parts_by_statuses",
+    MASTER_GET_PARTS_BY_PROGRAM_ID: "master/get_parts_by_program_id", //!!!!
+    // MASTER_GET_PARTS_BY_STATUSES: "master/get_parts_by_statuses",
 
     OPERATOR_GET_MY_PROGRAMS: "operator/get_my_programs",
     OPERATOR_START_PROGRAM: "operator/start_program",

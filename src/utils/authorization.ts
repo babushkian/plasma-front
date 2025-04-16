@@ -18,6 +18,11 @@ export const roles: Record<UserRolesType, UserIndexRolesType> = {
     Логист: "LOGIST",
 } as const;
 
+
+export const getUserRole = (user: UserType): UserIndexRolesType => { 
+    const role = roles[user?.role]
+    return role? role: "USER" satisfies UserIndexRolesType
+}
 export const endpoints = {
     TECHMAN: "/techman",
     MASTER: "/master",
@@ -42,6 +47,8 @@ export const appMenuItems: Record<keyof typeof endpoints, EndpointData> = {
     MAIN_REPORT: { endpoint: endpoints.MAIN_REPORT, name: "Отчет" },
     ADD_OPERATOR: { endpoint: endpoints.ADD_OPERATOR, name: "Добавить оператора" },
 };
+
+
 
 export const allowedEndpoints: Record<UserIndexRolesType, EndpointData[]> = {
     USER: [appMenuItems.MAIN_REPORT],

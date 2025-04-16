@@ -28,7 +28,7 @@ export const router = createBrowserRouter(
     [
         { path: "/", element: <RedirectByRole /> },
         {
-            element: <Navbar />,
+            Component: Navbar,
             children: [
                 {
                     Component: PrivateRoute,
