@@ -3,7 +3,6 @@ import { UserType } from "../pages/Login/Login.types";
 
 export const TOKEN_LOCAL_STORAGE_KEY = "token";
 export const USER_LOCAL_STORAGE_KEY = "user";
-export const REPORT_VISIBILITY_MODEL = "visibility_model";
 
 export const getUserFromStore: () => UserType | undefined = () => {
     const user = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
@@ -31,11 +30,11 @@ export const clearStore = () => {
 };
 
 
-export const saveVisibilityModelToStore = (model: GridColumnVisibilityModel) =>{
-    localStorage.setItem(REPORT_VISIBILITY_MODEL, JSON.stringify(model))};
+export const saveVisibilityModelToStore = (model: GridColumnVisibilityModel, key: string) =>{
+    localStorage.setItem(key, JSON.stringify(model))};
 
-export const getVisibilityModelToStore = ()=>{
-    const visibilityModel = localStorage.getItem(REPORT_VISIBILITY_MODEL)
+export const getVisibilityModelToStore = (key: string)=>{
+    const visibilityModel = localStorage.getItem(key)
     if (visibilityModel){
         return JSON.parse(visibilityModel) as GridColumnVisibilityModel
     }

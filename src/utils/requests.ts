@@ -52,6 +52,18 @@ export const getOrders = async (dates: { start_date: string; end_date: string })
     }
 };
 
+export const getOrderDetails = async (order: {wo_number: string}) => {
+    try {
+        const { data } = await apiClient.get<TechResponseType>(urls.ORDER_GET_WO_DETAILS, {params: order}  );
+        return data;
+    } catch (error) {
+        if (error instanceof Error) console.error("Ошибка при запросе деталей заказа:", error);
+        return Promise.reject(error);
+    }
+};
+
+
+
 /**
  * Получаем детали конкретной програмы из плазмы
  * @param programName

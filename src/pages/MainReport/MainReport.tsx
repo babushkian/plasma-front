@@ -10,8 +10,6 @@ import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 
 import ReportToolbar from "../../components/CustomToolbar/ReportToolbar";
 import { DateDiapazon } from "../../components/DateDiapazon/DateDiapazon";
-import { DateDiapazonType } from "../Techman/Techman.types";
-import dayjs from "dayjs";
 import axios from "axios";
 import { getVisibilityModelToStore, saveVisibilityModelToStore } from "../../utils/local-storage";
 import { endpoints } from "../../utils/authorization";
@@ -19,10 +17,7 @@ import { ReportDateDiapazonContext } from "../../context";
 
 export type ProgramAndFioType = ProgramType & { dimensions: string };
 
-const defaultDates: DateDiapazonType = {
-    startDate: dayjs().subtract(dayjs().date() - 1, "day"), //начало месяца
-    endDate: dayjs(),
-};
+const VISIBILITY_MODEL_STORAGE_KEY = "main_report_visibility";
 
 export function MainReport() {
     const dateDiapazonContext = useContext(ReportDateDiapazonContext);
@@ -34,16 +29,18 @@ export function MainReport() {
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const [columnVisibilityModel, setColumnVisibilityModel] = useState(getVisibilityModelToStore);
-    const headers = useRef<Record<string, string>>({});
-    const columns = useRef<GridColDef>([]);
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState(
+        getVisibilityModelToStore(VISIBILITY_MODEL_STORAGE_KEY)
+    );
+    const columns = useRef<GridColDef[]>([]);
 
     const errorMessage = useRef("Ошибка загрузки");
-    const createColumns = useCallback(() => {
-        const columns: GridColDef[] = Object.keys(headers.current).map((columnname) => {
+    
+    const createColumns = useCallback((headers: Record<string, string>) => {
+        const columns: GridColDef[] = Object.keys(headers).map((columnname) => {
             let colTemplate: GridColDef = {
                 field: columnname,
-                headerName: headers.current[columnname],
+                headerName: headers[columnname],
                 width: 160,
             };
             if (columnname == "fio_doers") {
@@ -67,7 +64,7 @@ export function MainReport() {
             return colTemplate;
         });
         return columns;
-    }, [headers]);
+    }, []);
 
     const loader = async () => {
         setShowTable(false);
@@ -76,10 +73,11 @@ export function MainReport() {
             end_date: dateDiapazon.endDate.format("YYYY-MM-DD"),
         };
         try {
-            const responseData = await getReportData(datesObj);
-            if (responseData !== undefined) {
-                setData(responseData.data);
-                headers.current = responseData.headers;
+            const response = await getReportData(datesObj);
+            if (response !== undefined) {
+                setData(response.data);
+                columns.current = createColumns(response.headers);
+                setShowTable(true);
                 setLoadError(false);
             } else {
                 setLoadError(true);
@@ -99,17 +97,10 @@ export function MainReport() {
         loader();
     }, []);
 
-    useEffect(() => {
-        if (data.length) {
-            columns.current = createColumns();
-            setShowTable(true);
-        }
-    }, [createColumns, data]);
-
     useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
     const handleVisibilityModel = (newModel: GridColumnVisibilityModel) => {
         setColumnVisibilityModel(newModel);
-        saveVisibilityModelToStore(newModel);
+        saveVisibilityModelToStore(newModel, VISIBILITY_MODEL_STORAGE_KEY);
     };
 
     return (

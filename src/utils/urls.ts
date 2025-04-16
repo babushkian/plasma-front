@@ -28,4 +28,6 @@ export const urls = {
     LOGIST_CALCULATE_PARTS: "logist/calculate_parts",
 
     REPORT_PARTS_FULL: "reports/parts_full",
+
+    ORDER_GET_WO_DETAILS: "reports/get_wo_details",
 };
