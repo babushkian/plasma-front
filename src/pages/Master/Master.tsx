@@ -230,7 +230,6 @@ export function Master() {
                 <Button
                     variant="contained"
                     onClick={handleAssignPrograms}
-                    // disabled={Object.keys(assignedPrograms).length === 0}
                     disabled={!modifiedRows.size}
                 >
                     Отправить в работу

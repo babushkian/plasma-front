@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useContext, useMemo, useCallback } from "react";
-import { Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
+import { Box, Button, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
@@ -12,6 +12,7 @@ import { endpoints } from "../../utils/authorization.ts";
 import { useAuth } from "../../hooks";
 import { BASE_URL } from "../../utils/urls.ts";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
+import styles from "./Oerator.module.css";
 
 const columnFields = [
     "id",
@@ -26,6 +27,13 @@ const columnFields = [
     "SheetWidth",
     "SheetLength",
 ];
+
+const stylesmap = {
+    LOW: styles.bg_low,
+    MEDIUM: styles.bg_medium,
+    HIGH: styles.bg_high,
+    CRITICAL: styles.bg_critical,
+};
 
 export function Operator() {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -102,6 +110,16 @@ export function Operator() {
                         renderCell: (params) => <ImageWidget source={params.value} />,
                     };
                 }
+                if (columnname === "program_priority") {
+                    col = {
+                        ...col,
+                        width: 130,
+                        flex: 0,
+                        renderCell: (params) => <div className={`${stylesmap[params.value]} ${styles.prioritybox}`}>{params.value}</div>,
+                        
+                    };
+                }
+
                 if (columnname == "ProgramName") {
                     col = {
                         ...col,
