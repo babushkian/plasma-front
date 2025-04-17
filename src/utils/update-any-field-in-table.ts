@@ -2,6 +2,7 @@ type ChangeDataCallback<T = any> = (...params: any[]) => T;
 type AssignData<T> = {
     [key: string]: ChangeDataCallback<T>;
 };
+
 export type UniversalUpdaterType<T> = (rowId: number, data: AssignData<T>) => void;
 
 export function updateTableData<T, A>(

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Grid2 } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { ProgramExtendedType } from "../Master/Master.types";
 
@@ -52,8 +52,9 @@ export function LogistTable() {
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
-    const notificationMessage =useRef("Ошибка при отправке данных!")
-    const programImg = useRef<string | null>(null)
+    const notificationMessage = useRef("Ошибка при отправке данных!");
+    const programImg = useRef<string | null>(null);
+    // эта функция никогда не изменяется
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
     const updateTable = useCallback(
@@ -81,7 +82,6 @@ export function LogistTable() {
                         renderCell: (params) => <ImageWidget source={params.value} />,
                     };
                 }
-                
 
                 if (columnname == "qty_fact") {
                     col = {
@@ -105,14 +105,13 @@ export function LogistTable() {
         [updateTable]
     );
 
-
     const prepareData = (data) => {
         const prepared = data.map((row) => {
             let preparedRow = columnFields.reduce<Partial<FilteredMasterProgramParts>>((acc, field) => {
                 acc[field] = row[field];
                 return acc;
             }, {});
-            preparedRow["part_pic"] = row.part_pic?`${BASE_URL}${row.part_pic}`: null;
+            preparedRow["part_pic"] = row.part_pic ? `${BASE_URL}${row.part_pic}` : null;
             preparedRow["fio_doers"] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
             return preparedRow;
         });
@@ -120,23 +119,23 @@ export function LogistTable() {
     };
 
     /**Функция загрузки данных о деталях */
-    const loader = useCallback(async () => {
+    const loader = async () => {
         setShowTable(false);
         const response = await masterGetDetailsByProgramId(state.id);
         if (response !== undefined) {
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
-            programImg.current = response.program_pic?`${BASE_URL}${response.program_pic}`: null;
+            programImg.current = response.program_pic ? `${BASE_URL}${response.program_pic}` : null;
             setShowTable(true);
         } else {
             setLoadError(true);
         }
-    }, [createColumns, state.id]);
+    };
 
     /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
         loader();
-    }, [loader]);
+    }, []); // не надо вставлять зависимости, иначе появляются внезапные перезагрузки бесконтрольные
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data
@@ -146,6 +145,10 @@ export function LogistTable() {
         setNotification(true);
         clearModifiedRows();
         loader();
+    };
+
+    const setQtyInProgress = () => {
+        setData((prev) => prev.map((row) => ({ ...row, qty_fact: row.QtyInProcess })));
     };
 
     // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
@@ -170,15 +173,24 @@ export function LogistTable() {
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
-                            Применить фактическое количество деталей
-                        </Button>
-                        <ImageWidget source={programImg.current}/>
+                        <ImageWidget source={programImg.current} />
+                        <Grid2 container spacing={3} sx={{ width: "90%" }} justifyContent={"center"}>
+                            <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
+                                Применить введенное количество деталей
+                            </Button>
+                            <Button variant="contained" onClick={setQtyInProgress}>
+                                ввести количество как в работе
+                            </Button>
+                        </Grid2>
                         <div style={{ height: 600, width: "100%" }}>
                             {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
                             <FilteredDataGrid {...gridParams} />
                         </div>
-                        <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
+                        <Notification
+                            message={notificationMessage.current}
+                            value={notification}
+                            setValue={setNotification}
+                        />
                     </>
                 )}
             </Box>

@@ -1,5 +1,5 @@
 import { TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type ChangeDataCallback = () => number;
 type AssignData = {
@@ -15,7 +15,7 @@ type SetQtyType = {
 
 export function QtyInput({ rowId, initialQty, assignHandler }: SetQtyType) {
     const [qty, setQty] = useState(initialQty);
-
+    
     const hadleSetQty = (event: React.ChangeEvent<HTMLInputElement>) => {
         // если удалить из строки ввода всё, там появляется NaN, что приводит к ошибке
         // В этом случае нужно принудительно заменять NaN на 0
@@ -25,7 +25,6 @@ export function QtyInput({ rowId, initialQty, assignHandler }: SetQtyType) {
     };
 
     const updateTable = () => {
-        //if (qty !== initialQty) applyQty(rowId, qty);
         if (qty !== initialQty) assignHandler(rowId, { qty_fact: () => qty });
     };
 
@@ -36,6 +35,10 @@ export function QtyInput({ rowId, initialQty, assignHandler }: SetQtyType) {
             updateTable();
         }
     };
+
+    useEffect(() => {
+        setQty(initialQty);
+    }, [initialQty]);
 
     return (
         <>
