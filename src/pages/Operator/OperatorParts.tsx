@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useContext, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Box, Typography, Button, Checkbox } from "@mui/material";
+import { Box, Typography, Button, Checkbox, Grid2 } from "@mui/material";
 import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
 import { DoerType, ProgramExtendedType } from "../Master/Master.types.ts";
@@ -237,10 +237,22 @@ export function OperatorParts() {
                 <Notification value={notification} setValue={setNotification} />
                 {showTable && (
                     <>
+                        <ImageWidget source={programImg.current}/>
+                        <Grid2 container spacing={3} sx={{ width: "100%" }} >
+                        <Grid2 size={4} ></Grid2>
+                        <Grid2 size={6} >
                         <Button variant="contained" onClick={setMyParts} disabled={!modifiedRows.size}>
                             Подтвердить детали, выполненные оператором {currentUserName.current}
                         </Button>
-                        <ImageWidget source={programImg.current}/>
+                        </Grid2>
+                        <Grid2 size={2} >
+                        <Button variant="contained">
+                            Выделить все
+                        </Button>
+                        </Grid2>
+                        </Grid2>
+
+
                         <div style={{ height: 600, width: "100%" }}>
                             <FilteredDataGrid {...gridParams} />
                         </div>

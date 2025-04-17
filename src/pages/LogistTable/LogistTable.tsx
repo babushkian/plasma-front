@@ -51,7 +51,7 @@ export function LogistTable() {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
+    const modRows = useModifiedRows();
     const notificationMessage = useRef("Ошибка при отправке данных!");
     const programImg = useRef<string | null>(null);
     // эта функция никогда не изменяется
@@ -59,10 +59,10 @@ export function LogistTable() {
 
     const updateTable = useCallback(
         (rowId: number, processObject) => {
-            updateModifiedRows(rowId);
+            modRows.updateModifiedRows(rowId);
             dataUpdater(rowId, processObject);
         },
-        [dataUpdater, updateModifiedRows]
+        [dataUpdater, modRows]
     );
 
     const createColumns = useCallback(
@@ -139,15 +139,16 @@ export function LogistTable() {
 
     const sendQty: () => Promise<void> = async () => {
         const partsQty = data
-            .filter((item) => modifiedRows.has(item.id))
+            .filter((item) => modRows.modifiedRows.has(item.id))
             .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
         await logistCalculateParts(partsQty);
         setNotification(true);
-        clearModifiedRows();
+        modRows.clearModifiedRows();
         loader();
     };
 
     const setQtyInProgress = () => {
+        modRows.updateManyModifiedRows(data.map((row) => row.id));
         setData((prev) => prev.map((row) => ({ ...row, qty_fact: row.QtyInProcess })));
     };
 
@@ -175,7 +176,7 @@ export function LogistTable() {
                     <>
                         <ImageWidget source={programImg.current} />
                         <Grid2 container spacing={3} sx={{ width: "90%" }} justifyContent={"center"}>
-                            <Button variant="contained" onClick={sendQty} disabled={!modifiedRows.size}>
+                            <Button variant="contained" onClick={sendQty} disabled={!modRows.modifiedRows.size}>
                                 Применить введенное количество деталей
                             </Button>
                             <Button variant="contained" onClick={setQtyInProgress}>
