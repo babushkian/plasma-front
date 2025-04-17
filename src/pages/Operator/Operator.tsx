@@ -12,7 +12,8 @@ import { endpoints } from "../../utils/authorization.ts";
 import { useAuth } from "../../hooks";
 import { BASE_URL } from "../../utils/urls.ts";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
-import styles from "./Oerator.module.css";
+import styles  from "./Oerator.module.css";
+import {priorityStylesMap} from "../../utils/priority-color"
 
 const columnFields = [
     "id",
@@ -28,12 +29,7 @@ const columnFields = [
     "SheetLength",
 ];
 
-const stylesmap = {
-    LOW: styles.bg_low,
-    MEDIUM: styles.bg_medium,
-    HIGH: styles.bg_high,
-    CRITICAL: styles.bg_critical,
-};
+
 
 export function Operator() {
     const operatorIdContext = useContext(OperatorSelectContext);
@@ -115,7 +111,7 @@ export function Operator() {
                         ...col,
                         width: 130,
                         flex: 0,
-                        renderCell: (params) => <div className={`${stylesmap[params.value]} ${styles.prioritybox}`}>{params.value}</div>,
+                        renderCell: (params) => <div className={`${priorityStylesMap[params.value]} ${styles.prioritybox}`}>{params.value}</div>,
                         
                     };
                 }

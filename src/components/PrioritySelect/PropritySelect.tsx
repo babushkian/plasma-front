@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { FormControl, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { ProgramPriorityType } from "../../pages/Logist/Logist.types";
-
-import styles from "../../pages/Operator/Oerator.module.css"
+ 
+    import {priorityStylesMap, backgroundOptionMap} from "../../utils/priority-color"
 
 type ChangeDataCallback = ()=> string
 type AssignData = {
@@ -17,19 +17,6 @@ type PriorityPropsType = {
 };
 
 
-const stylesmap = {
-    LOW: styles.bg_low,
-    MEDIUM: styles.bg_medium,
-    HIGH: styles.bg_high,
-    CRITICAL: styles.bg_critical,
-};
-
-const backgroundMap = {
-    LOW: "rgba(56, 158, 13, 0.6)",
-    MEDIUM: "rgba(212, 177, 6, 0.6)",
-    HIGH: "rgba(212, 107, 8, 0.6)",
-    CRITICAL: "rgba(216, 51, 59, 0.6)",
-};
 
 
 const PrioritySelect = memo(({ selectValue, rowId, priorityOptions, assignHandler }: PriorityPropsType) => {
@@ -40,11 +27,11 @@ const PrioritySelect = memo(({ selectValue, rowId, priorityOptions, assignHandle
 
     return (
         <FormControl sx={{ m: 1, width: 150 }} size="small">
-        <Select value={selectValue} onChange={onChange} className={stylesmap[selectValue]}>
+        <Select value={selectValue} onChange={onChange} className={priorityStylesMap[selectValue]}>
             {priorityOptions.map((option) => (
                 <MenuItem value={option}  key={option}>{option}</MenuItem>
                 // раскрашенные опции
-                // <MenuItem value={option}  sx={{background:backgroundMap[option], "&.Mui-selected":{background:backgroundMap[option]}}} key={option}>{option}</MenuItem>
+                //  <MenuItem value={option}  sx={{background:backgroundOptionMap[option], "&.Mui-selected":{background:backgroundOptionMap[option]}}} key={option}>{option}</MenuItem>
             ))}
         </Select>
         </FormControl>

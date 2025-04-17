@@ -13,6 +13,9 @@ import { endpoints } from "../../utils/authorization";
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
+import styles from "../Operator/Oerator.module.css";
+import {priorityStylesMap} from "../../utils/priority-color"
+
 
 const columnFields: (keyof ProgramType)[] = [
     "id",
@@ -27,6 +30,7 @@ const columnFields: (keyof ProgramType)[] = [
     "SheetLength",
     //"fio_doers",
 ];
+
 
 function Logist() {
     const columns = useRef<GridColDef[]>([]);
@@ -50,6 +54,16 @@ function Logist() {
                     renderCell: (params) => <ImageWidget source={params.value} />,
                 };
             }
+            if (columnname === "program_priority") {
+                col = {
+                    ...col,
+                    width: 130,
+                    flex: 0,
+                    renderCell: (params) => <div className={`${priorityStylesMap[params.value]} ${styles.prioritybox}`}>{params.value}</div>,
+                    
+                };
+            }
+
             if (columnname === "ProgramName") {
                 col = {
                     ...col,
