@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback, useRef, useContext, useMemo } from "r
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Checkbox, Grid2 } from "@mui/material";
-import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar.tsx";
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
+
 import { DoerType, ProgramExtendedType } from "../Master/Master.types.ts";
 import Notification from "../../components/Notification/Notification.tsx";
 import { getDoers, masterGetDetailsByProgramId, OperatorSetMyPrograms } from "../../utils/requests.ts";
@@ -48,8 +48,7 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "fio_doers",
     "done_by_fio", // добавилась эта колонка
     "checkBox",
-] 
-
+];
 
 export function OperatorParts() {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
@@ -69,17 +68,24 @@ export function OperatorParts() {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const programImg = useRef<string | null>(null)
+    const programImg = useRef<string | null>(null);
+    // какое дейсвтие производить при нажатии на кнопку: устанавливать галочки или снимать
+    const [allCheckboxesAction, setAllCheckboxesAction] = useState(false);
+    // хранит надпись на кнопке в зависимости от того, установить нужно чекбоксы или сбросить
+    const allCheckboxesButtonText: Record<number, string> = { 0: "выделить всё", 1: "снять всё" };
+    // показывает, что на деталях галочки уже частично проставлены, поэтому кнопку "выделить всё" нужно отключить
+    const partiallySet = useRef(true);
 
-    const { modifiedRows, clearModifiedRows, updateModifiedRows } = useModifiedRows();
+    const modRows = useModifiedRows();
+
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
     const updateTable = useCallback(
         (rowId: number, processObject) => {
-            updateModifiedRows(rowId);
+            modRows.updateModifiedRows(rowId);
             dataUpdater(rowId, processObject);
         },
-        [dataUpdater, updateModifiedRows]
+        [dataUpdater, modRows.updateModifiedRows]
     );
 
     const prepareData = (data: MasterProgramPartsRecordType[], doersProcessed: DoersRecord) => {
@@ -88,7 +94,7 @@ export function OperatorParts() {
                 acc[field] = row[field];
                 return acc;
             }, {});
-            preparedRow["part_pic"] = row.part_pic?`${BASE_URL}${row.part_pic}`: null;
+            preparedRow["part_pic"] = row.part_pic ? `${BASE_URL}${row.part_pic}` : null;
             preparedRow["checkBox"] = {
                 checked: Boolean(row.done_by_fio_doer_id),
                 disabled: false,
@@ -106,6 +112,10 @@ export function OperatorParts() {
             return preparedRow;
         });
         return prepared as ProgramPartsProcessedType[];
+    };
+
+    const checkPartiallySet = (prepared: ProgramPartsProcessedType[]) => {
+        return prepared.some((row) => row.checkBox.checked);
     };
 
     /**
@@ -129,13 +139,15 @@ export function OperatorParts() {
         setDoers(doersProcessed);
         const response = await masterGetDetailsByProgramId(state.program.id, selectedOperatorId);
         if (response !== undefined) {
-            setData(prepareData(response.data, doersProcessed));
+            const prepared = prepareData(response.data, doersProcessed);
+            setData(prepared);
+            partiallySet.current = checkPartiallySet(prepared);
             columns.current = createColumns({
                 ...response.headers,
                 done_by_fio: "Сделал",
                 checkBox: "отметить сделанное",
             });
-            programImg.current = response.program_pic?`${BASE_URL}${response.program_pic}`: null;
+            programImg.current = response.program_pic ? `${BASE_URL}${response.program_pic}` : null;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -158,7 +170,7 @@ export function OperatorParts() {
         }
     }, [selectedOperatorId, doers]);
 
-    const createColumns = (headers:Record<string, string>) => {
+    const createColumns = (headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
@@ -196,13 +208,12 @@ export function OperatorParts() {
         return clmns;
     };
 
-
     /**
      * Отправляем отмеченные чекбоксом делати на сервер
      */
     const setMyParts = () => {
         const checkedParts = data
-            .filter((item) => modifiedRows.has(item.id) && item.checkBox.checked)
+            .filter((item) => modRows.modifiedRows.has(item.id) && item.checkBox.checked)
             .map((item) => item.id);
         const props = {
             program_id: state.program.id,
@@ -211,9 +222,21 @@ export function OperatorParts() {
         };
         OperatorSetMyPrograms(props);
         setNotification(true);
-        clearModifiedRows();
+        setAllCheckboxesAction(false);
+        partiallySet.current = checkPartiallySet(data);
+        modRows.clearModifiedRows();
         loader();
-
+    };
+    const handleSelectAll = () => {
+        setAllCheckboxesAction((prev) => !prev);
+        if (allCheckboxesAction) {
+            modRows.clearModifiedRows();
+        } else {
+            modRows.updateManyModifiedRows(data.map((row) => row.id));
+        }
+        setData((prev) => [
+            ...prev.map((row) => ({ ...row, checkBox: { ...row.checkBox, checked: !allCheckboxesAction } })),
+        ]);
     };
 
     const gridParams = useMemo(
@@ -237,21 +260,25 @@ export function OperatorParts() {
                 <Notification value={notification} setValue={setNotification} />
                 {showTable && (
                     <>
-                        <ImageWidget source={programImg.current}/>
-                        <Grid2 container spacing={3} sx={{ width: "100%" }} >
-                        <Grid2 size={4} ></Grid2>
-                        <Grid2 size={6} >
-                        <Button variant="contained" onClick={setMyParts} disabled={!modifiedRows.size}>
-                            Подтвердить детали, выполненные оператором {currentUserName.current}
-                        </Button>
+                        <ImageWidget source={programImg.current} />
+                        <Grid2 container spacing={3} sx={{ width: "100%" }}>
+                            <Grid2 size={4}></Grid2>
+                            <Grid2 size={6}>
+                                <Button variant="contained" onClick={setMyParts} disabled={!modRows.modifiedRows.size}>
+                                    Подтвердить детали, выполненные оператором {currentUserName.current}
+                                </Button>
+                            </Grid2>
+                            <Grid2 size={2}>
+                                <Button
+                                    variant="contained"
+                                    sx={{ width: 145 }}
+                                    disabled={partiallySet.current}
+                                    onClick={handleSelectAll}
+                                >
+                                    {allCheckboxesButtonText[Number(allCheckboxesAction)]}
+                                </Button>
+                            </Grid2>
                         </Grid2>
-                        <Grid2 size={2} >
-                        <Button variant="contained">
-                            Выделить все
-                        </Button>
-                        </Grid2>
-                        </Grid2>
-
 
                         <div style={{ height: 600, width: "100%" }}>
                             <FilteredDataGrid {...gridParams} />
