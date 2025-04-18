@@ -135,7 +135,7 @@ export function OperatorParts() {
             throw new Error("Не удалось получить список операторов на стрнице деталей.");
         }
         setDoers(doersProcessed);
-        const response = await masterGetDetailsByProgramId(programInfo.programId, selectedOperatorId);
+        const response = await masterGetDetailsByProgramId(programInfo.programIds, selectedOperatorId);
         if (response !== undefined) {
             const prepared = prepareData(response.data, doersProcessed);
             setData(prepared);

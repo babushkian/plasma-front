@@ -36,6 +36,8 @@ type FilteredMasterProgramParts = Omit<
 
 export function LogistTable() {
     const programInfo =  useProgramInfo()
+    console.log("=============")
+    console.log(programInfo)
     
     //просто счетчик для проверки, как перерисовываается таблица при изменении части страницы, которая на таблицу никак не влияет
     const columns = useRef<GridColDef[]>([]);
@@ -115,7 +117,10 @@ export function LogistTable() {
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
-        const response = await masterGetDetailsByProgramId(programInfo.programId);
+        if (programInfo.programIds ===undefined) {
+            throw new Error("Отсутствует идентификаторы программ для запроса")
+        }
+        const response = await masterGetDetailsByProgramId(programInfo.programIds);
         if (response !== undefined) {
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);

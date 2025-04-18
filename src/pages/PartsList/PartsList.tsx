@@ -76,7 +76,7 @@ const PartsList = () => {
     /*Функция загрузки данных о деталях */
     const loader = useCallback( async () => {
         setShowTable(false);
-        const response = await masterGetDetailsByProgramId(programInfo.programId);
+        const response = await masterGetDetailsByProgramId(programInfo.programIds);
         if (response !== undefined) {
             console.log(response)
             setData(prepareData(response.data));

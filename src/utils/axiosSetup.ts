@@ -8,6 +8,21 @@ import {BASE_URL} from "./urls"
 
 export const apiClient = axios.create({
     baseURL: BASE_URL,
+    //настройка того, что при отправке массива экземпляр не будет добавлять кавдратные спобки к параметру
+    // fio_doers= вместо fio_doers[]= для массивов
+    paramsSerializer: params => {
+        return Object.entries(params)
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return value.map(item => `${key}=${encodeURIComponent(item)}`).join('&');
+            }
+            // не нужно добавлять параметр если его значение ubdefined, это может привести к ошибке на сервере
+            if (value !== undefined) {
+            return `${key}=${encodeURIComponent(value)}`;
+            }
+          })
+          .join('&');
+      }
 });
 
 

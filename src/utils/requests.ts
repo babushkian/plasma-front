@@ -146,7 +146,7 @@ export const logistGetPrograms = async () => {
     }
 };
 
-export const masterGetDetailsByProgramId = async (program_id: number, fio_doer_id?: number) => {
+export const masterGetDetailsByProgramId = async (program_id: Array<string>, fio_doer_id?: number) => {
     try {
         const { data } = await apiClient.get<ResponsePartsType>(urls.MASTER_GET_PARTS_BY_PROGRAM_ID, {
             params: { program_id, fio_doer_id },

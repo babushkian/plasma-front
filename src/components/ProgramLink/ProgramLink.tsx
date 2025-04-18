@@ -6,8 +6,9 @@ type ProgramLinkProps = {params: GridRenderCellParams, endpoint: string}
 
 export function ProgramLink({params, endpoint}:ProgramLinkProps) {
     return (
-        <MuiLink component={Link} to={`${endpoint}/${params.row.id}?ProgramName=${params.row.ProgramName}`}>
+        <MuiLink component={Link} to={`${endpoint}/${params.row.ProgramName}?programId=${[params.row.id]}`}>
             {params.row.ProgramName}
         </MuiLink>
     );
 }
+

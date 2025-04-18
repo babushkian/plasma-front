@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
 
+type IdType = number | string
 /**
  * Хук нужен для учета измененных строк в таблице и очистки списка измененных стролбцов
  */
 
-type IdType = number | string
 export function useModifiedRows() {
     const [modifiedRows, setModifiedRows] = useState<Set<IdType>>(new Set());
 

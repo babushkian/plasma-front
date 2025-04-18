@@ -1,15 +1,27 @@
 import { useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
+// export function useProgramInfo() {
+//     const {programId: programIdAdderss} = useParams()
+//     const programId = programIdAdderss
+
+//     const {search} = useLocation();
+//     const queryParams = new URLSearchParams(search);
+//     const programName = queryParams.get("ProgramName")
+    
+//     const programInfo = useMemo(()=>( {programId, programName}), [programId, programName])
+//     return programInfo       
+// }
+
+
 export function useProgramInfo() {
-    console.log("получаем информацию из  запроса")
-    const {programId: programIdAdderss} = useParams()
-    const programId = programIdAdderss
+    const {programName: programIdAdderss} = useParams()
+    const programName = programIdAdderss
 
     const {search} = useLocation();
     const queryParams = new URLSearchParams(search);
-    const programName = queryParams.get("ProgramName")
+    const programIds = queryParams.getAll("programId")
     
-    const programInfo = useMemo(()=>( {programId, programName}), [programId, programName])
+    const programInfo = useMemo(()=>( {programIds, programName}), [programIds, programName])
     return programInfo       
 }

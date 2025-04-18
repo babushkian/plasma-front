@@ -44,7 +44,7 @@ export const router = createBrowserRouter(
                             path: endpoints.MASTER,
                             children: [
                                 { index: true, Component: Master, errorElement: <ErrorPage /> },
-                                { path: ":programId", Component: PartsList, errorElement: <ErrorPage /> },
+                                { path: ":programName", Component: PartsList, errorElement: <ErrorPage /> },
                             ],
                         },
                         { path: endpoints.ADD_OPERATOR, Component: AddOperator },
@@ -52,7 +52,7 @@ export const router = createBrowserRouter(
                             path: endpoints.OPERATOR,
                             children: [
                                 { index: true, element: <Operator /> },
-                                { path: ":programId", element: <OperatorParts /> },
+                                { path: ":programName", element: <OperatorParts /> },
                             ],
                         },
                         {
@@ -67,7 +67,7 @@ export const router = createBrowserRouter(
                                     ),
                                     errorElement: <ErrorPage />,
                                 },
-                                { path: ":programId", Component: LogistTable, errorElement: <ErrorPage /> },
+                                { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
                             ],
                         },
                     ],
