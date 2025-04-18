@@ -44,7 +44,7 @@ export const router = createBrowserRouter(
                             path: endpoints.MASTER,
                             children: [
                                 { index: true, Component: Master, errorElement: <ErrorPage /> },
-                                { path: ":programName", Component: PartsList, errorElement: <ErrorPage /> },
+                                { path: ":programId", Component: PartsList, errorElement: <ErrorPage /> },
                             ],
                         },
                         { path: endpoints.ADD_OPERATOR, Component: AddOperator },

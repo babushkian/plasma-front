@@ -3,7 +3,7 @@ import { useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 
 
-type ImageWidgetProps = { source: string };
+type ImageWidgetProps = { source: string | null };
 export function ImageWidget({ source }: ImageWidgetProps) {
     const [openModal, setOpenModal] = useState(false)
     return (

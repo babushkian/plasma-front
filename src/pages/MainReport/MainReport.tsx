@@ -137,7 +137,7 @@ export function MainReport() {
                 {loadError && <div>{errorMessage.current}</div>}
 
                 {showTable && (
-                    <div style={{ height: 700, width: "100%" }}>
+                    <div style={{  width: "100%" }}>
                         <DataGrid
                             rows={data}
                             columns={columns.current}
@@ -145,6 +145,7 @@ export function MainReport() {
                             slotProps={{ toolbar: { columns: columns.current, filename: getFilname() } }}
                             initialState={hiddenIdColumn}
                             getRowHeight={() => "auto"}
+                            //disableVirtualization
                             columnVisibilityModel={columnVisibilityModel}
                             onColumnVisibilityModelChange={handleVisibilityModel}
                         />

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import { Box, Typography } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
@@ -11,6 +11,7 @@ import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import { BASE_URL } from "../../utils/urls";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
+import { useProgramInfo } from "../../hooks";
 
 const columnFields: (keyof MasterProgramPartsRecordType)[] = [
     //обязательно нужен id
@@ -29,7 +30,18 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
 const PartsList = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: ProgramExtendedType } = useLocation();
+   
+    // const {search}= useLocation();
+    // const {programId: programIdAdderss} = useParams()
+    // const programId = useRef(programIdAdderss)
+    // const queryParams = new URLSearchParams(search);
+    // const programName = useRef(queryParams.get("ProgramName"))
+    // console.log("-------------------")
+    // console.log(programName.current)
+    // console.log(programId.current)
+    
+
+    const programInfo =  useProgramInfo()
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
@@ -77,7 +89,7 @@ const PartsList = () => {
     /*Функция загрузки данных о деталях */
     const loader = useCallback( async () => {
         setShowTable(false);
-        const response = await masterGetDetailsByProgramId(state.id);
+        const response = await masterGetDetailsByProgramId(programInfo.programId);
         if (response !== undefined) {
             console.log(response)
             setData(prepareData(response.data));
@@ -88,7 +100,7 @@ const PartsList = () => {
         } else {
             setLoadError(true);
         }
-    }, [createColumns, state.id])
+    }, [createColumns])
 
     /** При загрузке страницы загружаем данные о деталях*/
     useEffect(() => {
@@ -109,7 +121,7 @@ const PartsList = () => {
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">Информация о деталях программы № {state.ProgramName}</Typography>
+                <Typography variant="h5">Информация о деталях программы № {programInfo.programName}</Typography>
                 
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (

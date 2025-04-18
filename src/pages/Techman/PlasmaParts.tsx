@@ -1,12 +1,9 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import CustomToolbar from "../../components/CustomToolbar/CustomToolbar";
-import { ProgramExtendedType } from "../Master/Master.types";
-
+import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
+import { DoerType } from "../../pages/Master/Master.types";
 import { getProgramParts } from "../../utils/requests";
-
 import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
@@ -31,7 +28,12 @@ const columnFields: string[] = [
 const PlasmaParts = () => {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: ProgramExtendedType } = useLocation();
+    
+    const addressParams = useParams()
+
+    console.log("кусок пути:", addressParams.programName)
+    const loc = useLocation();
+    console.log("вся инфа по переходу", loc)
 
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<MasterProgramPartsRecordType[]>([]);
@@ -40,12 +42,12 @@ const PlasmaParts = () => {
     const [showTable, setShowTable] = useState(false);
     const programImg = useRef<string | null>(null)
 
-    const prepareData = (data: MasterProgramPartsRecordType[]) => {
-        const processedData = data.map((item) => {
+    const prepareData = (data: MasterProgramPartsRecordType[]): MasterProgramPartsRecordType[] => {
+        const processedData: MasterProgramPartsRecordType[] = data.map((item) => {
             const row = columnFields.reduce<MasterProgramPartsRecordType>((acc, field) => {
                 acc[field] = item[field];
                 return acc;
-            }, {});
+            }, {} as MasterProgramPartsRecordType);
             //////////////////////////
             // так быть не должно, нужно поле  id для деталей
             row["id"] = item.PK_PIP;
@@ -59,7 +61,7 @@ const PlasmaParts = () => {
     useEffect(() => {
         const loader = async () => {
             setShowTable(false);
-            const response = await getProgramParts(state.ProgramName);
+            const response = await getProgramParts(addressParams.programName as string);
             if (response !== undefined) {
                 setData(prepareData(response.data));
                 columns.current = createColumns(response.headers);
@@ -74,7 +76,7 @@ const PlasmaParts = () => {
         loader();
     }, []);
 
-    const createColumns = useCallback((headers) => {
+    const createColumns = useCallback((headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
             let col: GridColDef = {
                 field: columnname,
@@ -84,7 +86,7 @@ const PlasmaParts = () => {
             if (columnname == "fio_doers") {
                 col = {
                     ...col,
-                    valueGetter: (value) => {
+                    valueGetter: (value: DoerType | DoerType[] ) => {
                         if (Array.isArray(value)) {
                             return value.map((item) => item.fio_doer).join(", ");
                         }
@@ -121,7 +123,7 @@ const PlasmaParts = () => {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Информация о деталях программы № {state.ProgramName} на странице логиста
+                    Информация о деталях программы № {addressParams.programName} на странице логиста
                 </Typography>
 
                 {loadError && <div>Ошибка загрузки</div>}

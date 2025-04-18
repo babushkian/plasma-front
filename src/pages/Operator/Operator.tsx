@@ -122,7 +122,7 @@ export function Operator() {
                         renderCell: (params) => (
                             <MuiLink
                                 component={Link}
-                                state={{ program: params.row }}
+                                state={params.row}
                                 to={`${endpoints.OPERATOR}/${params.row.ProgramName}`}
                             >
                                 {params.row.ProgramName}

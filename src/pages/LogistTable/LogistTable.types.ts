@@ -30,7 +30,7 @@ export type MasterProgramPartsRecordType = {
     time_program_finished: string;
     program_status: string;
     program_priority: ProgramPriorityType;
-    id: number;
+    id: number | string;
     created_at: string;
     updated_at: string;
     WONumber: string;
@@ -67,7 +67,7 @@ export type MasterProgramPartsRecordType = {
     part_status: string;
     qty_fact: number;
     SourceFileName: string | null;
-    program_pic:string
-    part_pic:string
+    program_pic:string | null;
+    part_pic:string | null;
 
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { Link } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button } from "@mui/material";
-import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
+import { GridColDef, useGridApiRef, GridRenderCellParams } from "@mui/x-data-grid";
 
 import DumbDoerSelect from "../../components/DoerSelect/DumbDoerSelect";
 import PrioritySelect from "../../components/PrioritySelect/PropritySelect";
@@ -16,6 +16,7 @@ import { useModifiedRows } from "../../hooks";
 import { updateTableData, UniversalUpdaterType } from "../../utils/update-any-field-in-table";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
+import { ProgramLink } from "../../components/ProgramLink/ProgramLink";
 
 //список приоритетов, полученный из множетсва ProgramPriorityType
 const priorityArray: ProgramPriorityType[] = Object.values(ProgramPriorityType);
@@ -141,12 +142,13 @@ export function Master() {
                             <MuiLink
                                 component={Link}
                                 state={params.row}
-                                to={`${endpoints.MASTER}/${params.row.ProgramName}`}
+                                to={`${endpoints.MASTER}/${params.row.id}?ProgramName=${params.row.ProgramName}`}
                             >
                                 {params.row.ProgramName}
                             </MuiLink>
-                        ),
+                        )
                     };
+                    //<ProgramLink params={params} endpoint={endpoints.MASTER} />)
                 }
                 if (columnname === "program_priority") {
                     colTemplate = {

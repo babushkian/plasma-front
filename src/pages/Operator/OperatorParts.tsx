@@ -53,7 +53,8 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
 export function OperatorParts() {
     // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
     // так как у деталей такой информции нет
-    const { state }: { state: { program: ProgramExtendedType } } = useLocation();
+    //const { state }: { state: { program: ProgramExtendedType } } = useLocation();
+    const { state } = useLocation();
 
     const operatorIdContext = useContext(OperatorSelectContext);
     if (!operatorIdContext) {
@@ -137,7 +138,7 @@ export function OperatorParts() {
             throw new Error("Не удалось получить список операторов на стрнице деталей.");
         }
         setDoers(doersProcessed);
-        const response = await masterGetDetailsByProgramId(state.program.id, selectedOperatorId);
+        const response = await masterGetDetailsByProgramId(state.id, selectedOperatorId);
         if (response !== undefined) {
             const prepared = prepareData(response.data, doersProcessed);
             setData(prepared);
@@ -151,7 +152,7 @@ export function OperatorParts() {
             setShowTable(true);
         } else {
             setLoadError(true);
-            throw new Error(`Не удалось получить детали программы ${state.program.ProgramName}.`);
+            throw new Error(`Не удалось получить детали программы ${state.ProgramName}.`);
         }
     };
 
@@ -216,7 +217,7 @@ export function OperatorParts() {
             .filter((item) => modRows.modifiedRows.has(item.id) && item.checkBox.checked)
             .map((item) => item.id);
         const props = {
-            program_id: state.program.id,
+            program_id: state.id,
             fio_doer_id: selectedOperatorId!,
             parts_ids: checkedParts,
         };
@@ -254,7 +255,7 @@ export function OperatorParts() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Редактирование деталей программы № {state.program.ProgramName} на странице оператора
+                    Редактирование деталей программы № {state.ProgramName} на странице оператора
                 </Typography>
                 {loadError && <div>Ошибка загрузки</div>}
                 <Notification value={notification} setValue={setNotification} />

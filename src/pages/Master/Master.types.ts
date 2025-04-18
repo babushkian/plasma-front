@@ -12,7 +12,7 @@ export type DoerType = {
     updated_at?: string;
 };
 
-export type ProgramExtendedType = ProgramType & { doerIds: number[]; doerFio: string; dimensions: string };
+export type ProgramExtendedType = ProgramType & { doerIds: number[]; doerFio: string; };
 
 export type AssignProgramRequestType = {
     id: number;

@@ -102,10 +102,8 @@ export function Techman() {
                 col = {
                     ...col,
                     width: 300,
-                    flex:0,
-                    renderCell: (params) => (
-                        <ImageWidget source={params.value} />
-                    ),
+                    flex: 0,
+                    renderCell: (params) => <ImageWidget source={params.value} />,
                 };
             }
             if (columnname === "ProgramName") {
@@ -114,7 +112,6 @@ export function Techman() {
                     renderCell: (params) => (
                         <MuiLink
                             component={Link}
-                            state={params.row}
                             to={`${endpoints.TECHMAN}/${params.row.ProgramName}`}
                         >
                             {params.row.ProgramName}
@@ -354,7 +351,7 @@ export function Techman() {
                 <Notification message={notificationMessage.current} value={notification} setValue={setNotification} />
                 {noData && <Typography variant="h6">Данные за указанный период отсутствуют.</Typography>}
                 {showTable && (
-                    <div style={{ height: "600px", width: "100%" }}>
+                    <div style={{ height: 700, width: "100%" }}>
                         <FilteredDataGrid {...gridParams} />
                     </div>
                 )}
