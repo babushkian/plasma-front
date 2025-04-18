@@ -138,17 +138,8 @@ export function Master() {
                 if (columnname === "ProgramName") {
                     colTemplate = {
                         ...colTemplate,
-                        renderCell: (params) => (
-                            <MuiLink
-                                component={Link}
-                                state={params.row}
-                                to={`${endpoints.MASTER}/${params.row.id}?ProgramName=${params.row.ProgramName}`}
-                            >
-                                {params.row.ProgramName}
-                            </MuiLink>
-                        )
+                        renderCell: (params) => <ProgramLink params={params} endpoint={endpoints.MASTER} />
                     };
-                    //<ProgramLink params={params} endpoint={endpoints.MASTER} />)
                 }
                 if (columnname === "program_priority") {
                     colTemplate = {
@@ -229,11 +220,7 @@ export function Master() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">Рабочее место мастера</Typography>
-                <Button
-                    variant="contained"
-                    onClick={handleAssignPrograms}
-                    disabled={!modifiedRows.size}
-                >
+                <Button variant="contained" onClick={handleAssignPrograms} disabled={!modifiedRows.size}>
                     Отправить в работу
                 </Button>
                 <Notification value={notification} setValue={setNotification} />

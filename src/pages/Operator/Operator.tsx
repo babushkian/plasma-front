@@ -14,6 +14,7 @@ import { BASE_URL } from "../../utils/urls.ts";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
 import styles  from "./Oerator.module.css";
 import {priorityStylesMap} from "../../utils/priority-color"
+import { ProgramLink } from "../../components/ProgramLink/ProgramLink.tsx";
 
 const columnFields = [
     "id",
@@ -119,15 +120,7 @@ export function Operator() {
                 if (columnname == "ProgramName") {
                     col = {
                         ...col,
-                        renderCell: (params) => (
-                            <MuiLink
-                                component={Link}
-                                state={params.row}
-                                to={`${endpoints.OPERATOR}/${params.row.ProgramName}`}
-                            >
-                                {params.row.ProgramName}
-                            </MuiLink>
-                        ),
+                    renderCell: (params) => <ProgramLink params={params} endpoint={endpoints.OPERATOR} />
                     };
                 }
                 if (["wo_numbers", "wo_data1"].includes(columnname)) {

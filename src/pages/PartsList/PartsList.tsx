@@ -28,19 +28,6 @@ const columnFields: (keyof MasterProgramPartsRecordType)[] = [
 ];
 
 const PartsList = () => {
-    // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
-    // так как у деталей такой информции нет
-   
-    // const {search}= useLocation();
-    // const {programId: programIdAdderss} = useParams()
-    // const programId = useRef(programIdAdderss)
-    // const queryParams = new URLSearchParams(search);
-    // const programName = useRef(queryParams.get("ProgramName"))
-    // console.log("-------------------")
-    // console.log(programName.current)
-    // console.log(programId.current)
-    
-
     const programInfo =  useProgramInfo()
 
     const columns = useRef<GridColDef[]>([]);

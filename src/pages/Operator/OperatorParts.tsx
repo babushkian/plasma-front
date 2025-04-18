@@ -11,7 +11,7 @@ import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types.t
 import { OperatorSelectContext } from "../../context.tsx";
 import { hiddenIdColumn } from "../../utils/tableInitialState.ts";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid.tsx";
-import { useModifiedRows } from "../../hooks/index.ts";
+import { useModifiedRows, useProgramInfo } from "../../hooks/index.ts";
 import { updateTableData } from "../../utils/update-any-field-in-table.ts";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget.tsx";
 import { BASE_URL } from "../../utils/urls.ts";
@@ -50,11 +50,8 @@ const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "checkBox",
 ];
 
-export function OperatorParts() {
-    // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
-    // так как у деталей такой информции нет
-    //const { state }: { state: { program: ProgramExtendedType } } = useLocation();
-    const { state } = useLocation();
+export function OperatorParts() {    
+    const programInfo =  useProgramInfo()
 
     const operatorIdContext = useContext(OperatorSelectContext);
     if (!operatorIdContext) {
@@ -138,7 +135,7 @@ export function OperatorParts() {
             throw new Error("Не удалось получить список операторов на стрнице деталей.");
         }
         setDoers(doersProcessed);
-        const response = await masterGetDetailsByProgramId(state.id, selectedOperatorId);
+        const response = await masterGetDetailsByProgramId(programInfo.programId, selectedOperatorId);
         if (response !== undefined) {
             const prepared = prepareData(response.data, doersProcessed);
             setData(prepared);
@@ -152,7 +149,7 @@ export function OperatorParts() {
             setShowTable(true);
         } else {
             setLoadError(true);
-            throw new Error(`Не удалось получить детали программы ${state.ProgramName}.`);
+            throw new Error(`Не удалось получить детали программы ${programInfo.programName}.`);
         }
     };
 
@@ -217,7 +214,7 @@ export function OperatorParts() {
             .filter((item) => modRows.modifiedRows.has(item.id) && item.checkBox.checked)
             .map((item) => item.id);
         const props = {
-            program_id: state.id,
+            program_id: programInfo.programId,
             fio_doer_id: selectedOperatorId!,
             parts_ids: checkedParts,
         };
@@ -255,7 +252,7 @@ export function OperatorParts() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Редактирование деталей программы № {state.ProgramName} на странице оператора
+                    Редактирование деталей программы № {programInfo.programName} на странице оператора
                 </Typography>
                 {loadError && <div>Ошибка загрузки</div>}
                 <Notification value={notification} setValue={setNotification} />

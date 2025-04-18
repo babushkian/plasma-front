@@ -52,7 +52,7 @@ export const router = createBrowserRouter(
                             path: endpoints.OPERATOR,
                             children: [
                                 { index: true, element: <Operator /> },
-                                { path: ":programName", element: <OperatorParts /> },
+                                { path: ":programId", element: <OperatorParts /> },
                             ],
                         },
                         {
