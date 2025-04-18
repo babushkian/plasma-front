@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Хук нужен для учета измененных строк в таблице и очистки списка измененных стролбцов
  */
+
+type IdType = number | string
 export function useModifiedRows() {
-    const [modifiedRows, setModifiedRows] = useState<Set<number| string >>(new Set());
+    const [modifiedRows, setModifiedRows] = useState<Set<IdType>>(new Set());
 
     const updateModifiedRows = useCallback(
-        (rowId: number | string) => {
+        (rowId: IdType) => {
             if (!modifiedRows.has(rowId)) {
                 setModifiedRows((prev) => {
                     const next = new Set(prev);
@@ -20,9 +22,17 @@ export function useModifiedRows() {
     );
 
     const updateManyModifiedRows = useCallback(
-        (rowIds: Array<number | string>) =>
+        (rowIds: Array<IdType>) =>
             setModifiedRows((prev) => {
                 return new Set([...prev, ...rowIds]);
+            }),
+        []
+    );
+
+    const removeManyModifiedRows = useCallback(
+         (rowIds: Array<IdType>) =>
+            setModifiedRows((prev) => {
+                return new Set( [...prev].filter(item =>  !rowIds.includes(item)));
             }),
         []
     );
@@ -30,5 +40,6 @@ export function useModifiedRows() {
     const clearModifiedRows = useCallback(() => {
         setModifiedRows(new Set());
     }, []);
-    return { modifiedRows, clearModifiedRows, updateModifiedRows, updateManyModifiedRows };
+
+    return { modifiedRows, clearModifiedRows, updateModifiedRows, removeManyModifiedRows, updateManyModifiedRows };
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Link as MuiLink } from "@mui/material";
+import { Grid2, Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 
@@ -14,12 +14,16 @@ import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 import styles from "../Operator/Oerator.module.css";
-import {priorityStylesMap} from "../../utils/priority-color"
+import { priorityStylesMap } from "../../utils/priority-color";
 import { ProgramLink } from "../../components/ProgramLink/ProgramLink";
+import { LogistProgramType } from "./Logist.types";
+import { UniversalUpdaterType, updateTableData } from "../../utils/update-any-field-in-table";
+import { useModifiedRows } from "../../hooks";
 
-
-const columnFields: (keyof ProgramType)[] = [
+type ProgramPartsProcessedType = LogistProgramType & { checkBox: boolean };
+const columnFields: (keyof ProgramPartsProcessedType)[] = [
     "id",
+    "checkBox",
     "program_pic",
     "ProgramName",
     "program_priority",
@@ -32,13 +36,28 @@ const columnFields: (keyof ProgramType)[] = [
     //"fio_doers",
 ];
 
-
 function Logist() {
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<ProgramType[]>([]);
     const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
+
+    const modRows = useModifiedRows();
+    const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
+
+    const updateTable = useCallback(
+        (rowId: number | string, value: boolean, processObject) => {
+            if (!value) {
+                modRows.updateModifiedRows(rowId);
+            } else {
+                modRows.removeManyModifiedRows([rowId]);
+            }
+
+            dataUpdater(rowId, processObject);
+        },
+        [dataUpdater, modRows.updateModifiedRows]
+    );
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         const clmns: GridColDef[] = columnFields.map((columnname) => {
@@ -47,6 +66,24 @@ function Logist() {
                 headerName: headers[columnname],
                 flex: 1,
             };
+
+            if (columnname === "checkBox") {
+                col = {
+                    ...col,
+                    type: "actions",
+                    width: 150,
+                    renderCell: (params) => (
+                        <Checkbox
+                            checked={params.row.checkBox.checked}
+                            disabled={params.row.checkBox.disabled}
+                            onChange={() => {
+                                updateTable(params.id, params.row.checkBox, { checkBox: () => !params.row.checkBox });
+                            }}
+                        />
+                    ),
+                };
+            }
+
             if (columnname === "program_pic") {
                 col = {
                     ...col,
@@ -60,15 +97,16 @@ function Logist() {
                     ...col,
                     width: 130,
                     flex: 0,
-                    renderCell: (params) => <div className={`${priorityStylesMap[params.value]} ${styles.prioritybox}`}>{params.value}</div>,
-                    
+                    renderCell: (params) => (
+                        <div className={`${priorityStylesMap[params.value]} ${styles.prioritybox}`}>{params.value}</div>
+                    ),
                 };
             }
 
             if (columnname === "ProgramName") {
                 col = {
                     ...col,
-                    renderCell: (params) => <ProgramLink params={params} endpoint={endpoints.LOGIST} />
+                    renderCell: (params) => <ProgramLink params={params} endpoint={endpoints.LOGIST} />,
                 };
             }
             return col;
@@ -78,10 +116,11 @@ function Logist() {
 
     const prepareData = (data) => {
         const prepared = data.map((row) => {
-            let preparedRow = columnFields.reduce<Partial<MasterProgramPartsRecordType>>((acc, field) => {
+            let preparedRow = columnFields.reduce<Partial<ProgramPartsProcessedType>>((acc, field) => {
                 acc[field] = row[field];
                 return acc;
             }, {});
+            preparedRow["checkBox"] = false;
             preparedRow["program_pic"] = `${BASE_URL}${row.program_pic}`;
             preparedRow["wo_numbers"] = row["wo_numbers"].join(", ");
             preparedRow["wo_data1"] = row["wo_data1"].join(", ");
@@ -108,6 +147,10 @@ function Logist() {
         loader();
     }, [loader]);
 
+    useEffect(() => {
+        console.log(modRows.modifiedRows);
+    }, [modRows]);
+
     const gridParams = useMemo(
         () => ({
             rows: data,
@@ -122,7 +165,19 @@ function Logist() {
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">Рабочее место логиста</Typography>
+                <Grid2 container sx={{ width: "100%" }}>
+                    <Grid2 size={2}>
+                    <Box display="flex" justifyContent="start" alignItems="center" height="100%" paddingX={1}>
+                        <Button variant="contained" size="medium">Открыть несколько</Button>
+                    </Box>
+                    </Grid2>
+                    <Grid2 size={8}>
+                        <Box display="flex" justifyContent="center" alignItems="center" height="100%" paddingX={2}>
+                            <Typography variant="h5">Рабочее место логиста</Typography>
+                        </Box>
+                    </Grid2>
+                    <Grid2 size={2}></Grid2>
+                </Grid2>
                 {/*тестовая кнопка для проверки, когда перерисовывается таблица (она не должна перерисовываться при нажатии на кнопку) */}
                 {/* <Button onClick={()=>setCounter((prev) => prev + 1)}>нажми {counter}</Button> */}
                 {loadError && <div>Ошибка загрузки</div>}
