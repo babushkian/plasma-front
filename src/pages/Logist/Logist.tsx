@@ -15,6 +15,7 @@ import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 import styles from "../Operator/Oerator.module.css";
 import {priorityStylesMap} from "../../utils/priority-color"
+import { ProgramLink } from "../../components/ProgramLink/ProgramLink";
 
 
 const columnFields: (keyof ProgramType)[] = [
@@ -67,15 +68,7 @@ function Logist() {
             if (columnname === "ProgramName") {
                 col = {
                     ...col,
-                    renderCell: (params) => (
-                        <MuiLink
-                            component={Link}
-                            state={params.row}
-                            to={`${endpoints.LOGIST}/${params.row.ProgramName}`}
-                        >
-                            {params.row.ProgramName}
-                        </MuiLink>
-                    ),
+                    renderCell: (params) => <ProgramLink params={params} endpoint={endpoints.LOGIST} />
                 };
             }
             return col;

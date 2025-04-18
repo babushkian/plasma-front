@@ -67,7 +67,7 @@ export const router = createBrowserRouter(
                                     ),
                                     errorElement: <ErrorPage />,
                                 },
-                                { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
+                                { path: ":programId", Component: LogistTable, errorElement: <ErrorPage /> },
                             ],
                         },
                     ],

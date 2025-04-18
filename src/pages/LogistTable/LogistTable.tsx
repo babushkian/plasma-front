@@ -1,18 +1,13 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { useLocation } from "react-router-dom";
-
 import { Box, Typography, Button, Grid2 } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
-import { ProgramExtendedType } from "../Master/Master.types";
-
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
-
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
 import { QtyInput } from "../../components/QtyInput/QtyInput";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
-import { useModifiedRows } from "../../hooks";
+import { useModifiedRows, useProgramInfo } from "../../hooks";
 import { updateTableData } from "../../utils/update-any-field-in-table";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
@@ -40,9 +35,8 @@ type FilteredMasterProgramParts = Omit<
 > & { fio_doers: string };
 
 export function LogistTable() {
-    // Состояние, которое передается при нажатии на сылку. Нужно для отображения имени программы в заголовке,
-    // так как у деталей такой информции нет
-    const { state }: { state: ProgramExtendedType } = useLocation();
+    const programInfo =  useProgramInfo()
+    
     //просто счетчик для проверки, как перерисовываается таблица при изменении части страницы, которая на таблицу никак не влияет
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
@@ -121,7 +115,7 @@ export function LogistTable() {
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
-        const response = await masterGetDetailsByProgramId(state.id);
+        const response = await masterGetDetailsByProgramId(programInfo.programId);
         if (response !== undefined) {
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
@@ -169,7 +163,7 @@ export function LogistTable() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Тестовое редактирование деталей программы № {state.ProgramName} на странице логиста
+                    Тестовое редактирование деталей программы № {programInfo.programName} на странице логиста
                 </Typography>
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
