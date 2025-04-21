@@ -77,8 +77,7 @@ function Logist() {
                     width: 150,
                     renderCell: (params) => (
                         <Checkbox
-                            checked={params.row.checkBox.checked}
-                            disabled={params.row.checkBox.disabled}
+                            checked={params.row.checkBox}
                             onChange={() => {
                                 updateTable(params.id, params.row.checkBox, { checkBox: () => !params.row.checkBox });
                             }}
@@ -182,14 +181,14 @@ function Logist() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Grid2 container sx={{ width: "100%" }}>
-                    <Grid2 size={2}>
+                    <Grid2 size={3}>
                     <Box display="flex" justifyContent="start" alignItems="center" height="100%" paddingX={1}>
                         
-                        <Button variant="contained" size="medium" disabled={!modRows.modifiedRows.size} onClick={handleSomeProghamsDetails}>Печать</Button>
+                        <Button variant="contained" size="medium" disabled={!modRows.modifiedRows.size} onClick={handleSomeProghamsDetails}>сформировать ведомость</Button>
                         
                     </Box>
                     </Grid2>
-                    <Grid2 size={8}>
+                    <Grid2 size={7}>
                         <Box display="flex" justifyContent="center" alignItems="center" height="100%" paddingX={2}>
                             <Typography variant="h5">Рабочее место логиста</Typography>
                         </Box>

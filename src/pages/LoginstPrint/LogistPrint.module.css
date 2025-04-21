@@ -1,0 +1,55 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    
+}
+
+.MuiDataGrid-footerContainer {
+    display: none;
+}
+.MuiDataGrid-root {
+    border: none !important;
+    font-size: 11px;
+}
+
+.MuiDataGrid-cell {
+    padding: 4px;
+    color: black;
+    font-size: 10px;
+}
+
+td {
+    padding: 4px; 
+    border: 1 solid orange !important; 
+    text-align: left;
+    vertical-align: middle;
+    page-break-inside: avoid !important;
+ }
+
+
+@media print {
+    table {
+        color: black;
+        font-size: 10px;
+        /* border: 1 solid black; */
+    }
+    thead {
+        background-color: #e0e0e0;
+    }
+    th {
+        border: 1px solid #AAA;
+    }
+
+    /* tr {
+        border-bottom: 1 solid orange;
+    } */
+    td {
+       padding:4px; 
+       
+       border: 1 solid orange !important; 
+    }
+    .image_cell {
+        min-width: 115px;
+    }
+}

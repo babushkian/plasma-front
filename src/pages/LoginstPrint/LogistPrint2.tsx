@@ -3,14 +3,14 @@ import { Box, Typography, Button, Grid2 } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
-import {useReactToPrint} from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
-// import styles from "./LogistPrint.module.css"
+import styles from "./LogistPrint.module.css";
 
 const columnFields = [
     "id",
@@ -35,15 +35,12 @@ type FilteredMasterProgramParts = Omit<
     "fio_doers"
 > & { fio_doers: string };
 
-export function LogistPrint() {
-    const programInfo =  useProgramInfo()
-    console.log("=============")
-    console.log(programInfo)
-    
+export function LogistPrint2() {
+    const programInfo = useProgramInfo();
+
     //просто счетчик для проверки, как перерисовываается таблица при изменении части страницы, которая на таблицу никак не влияет
     const columns = useRef<GridColDef[]>([]);
     const [data, setData] = useState<FilteredMasterProgramParts[]>([]);
-    const apiRef = useGridApiRef();
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
@@ -53,33 +50,29 @@ export function LogistPrint() {
     const notificationMessage = useRef("Ошибка при отправке данных!");
     // эта функция никогда не изменяется
 
-    const handlePrint = useReactToPrint({ contentRef: tableRef});
+    const handlePrint = useReactToPrint({ contentRef: tableRef });
 
-
-    const createColumns = useCallback(
-        (headers: Record<string, string>) => {
-            console.log("создаем колонки");
-            const clmns: GridColDef[] = columnFields.map((columnname) => {
-                let col: GridColDef = {
-                    field: columnname,
-                    headerName: headers[columnname],
-                    flex: 1,
+    const createColumns = useCallback((headers: Record<string, string>) => {
+        console.log("создаем колонки");
+        const clmns: GridColDef[] = columnFields.map((columnname) => {
+            let col: GridColDef = {
+                field: columnname,
+                headerName: headers[columnname],
+                flex: 1,
+            };
+            if (columnname === "part_pic") {
+                col = {
+                    ...col,
+                    width: 130,
+                    flex: 0,
+                    renderCell: (value) => <ImageWidget source={value} />,
                 };
-                if (columnname === "part_pic") {
-                    col = {
-                        ...col,
-                        width: 130,
-                        flex: 0,
-                        renderCell: (params) => <ImageWidget source={params.value} />,
-                    };
-                }
+            }
 
-                return col;
-            });
-            return clmns;
-        },
-        []
-    );
+            return col;
+        });
+        return clmns;
+    }, []);
 
     const prepareData = (data) => {
         const prepared = data.map((row) => {
@@ -97,8 +90,8 @@ export function LogistPrint() {
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
-        if (programInfo.programIds ===undefined) {
-            throw new Error("Отсутствует идентификаторы программ для запроса")
+        if (programInfo.programIds === undefined) {
+            throw new Error("Отсутствует идентификаторы программ для запроса");
         }
         const response = await masterGetDetailsByProgramId(programInfo.programIds);
         if (response !== undefined) {
@@ -115,42 +108,48 @@ export function LogistPrint() {
         loader();
     }, []); // не надо вставлять зависимости, иначе появляются внезапные перезагрузки бесконтрольные
 
-
-    // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
-    // который должен каждый раз создаваться заново
-    const gridParams = useMemo(
-        () => ({
-            rows: data,
-            setRows: setData,
-            columns: columns.current,
-            initialState: hiddenIdColumn,
-            apiRef: apiRef,
-            disableVirtualization: true,
-        }),
-        [apiRef, data]
-    );
-
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">
-                    Страница печати {programInfo.programName} 
-                </Typography>
+                <Typography variant="h5">Страница печати {programInfo.programName}</Typography>
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={()=>handlePrint()} >Печать</Button>
-                            
-                        <div id="table-div" ref={tableRef} style={{ height: 2800, width: "100%", border: "1px dotted lightgreen"}}>
-                        
-                            {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
-                            <FilteredDataGrid {...gridParams} />
+                        <Button variant="contained" onClick={() => handlePrint()}>
+                            Печать
+                        </Button>
+
+                        <div ref={tableRef} style={{ width: "100%" }}>
+                            <table className={styles.table}>
+                                <thead className={styles.thead}>
+                                    <tr>
+                                        {columns.current.map((item) => (
+                                            <th key={item.field}> {item.headerName} </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.map((row) => {
+                                        return (
+                                            <tr key={row.id}>
+                                                {columns.current.map((col) => (
+                                                    <td               
+                                                    key={col.field}
+                                                    className={col.field === "part_pic" ? styles.image_cell : ""}
+                                                    name={col.field}>
+                                                        {col.renderCell &&  col.renderCell(row[col.field]) || row[col.field]}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                         <Notification
                             message={notificationMessage.current}
                             value={notification}
                             setValue={setNotification}
-                            
                         />
                     </>
                 )}
