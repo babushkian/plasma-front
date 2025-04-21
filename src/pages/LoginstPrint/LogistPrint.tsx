@@ -3,12 +3,11 @@ import { Box, Typography, Button, Grid2 } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
 import { MasterProgramPartsRecordType } from "./LogistTable.types";
-import { QtyInput } from "../../components/QtyInput/QtyInput";
+
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
 import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
-import { useModifiedRows, useProgramInfo } from "../../hooks";
-import { updateTableData } from "../../utils/update-any-field-in-table";
+import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 
@@ -35,7 +34,7 @@ type FilteredMasterProgramParts = Omit<
     "fio_doers"
 > & { fio_doers: string };
 
-export function LogistTable() {
+export function LogistPrint() {
     const programInfo =  useProgramInfo()
     console.log("=============")
     console.log(programInfo)
@@ -48,19 +47,11 @@ export function LogistTable() {
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
-    const modRows = useModifiedRows();
-    const notificationMessage = useRef("Ошибка при отправке данных!");
-    const programImg = useRef<string | null>(null);
-    // эта функция никогда не изменяется
-    const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
 
-    const updateTable = useCallback(
-        (rowId: number, processObject) => {
-            modRows.updateModifiedRows(rowId);
-            dataUpdater(rowId, processObject);
-        },
-        [dataUpdater, modRows]
-    );
+    const notificationMessage = useRef("Ошибка при отправке данных!");
+    // эта функция никогда не изменяется
+
+
 
     const createColumns = useCallback(
         (headers: Record<string, string>) => {
@@ -80,26 +71,11 @@ export function LogistTable() {
                     };
                 }
 
-                if (columnname == "qty_fact") {
-                    col = {
-                        ...col,
-                        flex: 0,
-                        width: 100,
-                        renderCell: (params) => (
-                            <QtyInput
-                                rowId={params.row.id}
-                                initialQty={params.row.qty_fact}
-                                assignHandler={updateTable}
-                            />
-                        ),
-                    };
-                }
-
                 return col;
             });
             return clmns;
         },
-        [updateTable]
+        []
     );
 
     const prepareData = (data) => {
@@ -125,7 +101,6 @@ export function LogistTable() {
         if (response !== undefined) {
             setData(prepareData(response.data));
             columns.current = createColumns(response.headers);
-            programImg.current = response.program_pic ? `${BASE_URL}${response.program_pic}` : null;
             setShowTable(true);
         } else {
             setLoadError(true);
@@ -137,20 +112,6 @@ export function LogistTable() {
         loader();
     }, []); // не надо вставлять зависимости, иначе появляются внезапные перезагрузки бесконтрольные
 
-    const sendQty: () => Promise<void> = async () => {
-        const partsQty = data
-            .filter((item) => modRows.modifiedRows.has(item.id))
-            .map((item) => ({ id: item.id, qty_fact: item.qty_fact }));
-        await logistCalculateParts(partsQty);
-        setNotification(true);
-        modRows.clearModifiedRows();
-        loader();
-    };
-
-    const setQtyInProgress = () => {
-        modRows.updateManyModifiedRows(data.map((row) => row.id));
-        setData((prev) => prev.map((row) => ({ ...row, qty_fact: row.QtyInProcess })));
-    };
 
     // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
     // который должен каждый раз создаваться заново
@@ -161,6 +122,7 @@ export function LogistTable() {
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
+            disableVirtualization: true,
         }),
         [apiRef, data]
     );
@@ -169,21 +131,17 @@ export function LogistTable() {
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Typography variant="h5">
-                    Тестовое редактирование деталей программы № {programInfo.programName} на странице логиста
+                    Страница печати {programInfo.programName} 
                 </Typography>
                 {loadError && <div>Ошибка загрузки</div>}
                 {showTable && (
                     <>
-                        <ImageWidget source={programImg.current} />
-                        <Grid2 container spacing={3} sx={{ width: "90%" }} justifyContent={"center"}>
-                            <Button variant="contained" onClick={sendQty} disabled={!modRows.modifiedRows.size}>
-                                Применить введенное количество деталей
+
+                            <Button variant="contained"  >
+                                Печать
                             </Button>
-                            <Button variant="contained" onClick={setQtyInProgress}>
-                                ввести количество как в работе
-                            </Button>
-                        </Grid2>
-                        <div style={{ height: 600, width: "100%" }}>
+
+                        <div style={{ height: 2600, width: "100%" }}>
                             {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
                             <FilteredDataGrid {...gridParams} />
                         </div>
@@ -191,6 +149,7 @@ export function LogistTable() {
                             message={notificationMessage.current}
                             value={notification}
                             setValue={setNotification}
+                            
                         />
                     </>
                 )}

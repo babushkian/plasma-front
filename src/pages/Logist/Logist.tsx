@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Grid2, Link as MuiLink } from "@mui/material";
 import { Box, Typography, Button, Stack, Checkbox } from "@mui/material";
 import { GridColDef, useGridApiRef } from "@mui/x-data-grid";
@@ -42,6 +42,9 @@ function Logist() {
     const apiRef = useGridApiRef();
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
+
+    const location  = useLocation()
+    const navigate = useNavigate()
 
     const modRows = useModifiedRows();
     const dataUpdater = useMemo(() => updateTableData(columnFields, setData), []);
@@ -147,9 +150,20 @@ function Logist() {
         loader();
     }, [loader]);
 
-    useEffect(() => {
-        console.log(modRows.modifiedRows);
-    }, [modRows]);
+
+    const handleSomeProghamsDetails =() =>{
+        if (modRows.modifiedRows.size) {
+            console.log("отправляем несколько программ")
+            const params = new URLSearchParams();
+            modRows.modifiedRows.forEach(programId => params.append('programId', programId));
+            const queryString = params.toString();
+            console.log("параметры", params)
+            console.log("в виде строки", queryString)
+            const programName =  data.find(row => modRows.modifiedRows.has(row.id))?.ProgramName
+            const url = `${location.pathname}/print?${queryString}`
+            navigate(url)
+        }
+    }
 
     const gridParams = useMemo(
         () => ({
@@ -162,13 +176,17 @@ function Logist() {
         [apiRef, data]
     );
 
+
+
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
                 <Grid2 container sx={{ width: "100%" }}>
                     <Grid2 size={2}>
                     <Box display="flex" justifyContent="start" alignItems="center" height="100%" paddingX={1}>
-                        <Button variant="contained" size="medium">Открыть несколько</Button>
+                        
+                        <Button variant="contained" size="medium" disabled={!modRows.modifiedRows.size} onClick={handleSomeProghamsDetails}>Печать</Button>
+                        
                     </Box>
                     </Grid2>
                     <Grid2 size={8}>
