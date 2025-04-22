@@ -49,7 +49,7 @@ const FilterableDataGtid = memo(({ rows, columns, ...props }: FilterableDataGtid
                 slots={{ toolbar: SearchToolbar }}
                 slotProps={{ toolbar: { filterText, setFilterText } as SearchToolbarType }}
                 getRowHeight={() => "auto"}
-                //disableVirtualization
+                
             />
     );
 });

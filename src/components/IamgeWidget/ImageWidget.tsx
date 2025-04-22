@@ -19,9 +19,9 @@ export function ImageWidget({ source }: ImageWidgetProps) {
                 src={source}
                 alt="preview"
                 sx={{
-                    p:1,
+                    p:0,
                     height: 120,
-                    width: "auto",
+                    //width: "auto",
                     maxWidth: "100%",
                     objectFit: "cover",
                     cursor: "pointer",

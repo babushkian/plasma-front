@@ -20,6 +20,7 @@ import MasterContext from "./context.tsx";
 import { setupInterceptors } from "./utils/axiosSetup.ts";
 
 import { router } from "./routes";
+import { BorderBottom } from "@mui/icons-material";
 
 // import NewLogist from "./pages/Logist/Logist.tsx";
 // import NewLogistTable from "./pages/Logist/LogistTable.tsx";
@@ -54,52 +55,80 @@ const theme = createTheme(
             MuiDataGrid: {
                 styleOverrides: {
                     root: {
+                        
+
+                        "& .MuiDataGrid-row": { BorderBottom: "none" },
+                        
+                        "& .MuiDataGrid-cell": {
+                            fontSize: "14px",
+                            padding: "6px",
+                            whiteSpace: "normal",
+                            overflow: "visible",
+                            //overflow: "hidden",
+                            textOverflow: "unset",
+                            wordBreak: "break-word",
+                            //border: "2px dashed red"
+                        },
+                        // "& .MuiDataGrid-columnHeaderTitleContainerContent": {
+                        //     fontSize:"12px",
+                        //     wordBreak: "break-word",
+                        //     overflow: "visible",
+                        //     fontWeight:"normal",     
+                        //     whiteSpace: "wrap",
+                        // },
+                        "& .MuiDataGrid-columnHeaderTitle": {
+                            //fontSize:"12px",
+                            wordBreak: "break-word",
+                            overflow: "visible",
+                            fontWeight:"normal",     
+                            whiteSpace: "wrap",
+                        },
+
+
                         "@media print": {
-                            fontSize: "16px",
-                            border: "1px solid black",
+                            '--DataGrid-rowBorderColor': 'transparent',
+                            fontSize: "14px",
+                            fontWieght: 300,
+                            //border: "1px solid black",
                             color: "black",
-                            
+
+
                             ".MuiDataGrid-root": {
                                 width: "100% !important",
                                 height: "auto !important",
-                            }, 
+                            },
 
                             ".MuiDataGrid-columnHeader": {
-                                backgroundColor:"#E0E0E0"
+                                backgroundColor: "#E0E0E0",                                
                             },
-
-                            ".MuiDataGrid-virtualScrollContent": {border: "2px dashed red"},
-                            ".MuiDataGrid-virtualScroller": {border: "3px dotted brown"},
-
-                            ".MuiDataGrid-row": {
-                                // pageBreakInside: "avoid",
-                                //pageBreakAfter: "always"
-                                //border: "1px dashed red"                                
-                                border: "none",
-                            },
-                            ".MuiDataGrid-row--lastVisible": {
-                                border: "2px dotted cyan"                                
-                            },
-
-                            ".MuiDataGrid-cell": {
-                                fontSize: "14px",
-                                padding:"6px",
-                                whiteSpace: "normal",
-                                overflow: "visible",
-                                textOverflow: "unset",
+                            "& .MuiDataGrid-columnHeaderTitle": {
+                                //fontSize:"12px",
                                 wordBreak: "break-word",
-                                //border: "2px dashed red"
-                        
+                                overflow: "visible",
+                                fontWeight:"normal",     
+                                whiteSpace: "wrap",
                             },
+    
+                            // ".MuiDataGrid-virtualScrollContent": { border: "2px dashed red" },
+                            //".MuiDataGrid-virtualScroller": { border: "3px dotted brown", overflow: "visible" },
 
-                            ".MuiDataGrid-footerContainer":{
-                                display: "none",  
-                            }, 
+                            "& .MuiDataGrid-row": {
+                                pageBreakInside: "avoid",
+                                height: "auto",
+                                //border: "1px dashed red",
+                                borderBottom: "1px solid black",
+                                overflow: "hidden",
+                            },
+                            // ".MuiDataGrid-row--lastVisible": {
+                            //     border: "2px dotted cyan",
+                            // },
 
-                            ".MuiDataGrid-toolbarContainer":{
-                                display: "none",  
-                            }
-
+                            ".MuiDataGrid-footerContainer": {
+                                display: "none",
+                            },
+                            ".MuiDataGrid-toolbarContainer": {
+                                display: "none",
+                            },
                         },
                     },
                 },

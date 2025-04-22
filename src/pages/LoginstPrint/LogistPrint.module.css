@@ -2,7 +2,6 @@ body {
     margin: 0;
     padding: 0;
     font-size: 12px;
-    
 }
 
 .MuiDataGrid-footerContainer {
@@ -20,13 +19,12 @@ body {
 }
 
 td {
-    padding: 4px; 
-    border: 1 solid orange !important; 
+    padding: 4px;
+    border: 1 solid orange !important;
     text-align: left;
     vertical-align: middle;
     page-break-inside: avoid !important;
- }
-
+}
 
 @media print {
     table {
@@ -38,18 +36,30 @@ td {
         background-color: #e0e0e0;
     }
     th {
-        border: 1px solid #AAA;
+        border: 1px solid #aaa;
     }
 
     /* tr {
         border-bottom: 1 solid orange;
     } */
     td {
-       padding:4px; 
-       
-       border: 1 solid orange !important; 
+        padding: 4px;
+
+        border: 1 solid orange !important;
     }
     .image_cell {
         min-width: 115px;
     }
+
+    .print-container {
+        padding: 6mm;
+        /* margin: 30px; */
+    }
+
+    .print-table {
+        
+        width: 100%;
+        height: auto;
+    }
+
 }
