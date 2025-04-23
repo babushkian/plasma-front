@@ -27,6 +27,9 @@ td {
 }
 
 @media print {
+    body {
+        width: 100vh !important;
+    }
     table {
         color: black;
         font-size: 10px;
@@ -39,9 +42,6 @@ td {
         border: 1px solid #aaa;
     }
 
-    /* tr {
-        border-bottom: 1 solid orange;
-    } */
     td {
         padding: 4px;
 
@@ -51,15 +51,17 @@ td {
         min-width: 115px;
     }
 
-    .print-container {
-        padding: 6mm;
-        /* margin: 30px; */
+ .print-container {
+        width: 1450px;
+        margin: 0;
+        box-sizing: border-box; 
     }
 
+/*
     .print-table {
         
         width: 100%;
         height: auto;
-    }
-
+        box-sizing: border-box;
+    } */
 }

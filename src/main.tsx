@@ -55,10 +55,11 @@ const theme = createTheme(
             MuiDataGrid: {
                 styleOverrides: {
                     root: {
-                        
+                        "& .MuiDataGrid-root": { width: "100% !important" },
+                        "& .MuiDataGrid-row": { BorderBottom: "none" ,
+                        },
 
-                        "& .MuiDataGrid-row": { BorderBottom: "none" },
-                        
+
                         "& .MuiDataGrid-cell": {
                             fontSize: "14px",
                             padding: "6px",
@@ -73,42 +74,66 @@ const theme = createTheme(
                         //     fontSize:"12px",
                         //     wordBreak: "break-word",
                         //     overflow: "visible",
-                        //     fontWeight:"normal",     
+                        //     fontWeight:"normal",
                         //     whiteSpace: "wrap",
                         // },
-                        "& .MuiDataGrid-columnHeaderTitle": {
-                            //fontSize:"12px",
-                            wordBreak: "break-word",
-                            overflow: "visible",
-                            fontWeight:"normal",     
-                            whiteSpace: "wrap",
+
+                        // "& .MuiDataGrid-topContainer": {
+                        //     height: "100px",
+                        //     maxHeight:"100px",
+
+                        // },
+
+                        "& .MuiDataGrid-columnHeader": {
+                            height: "100px",
+                            maxHeight: "100px",
+                            backgroundColor: "#E0E0E0",
+ 
+
+
+                        },
+                        "& .MuiDataGrid-columnHeaderTitleContainer": {
+                            //height: "100px",
+                            maxHeight: "100px",
                         },
 
+                        // "& .MuiDataGrid-columnHeaderTitle": {
+                        //     //fontSize:"12px",
+                        //     maxHeight: "100px",
+                        //     wordBreak: "break-word",
+                        //     overflow: "visible",
+                        //     fontWeight: "normal",
+                        //     whiteSpace: "wrap",
+                        // },
 
                         "@media print": {
-                            '--DataGrid-rowBorderColor': 'transparent',
+                            "--DataGrid-rowBorderColor": "transparent",
                             fontSize: "14px",
                             fontWieght: 300,
-                            //border: "1px solid black",
+                            border: "1px solid black",
                             color: "black",
 
-
-                            ".MuiDataGrid-root": {
-                                width: "100% !important",
-                                height: "auto !important",
+                            
+                            ".MuiDataGrid-columnHeaders": {
+                                backgroundColor: "#E0E0E0",
+                                "& .MuiDataGrid-filler": {
+                                    backgroundColor: "#E0E0E0",
+                                },
                             },
+
 
                             ".MuiDataGrid-columnHeader": {
-                                backgroundColor: "#E0E0E0",                                
+                                backgroundColor: "#E0E0E0",
                             },
+
                             "& .MuiDataGrid-columnHeaderTitle": {
                                 //fontSize:"12px",
                                 wordBreak: "break-word",
                                 overflow: "visible",
-                                fontWeight:"normal",     
+                                fontWeight: "normal",
                                 whiteSpace: "wrap",
                             },
-    
+
                             // ".MuiDataGrid-virtualScrollContent": { border: "2px dashed red" },
                             //".MuiDataGrid-virtualScroller": { border: "3px dotted brown", overflow: "visible" },
 

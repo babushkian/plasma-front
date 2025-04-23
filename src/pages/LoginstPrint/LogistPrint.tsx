@@ -64,28 +64,30 @@ export function LogistPrint() {
             let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
-                flex: 1,
+                // flex: 1,
+                flex: 0,
+                width: 100,
             };
             if (columnname === "part_pic") {
                 col = {
                     ...col,
-                    width: 130,
-                    flex: 0,
+                    // width: 130,
+                    // flex: 0,
                     renderCell: (params) => <ImageWidget source={params.value} />,
                 };
             }
             if (columnname === "PartName") {
                 col = {
                     ...col,
-                    width: 110,
-                    flex: 0,
+                    // width: 110,
+                    // flex: 0,
                 };
             }
             if (columnname === "fio_doers") {
                 col = {
                     ...col,
-                    width: 150,
-                    flex: 0,
+                    // width: 150,
+                    // flex: 0,
                 };
             }
 
@@ -162,7 +164,6 @@ export function LogistPrint() {
                             
                             className={styles["print-container"]}
                         >
-                            {/*такой подход позволяет избежать лишних перерисовок, когда параметры передаются одим объектом*/}
                             <FilteredDataGrid className={styles["print-table"]} {...gridParams} />
                         </div>
                         <Notification
