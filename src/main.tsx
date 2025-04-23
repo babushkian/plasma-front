@@ -84,18 +84,15 @@ const theme = createTheme(
 
                         // },
 
-                        "& .MuiDataGrid-columnHeader": {
-                            height: "100px",
-                            maxHeight: "100px",
-                            backgroundColor: "#E0E0E0",
- 
-
-
-                        },
-                        "& .MuiDataGrid-columnHeaderTitleContainer": {
-                            //height: "100px",
-                            maxHeight: "100px",
-                        },
+                        // "& .MuiDataGrid-columnHeader": {
+                        //     height: "100px",
+                        //     maxHeight: "100px",
+                        //     backgroundColor: "#E0E0E0",
+                        // },
+                        // "& .MuiDataGrid-columnHeaderTitleContainer": {
+                        //     height: "100px",
+                        //     maxHeight: "100px",
+                        // },
 
                         // "& .MuiDataGrid-columnHeaderTitle": {
                         //     //fontSize:"12px",

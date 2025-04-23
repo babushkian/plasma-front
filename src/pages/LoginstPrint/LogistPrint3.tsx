@@ -6,11 +6,11 @@ import { MasterProgramPartsRecordType } from "./LogistTable.types";
 import { useReactToPrint } from "react-to-print";
 import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
-import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
-import styles from "./LogistPrint.module.css";
+
+import {PrintableDataGrid} from "../../components/PrintableDataGrid/PrintableDataGrid"
 
 const columnFields = [
     "id",
@@ -35,7 +35,7 @@ type FilteredMasterProgramParts = Omit<
     "fio_doers"
 > & { fio_doers: string };
 
-export function LogistPrint() {
+export function LogistPrint3() {
     const programInfo = useProgramInfo();
     console.log("=============");
     console.log(programInfo);
@@ -50,7 +50,6 @@ export function LogistPrint() {
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     // прпорбую считать высоту таблицы руками, чтобы подставлять в div, может после этого печататься легче будет
 
-    const tableHeigth = useRef(600);
 
     const tableRef = useRef<HTMLDivElement>(null);
     const notificationMessage = useRef("Ошибка при отправке данных!");
@@ -106,7 +105,6 @@ export function LogistPrint() {
             preparedRow["fio_doers"] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
             return preparedRow;
         });
-        tableHeigth.current = 145 + prepared.length * 145; // примерная высота одной строки + шапка и футер
         return prepared;
     };
 
@@ -140,6 +138,8 @@ export function LogistPrint() {
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
+            tableRef:tableRef,
+
             
         }),
         [apiRef, data]
@@ -156,22 +156,8 @@ export function LogistPrint() {
                             Печать
                         </Button>
 
-                        <div ref={tableRef}
-                             style={{ height: 600, width: "100%" }}                            
-                        >
-                            <FilteredDataGrid {...gridParams} />
-                        </div>
+                        <PrintableDataGrid {...gridParams} ></PrintableDataGrid>
 
-                        {/* <div
-                            id="table-div"
-                            ref={tableRef}
-                            // высота таблицы нужна обязательно, иначе обрезает строки 
-                            style={{ height: tableHeigth.current, width: "1306px" }}
-                            className={styles["print-container"]}
-                        >
-                            <FilteredDataGrid className={styles["print-table"]} disableVirtualization {...gridParams} />
-                        </div>
- */}
 
                         <Notification
                             message={notificationMessage.current}

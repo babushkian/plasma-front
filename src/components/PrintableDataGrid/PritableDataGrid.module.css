@@ -1,0 +1,34 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.MuiDataGrid-footerContainer {
+    display: none;
+}
+.MuiDataGrid-root {
+    border: none !important;
+    font-size: 11px;
+}
+
+.MuiDataGrid-cell {
+    padding: 4px;
+    color: black;
+    font-size: 10px;
+}
+
+
+@media print {
+    .print-container {
+        /* padding: 40px; */
+        width: 1408px; 
+        margin: 40px; 
+        box-sizing: border-box;
+    }
+
+    .print-table {        
+        width: 1306px; 
+        height: auto;
+        box-sizing: border-box;
+    }
+}

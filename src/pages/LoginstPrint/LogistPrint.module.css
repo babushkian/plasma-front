@@ -53,15 +53,14 @@ td {
 
     .print-container {
         /* padding: 40px; */
-        width: 1400px; 
+        width: 1408px; 
         margin: 40px; 
         box-sizing: border-box;
     }
 
-    /* .print-table {
-        
-        width: 100%; 
+    .print-table {        
+        width: 1306px; 
         height: auto;
         box-sizing: border-box;
-    } */
+    }
 }
