@@ -64,9 +64,9 @@ export function LogistPrint() {
             let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
-                // flex: 1,
-                flex: 0,
-                width: 100,
+                 flex: 1,
+                // flex: 0,
+                // width: 100,
             };
             if (columnname === "part_pic") {
                 col = {
@@ -160,7 +160,8 @@ export function LogistPrint() {
                             id="table-div"
                             ref={tableRef}
                             // высота таблицы нужна обязательно, иначе обрезает строки
-                            style={{ height: tableHeigth.current, width: "100%" }}
+                            //style={{ height: tableHeigth.current, width: "100%" }}
+                            style={{ height: tableHeigth.current, width: "1300px" }}
                             
                             className={styles["print-container"]}
                         >

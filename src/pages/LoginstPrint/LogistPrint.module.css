@@ -51,16 +51,16 @@ td {
         min-width: 115px;
     }
 
- .print-container {
-        width: 1450px;
-        margin: 0;
-        box-sizing: border-box; 
+    .print-container {
+        /* padding: 40px; */
+        width: 1400px; 
+        margin: 40px; 
+        box-sizing: border-box;
     }
 
-/*
-    .print-table {
+    /* .print-table {
         
-        width: 100%;
+        width: 100%; 
         height: auto;
         box-sizing: border-box;
     } */
