@@ -58,10 +58,10 @@ td {
         box-sizing: border-box;
     }
 
-    .print-table {        
+    /* .print-table {        
         border:none;
         width: 1306px; 
         height: auto;
         box-sizing: border-box;
-    }
+    } */
 } 

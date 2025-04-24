@@ -11,6 +11,7 @@ import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 import styles from "./LogistPrint.module.css";
+import { SinglePrintableDataGrid } from "../../components/PrintableDataGrid/SinglePrintableDataGrid";
 
 const columnFields = [
     "id",
@@ -35,7 +36,7 @@ type FilteredMasterProgramParts = Omit<
     "fio_doers"
 > & { fio_doers: string };
 
-export function LogistPrint() {
+export function LogistPrint4() {
     const programInfo = useProgramInfo();
     console.log("=============");
     console.log(programInfo);
@@ -167,7 +168,7 @@ export function LogistPrint() {
                             style={{ height: tableHeigth.current, width: "1306px" }}
                             className={styles["print-container"]}
                         >
-                            <FilteredDataGrid className={styles["print-table"]} disableVirtualization {...gridParams} />
+                            <SinglePrintableDataGrid className={styles["print-table"]} disableVirtualization {...gridParams} />
                         </div>
 
                         <Notification
