@@ -24,14 +24,34 @@ body {
 
 
 @media print {
+
+
     body {
         width: 100vh !important;
+    }
+    table {
+        color: black;
+    }
+    thead {
+        background-color: #e0e0e0;
+    }
+    th {
+        border: 1px solid #aaa;
+    }
+
+    td {
+        padding: 4px;
+
+        border: 1 solid orange !important;
+    }
+    .image_cell {
+        min-width: 115px;
     }
 
 
      .print-container {
         display:block;
-        width: 1408px; 
+        width: 1420px; 
         margin: 40px; 
         box-sizing: border-box;
     }

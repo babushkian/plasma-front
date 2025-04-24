@@ -11,6 +11,7 @@ import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 import { SimplePrintable } from "../../components/PrintableDataGrid/SimplePrintable";
 import styles from "./LogistPrint.module.css";
+import { MixedPrintable } from "../../components/PrintableDataGrid/MixedPrintalbe";
 
 const columnFields = [
     "id",
@@ -58,7 +59,7 @@ export function LogistPrint5() {
 
     // эта функция никогда не изменяется
 
-    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: "title" }); // !!!!!!!!!!
+    const handlePrint = useReactToPrint({ contentRef: tableRef});
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         console.log("создаем колонки");
@@ -136,6 +137,9 @@ export function LogistPrint5() {
         setColumnVisibilityModel(newModel);
     };
 
+
+
+
     // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
     // который должен каждый раз создаваться заново
     const gridParams = useMemo(
@@ -165,21 +169,13 @@ export function LogistPrint5() {
                     </Grid2>
                     <Grid2 size={3}>
                         <Box display="flex" justifyContent="end" alignItems="center" height="100%" paddingX={1}>
-                            <Button variant="contained" onClick={() => handlePrint()} disabled={!showTable}>
+                            <Button variant="contained" onClick={()=>handlePrint()} disabled={!showTable}>
                                 Печать
                             </Button>
                         </Box>
                     </Grid2>
                 </Grid2>
-                {showTable && (
-                    <>
-                        <div style={{ height: "600px", width: "100%" }}>
-                            <FilteredDataGrid disableVirtualization {...gridParams} />
-                        </div>
-                        <div id="table-div" ref={tableRef} className={styles["print-container"]}>
-                            <SimplePrintable rows={data} columns={columns.current} columnVisibility={columnVisibilityModel}/>
-                        </div>
-                    </>
+                {showTable && (<MixedPrintable {...gridParams} />
                 )}
             </Box>
         </>
