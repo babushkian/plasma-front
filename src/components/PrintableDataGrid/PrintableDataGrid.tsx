@@ -23,7 +23,9 @@ export const PrintableDataGrid = memo(
     ({ rows, columns, tableRef, initialState, ...props }: FilterableDataGtidProps) => {
         const [filteredRows, setFilteredRows] = useState<GridRowModel[]>(rows);
         const [filterText, setFilterText] = useState("");
-        const tableHeigth = useRef(600); //высота таблицы по умолчанию
+        // const tableHeigth = useRef(600); //высота таблицы по умолчанию
+
+        const  [tableHeigth, setTableHeigth] = useState(600)
         const prevFilterText = useRef(filterText);
         const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>(
             initialState.columns?.columnVisibilityModel
@@ -60,8 +62,8 @@ export const PrintableDataGrid = memo(
                 const printableRows = document.querySelectorAll("#printalbe-table .MuiDataGrid-row")
                 console.log("количество столбцов", printableRows.length)
                 printableRows.forEach((row)=> total += row.clientHeight)
-                tableHeigth.current = total + 140
-                console.log("общая длина", tableHeigth.current)
+                setTableHeigth(total + 140)
+                console.log("общая длина", tableHeigth)
                 // tableHeigth.current = 145 + filteredRows.length * 145;
             },
             [filteredRows]
@@ -85,7 +87,7 @@ export const PrintableDataGrid = memo(
 
         return (
             <>
-                <div style={{ height: 700, width: "100%" }}>
+                <div style={{ height: 600, width: "100%" }}>
                     <DataGrid
                         rows={filteredRows}
                         columns={columns}
@@ -102,7 +104,7 @@ export const PrintableDataGrid = memo(
                 <div id = "printalbe-table"
                     ref={tableRef}
                     // высота таблицы нужна обязательно, иначе обрезает строки
-                    style={{ height: tableHeigth.current, width: "1306px" }}
+                    style={{ height: tableHeigth, width: "1306px" }}
                     className={styles["print-container"]}
                 >
                     {/* <Typography variant="h5"  sx={{color:"black"}}>Вот так ведомость! Что за ведомость!</Typography>

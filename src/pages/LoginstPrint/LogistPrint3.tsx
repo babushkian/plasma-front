@@ -10,7 +10,7 @@ import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
 
-import {PrintableDataGrid} from "../../components/PrintableDataGrid/PrintableDataGrid"
+import { PrintableDataGrid } from "../../components/PrintableDataGrid/PrintableDataGrid";
 
 const columnFields = [
     "id",
@@ -50,12 +50,11 @@ export function LogistPrint3() {
     const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
     // прпорбую считать высоту таблицы руками, чтобы подставлять в div, может после этого печататься легче будет
 
-
     const tableRef = useRef<HTMLDivElement>(null);
     const notificationMessage = useRef("Ошибка при отправке данных!");
     // эта функция никогда не изменяется
 
-    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: 'title',});// !!!!!!!!!!
+    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: "title" }); // !!!!!!!!!!
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         console.log("создаем колонки");
@@ -63,7 +62,7 @@ export function LogistPrint3() {
             let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
-                 flex: 1,
+                flex: 1,
                 // flex: 0,
                 // width: 100,
             };
@@ -138,9 +137,7 @@ export function LogistPrint3() {
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
-            tableRef:tableRef,
-
-            
+            tableRef: tableRef,
         }),
         [apiRef, data]
     );
@@ -148,16 +145,26 @@ export function LogistPrint3() {
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">Страница печати {programInfo.programName}</Typography>
-                {loadError && <div>Ошибка загрузки</div>}
+                <Grid2 container sx={{width:"100%"}}>
+                    <Grid2 size={3}></Grid2>
+                    <Grid2 size={6}>
+                    <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                        <Typography variant="h5">Страница печати {programInfo.programName}</Typography>
+                        {loadError && <div>Ошибка загрузки</div>}
+</Box>
+                    </Grid2>
+                    <Grid2 size={3}>
+                    <Box display="flex" justifyContent="end" alignItems="center" height="100%" paddingX={1}>
+                            <Button variant="contained" onClick={() => handlePrint()} disabled={!showTable}>
+                                Печать
+                            </Button>
+                            </Box>
+                        </Grid2>
+
+                </Grid2>
                 {showTable && (
                     <>
-                        <Button variant="contained" onClick={() => handlePrint()}>
-                            Печать
-                        </Button>
-
-                        <PrintableDataGrid  {...gridParams} ></PrintableDataGrid>
-
+                        <PrintableDataGrid {...gridParams}></PrintableDataGrid>
 
                         <Notification
                             message={notificationMessage.current}
