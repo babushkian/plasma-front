@@ -18,17 +18,28 @@ body {
 }
 
 
+/* .print-container {
+    display: none; 
+} */
+
+
 @media print {
-    .print-container {
-        /* padding: 40px; */
+    body {
+        width: 100vh !important;
+    }
+
+
+     .print-container {
+        display:block;
         width: 1408px; 
         margin: 40px; 
         box-sizing: border-box;
     }
 
-    .print-table {        
-        width: 1306px; 
+    .print-table {  
+        border:none;      
+        width: 1300px; 
         height: auto;
         box-sizing: border-box;
-    }
+    } 
 }

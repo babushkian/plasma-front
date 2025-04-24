@@ -20,7 +20,7 @@ export function ImageWidget({ source }: ImageWidgetProps) {
                 alt="preview"
                 sx={{
                     p:0,
-                    height: 120,
+                    height: 110,
                     //width: "auto",
                     maxWidth: "100%",
                     objectFit: "cover",

@@ -70,8 +70,8 @@ export function LogistPrint3() {
             if (columnname === "part_pic") {
                 col = {
                     ...col,
-                    // width: 130,
-                    // flex: 0,
+                    width: 120,
+                    flex: 0,
                     renderCell: (params) => <ImageWidget source={params.value} />,
                 };
             }
@@ -85,8 +85,8 @@ export function LogistPrint3() {
             if (columnname === "fio_doers") {
                 col = {
                     ...col,
-                    // width: 150,
-                    // flex: 0,
+                    width: 130,
+                    flex: 0,
                 };
             }
 
@@ -156,7 +156,7 @@ export function LogistPrint3() {
                             Печать
                         </Button>
 
-                        <PrintableDataGrid {...gridParams} ></PrintableDataGrid>
+                        <PrintableDataGrid  {...gridParams} ></PrintableDataGrid>
 
 
                         <Notification

@@ -46,16 +46,27 @@ export const PrintableDataGrid = memo(
             [rows]
         );
 
+
+
         const handleVisibilityModel = (newModel: GridColumnVisibilityModel) => {
             setColumnVisibilityModel(newModel);
         };
 
+        
+        // подгонка размера таблицы для печати под актуальные данные
         useEffect(
             () => {
-                tableHeigth.current = 145 + filteredRows.length * 145;
-            }, // примерная высота одной строки + шапка и футер
+                let total = 0
+                const printableRows = document.querySelectorAll("#printalbe-table .MuiDataGrid-row")
+                console.log("количество столбцов", printableRows.length)
+                printableRows.forEach((row)=> total += row.clientHeight)
+                tableHeigth.current = total + 140
+                console.log("общая длина", tableHeigth.current)
+                // tableHeigth.current = 145 + filteredRows.length * 145;
+            },
             [filteredRows]
         );
+
         // фильтрация по таблице происходит либо мгновенно, когда внутри таблицы меняются значения
         // либо с паузой, когра происходит ввод глобального фильтра, чтобы таблица не дергалась на каждое нажатие клавиши
         useEffect(() => {
@@ -70,6 +81,7 @@ export const PrintableDataGrid = memo(
                 clearTimeout(timeoutId);
             };
         }, [filterText, getFilteredData]);
+
 
         return (
             <>
@@ -87,14 +99,16 @@ export const PrintableDataGrid = memo(
                         onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)}
                     />
                 </div>
-                <div
-                    id="table-div"
+                <div id = "printalbe-table"
                     ref={tableRef}
                     // высота таблицы нужна обязательно, иначе обрезает строки
                     style={{ height: tableHeigth.current, width: "1306px" }}
                     className={styles["print-container"]}
                 >
-                    <DataGrid
+                    {/* <Typography variant="h5"  sx={{color:"black"}}>Вот так ведомость! Что за ведомость!</Typography>
+                    <Typography variant="body1" sx={{color:"black"}}>В категории приложений самыми скачиваемыми оказались мобильные решения «ВКонтакте», «Халва — Совкомбанк», «VK Видео», «Ozon Банк» и «СберKids». Причём в топе по скачиваниям произошли изменения, например, приложение «РЖД Пассажирам: билеты на поезд» обогнало сервис покупки авиабилетов «Аэрофлот».</Typography> */}
+                    <DataGrid 
+                        //sx ={{border: "none"}}
                         rows={filteredRows}
                         columns={columns}
                         className={styles["print-table"]}

@@ -56,7 +56,7 @@ export function LogistPrint() {
     const notificationMessage = useRef("Ошибка при отправке данных!");
     // эта функция никогда не изменяется
 
-    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: 'title',});// !!!!!!!!!!
+    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: "title" }); // !!!!!!!!!!
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         console.log("создаем колонки");
@@ -64,15 +64,15 @@ export function LogistPrint() {
             let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
-                 flex: 1,
-                // flex: 0,
-                // width: 100,
+                
+                flex: 0,
+                width: 100,
             };
             if (columnname === "part_pic") {
                 col = {
                     ...col,
-                    // width: 130,
-                    // flex: 0,
+                    width: 138,
+                    flex: 0,
                     renderCell: (params) => <ImageWidget source={params.value} />,
                 };
             }
@@ -86,8 +86,8 @@ export function LogistPrint() {
             if (columnname === "fio_doers") {
                 col = {
                     ...col,
-                    // width: 150,
-                    // flex: 0,
+                    width: 130,
+                    flex: 0,
                 };
             }
 
@@ -140,7 +140,6 @@ export function LogistPrint() {
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
-            
         }),
         [apiRef, data]
     );
@@ -156,22 +155,19 @@ export function LogistPrint() {
                             Печать
                         </Button>
 
-                        <div ref={tableRef}
-                             style={{ height: 600, width: "100%" }}                            
-                        >
+                        <div style={{ height: 600, width: "100%" }}>
                             <FilteredDataGrid {...gridParams} />
                         </div>
 
-                        {/* <div
+                        <div
                             id="table-div"
                             ref={tableRef}
-                            // высота таблицы нужна обязательно, иначе обрезает строки 
+                            // высота таблицы нужна обязательно, иначе обрезает строки
                             style={{ height: tableHeigth.current, width: "1306px" }}
                             className={styles["print-container"]}
                         >
                             <FilteredDataGrid className={styles["print-table"]} disableVirtualization {...gridParams} />
                         </div>
- */}
 
                         <Notification
                             message={notificationMessage.current}

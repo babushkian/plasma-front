@@ -55,14 +55,29 @@ const theme = createTheme(
             MuiDataGrid: {
                 styleOverrides: {
                     root: {
-                        "& .MuiDataGrid-root": { width: "100% !important" },
+                        // удаоение бордюра не работает
+                        "& .MuiDataGrid-root": { width: "100% !important",
+                            borderColor:"yellow",
+                            border: "none",
+
+                         },
+                         // удаоение бордюра не работает
+                         "& .MuiDataGrid-main": { 
+                            //"--DataGrid-borderColor": "red",
+                            border:"none",
+
+                            
+                         },
+
+                         
                         "& .MuiDataGrid-row": { BorderBottom: "none" ,
+                            
                         },
 
 
                         "& .MuiDataGrid-cell": {
                             fontSize: "14px",
-                            padding: "6px",
+                            // padding: "6px",
                             whiteSpace: "normal",
                             overflow: "visible",
                             //overflow: "hidden",
@@ -110,7 +125,12 @@ const theme = createTheme(
                             border: "1px solid black",
                             color: "black",
 
-                            
+                            //"& .MuiDataGrid-root": { border: "none"},
+
+
+                            ".MuiDataGrid-columnHeaders": {
+                                //"--DataGrid-rowBorderColor": "red",
+                            },
                             ".MuiDataGrid-columnHeaders": {
                                 backgroundColor: "#E0E0E0",
                                 "& .MuiDataGrid-filler": {

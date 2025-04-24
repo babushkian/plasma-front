@@ -59,8 +59,9 @@ td {
     }
 
     .print-table {        
+        border:none;
         width: 1306px; 
         height: auto;
         box-sizing: border-box;
     }
-}
+} 
