@@ -39,6 +39,13 @@ export const SinglePrintableDataGrid = memo(
             ],
         });
 
+        // для принудительной перерисовки экрана
+        const [, setTick] = useState(0);
+        // Функция для вызова рендера обновляет состояние
+        const forceUpdate = () => setTick(tick => tick + 1);
+
+
+
         // фильтрует столбцы для таблицы
         const getFilteredData = useCallback(
             (filterText: string) => {
@@ -54,15 +61,20 @@ export const SinglePrintableDataGrid = memo(
         // подгонка размера таблицы для печати под актуальные данные
         useEffect(() => {
             console.log(filterModel);
+            const rowHeights = []
             let total = 145;
             const printableRows = document.querySelectorAll("#printalbe-table .MuiDataGrid-row");
             console.log("количество столбцов", printableRows.length);
-            printableRows.forEach((row) => (total += row.clientHeight));
+            printableRows.forEach((row) => {
+                rowHeights.push(row.clientHeight)
+                total += row.clientHeight
+            });
             total +=  140*Math.floor(printableRows.length /15)
+            console.log(rowHeights)
             setTableHeigth(total );
             console.log("общая длина", total);
-            
-        }, [filterModel]);
+            forceUpdate()
+        }, [filterModel, filteredRows]);
 
         // фильтрация по таблице происходит либо мгновенно, когда внутри таблицы меняются значения
         // либо с паузой, когра происходит ввод глобального фильтра, чтобы таблица не дергалась на каждое нажатие клавиши
