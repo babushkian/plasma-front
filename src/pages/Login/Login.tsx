@@ -75,11 +75,17 @@ const Login = () => {
         }
     }, [currentUser, navigate]);
 
-    const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
+
+    const handleSubmit = () => {
         handleLogin({ username, password });
     };
 
+
+        const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter") {
+                handleSubmit();
+            }
+        };
     return (
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Box
@@ -102,6 +108,7 @@ const Login = () => {
                         name="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         label="Пользователь"
                         sx={{ m: 1, width: "300px" }}
                         variant="outlined"
@@ -115,6 +122,7 @@ const Login = () => {
                             name="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton

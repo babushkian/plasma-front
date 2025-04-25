@@ -5,7 +5,7 @@ import { Box, Button } from "@mui/material";
 import LogoutButton from "../../components/LogoutButton/LogoutButton";
 import { endpoints, getUserEndpoints } from "../../utils/authorization";
 import { useAuth } from "../../hooks/use-auth";
-
+import {BASE_URL} from "../../utils/urls"
 const Navbar: React.FC = () => {
 
     const authContext = useAuth();
@@ -49,13 +49,13 @@ const Navbar: React.FC = () => {
                             </NavLink>
                         </li>
                     ))}
+                    
+                    <a className = {styles["menu-link"]} href={`${BASE_URL}/instruction`} >Инструкция</a>
                     <li style={{flexGrow:1}}></li>
                     <li>{authWidget}</li>
-
-                    {/* <li>
-                    <NavLink className={({isActive}) => {return [styles.navlink, isActive?styles.active : ""].join(" ")}} to="/loadbystatus">Загрузка по статусу</NavLink>
-                </li> */}
                 </ul>
+                
+
             </nav>
             {/* <div className={styles.background}> */}
             <div >
