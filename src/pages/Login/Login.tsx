@@ -145,7 +145,7 @@ const Login = () => {
                     </Snackbar>
                 </Stack>
 
-                <Stack spacing={2}>
+                {/* <Stack spacing={2}>
                     <Button
                         variant="contained"
                         onClick={() => handleLogin({ username: "dima@mail.ru", password: "1234" })}
@@ -167,7 +167,7 @@ const Login = () => {
                         {" "}
                         Войти оператором
                     </Button>
-                </Stack>
+                </Stack> */}
             </Box>
         </Box>
     );

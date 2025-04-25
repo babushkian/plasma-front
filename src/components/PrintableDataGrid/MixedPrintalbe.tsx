@@ -69,7 +69,7 @@ export const MixedPrintable = memo(
 
         return (
             <>
-                <div style={{ height: 600, width: "100%" }}>
+                <div style={{ height: 700, width: "100%" }}>
                     <DataGrid
                         rows={filteredRows}
                         columns={columns}

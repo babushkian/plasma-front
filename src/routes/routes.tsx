@@ -18,10 +18,6 @@ import { AddOperator } from "../pages/AddOperator/AddOperator.tsx";
 import { endpoints } from "../utils/authorization";
 import { OrdersReport, OrderDetails } from "../pages/DetailReoirt";
 import { LogistPrint} from "../pages/LoginstPrint/LogistPrint.tsx";
-import { LogistPrint2} from "../pages/LoginstPrint/LogistPrint2.tsx";
-import { LogistPrint3} from "../pages/LoginstPrint/LogistPrint3.tsx";
-import { LogistPrint4} from "../pages/LoginstPrint/LogistPrint4.tsx";
-import { LogistPrint5} from "../pages/LoginstPrint/LogistPrint5.tsx";
 
 const LazyLogist = lazy(() => import("../pages/Logist/Logist"));
 
@@ -72,7 +68,7 @@ export const router = createBrowserRouter(
                                     errorElement: <ErrorPage />,
                                 },
                                 { path: ":programName", Component: LogistTable, errorElement: <ErrorPage /> },
-                                { path: "print", Component: LogistPrint5, errorElement: <ErrorPage /> },
+                                { path: "print", Component: LogistPrint, errorElement: <ErrorPage /> },
                             ],
                         },
                     ],

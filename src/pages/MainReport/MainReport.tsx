@@ -117,7 +117,7 @@ export function MainReport() {
         if (["ADMIN", "TECHMAN"].includes(getUserRole(currentUser))) {
             return (
                 <Link to={endpoints.DETAIL_REPORT}>
-                    <Button variant="contained">К детальному отчету</Button>
+                    <Button variant="contained">Отчет по заказам</Button>
                 </Link>
             );
         }

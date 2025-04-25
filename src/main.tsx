@@ -55,68 +55,7 @@ const theme = createTheme(
             MuiDataGrid: {
                 styleOverrides: {
                     root: {
-                        // удаоение бордюра не работает
-                        "& .MuiDataGrid-root": { width: "100% !important",
-                            borderColor:"yellow",
-                            border: "none",
 
-                         },
-                         // удаоение бордюра не работает
-                         "& .MuiDataGrid-main": { 
-                            //"--DataGrid-borderColor": "red",
-                            border:"none",
-
-                            
-                         },
-
-                         
-                        "& .MuiDataGrid-row": { BorderBottom: "none" ,
-                            
-                        },
-
-
-                        "& .MuiDataGrid-cell": {
-                            fontSize: "14px",
-                            // padding: "6px",
-                            whiteSpace: "normal",
-                            overflow: "visible",
-                            //overflow: "hidden",
-                            textOverflow: "unset",
-                            wordBreak: "break-word",
-                            //border: "2px dashed red"
-                        },
-                        // "& .MuiDataGrid-columnHeaderTitleContainerContent": {
-                        //     fontSize:"12px",
-                        //     wordBreak: "break-word",
-                        //     overflow: "visible",
-                        //     fontWeight:"normal",
-                        //     whiteSpace: "wrap",
-                        // },
-
-                        // "& .MuiDataGrid-topContainer": {
-                        //     height: "100px",
-                        //     maxHeight:"100px",
-
-                        // },
-
-                        // "& .MuiDataGrid-columnHeader": {
-                        //     height: "100px",
-                        //     maxHeight: "100px",
-                        //     backgroundColor: "#E0E0E0",
-                        // },
-                        // "& .MuiDataGrid-columnHeaderTitleContainer": {
-                        //     height: "100px",
-                        //     maxHeight: "100px",
-                        // },
-
-                        // "& .MuiDataGrid-columnHeaderTitle": {
-                        //     //fontSize:"12px",
-                        //     maxHeight: "100px",
-                        //     wordBreak: "break-word",
-                        //     overflow: "visible",
-                        //     fontWeight: "normal",
-                        //     whiteSpace: "wrap",
-                        // },
 
                         "@media print": {
                             "--DataGrid-rowBorderColor": "transparent",

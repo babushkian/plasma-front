@@ -28,6 +28,7 @@ body {
 
     body {
         width: 100vh !important;
+        margin: 0;
     }
     table {
         color: black;
@@ -48,11 +49,15 @@ body {
         min-width: 115px;
     }
 
+    @page{
+        margin: 10mm;
+    }
 
      .print-container {
         display:block;
-        width: 1420px; 
-        margin: 40px; 
+        width: 1350px; 
+        /* margin: 5px;  */
+        /* padding: 50px; */
         box-sizing: border-box;
     }
 

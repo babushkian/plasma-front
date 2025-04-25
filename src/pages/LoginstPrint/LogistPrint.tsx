@@ -1,16 +1,14 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Box, Typography, Button, Grid2 } from "@mui/material";
-import { GridColDef, useGridApiRef, gridClasses } from "@mui/x-data-grid";
-import { logistCalculateParts, masterGetDetailsByProgramId } from "../../utils/requests";
-import { MasterProgramPartsRecordType } from "./LogistTable.types";
+import { GridColDef, useGridApiRef, GridColumnVisibilityModel } from "@mui/x-data-grid";
+import { masterGetDetailsByProgramId } from "../../utils/requests";
+import { MasterProgramPartsRecordType } from "../LogistTable/LogistTable.types";
 import { useReactToPrint } from "react-to-print";
-import Notification from "../../components/Notification/Notification";
 import { hiddenIdColumn } from "../../utils/tableInitialState";
-import FilteredDataGrid from "../../components/FilterableDataGrid/FilterableDataGrid";
 import { useProgramInfo } from "../../hooks";
 import { ImageWidget } from "../../components/IamgeWidget/ImageWidget";
 import { BASE_URL } from "../../utils/urls";
-import styles from "./LogistPrint.module.css";
+import { MixedPrintable } from "../../components/PrintableDataGrid/MixedPrintalbe";
 
 const columnFields = [
     "id",
@@ -47,16 +45,18 @@ export function LogistPrint() {
 
     const [loadError, setLoadError] = useState(false);
     const [showTable, setShowTable] = useState(false);
-    const [notification, setNotification] = useState(false); // уведомление, что данные ушли на сервер
+
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>(
+        hiddenIdColumn.columns?.columnVisibilityModel
+    );
+
     // прпорбую считать высоту таблицы руками, чтобы подставлять в div, может после этого печататься легче будет
 
-    const tableHeigth = useRef(600);
-
     const tableRef = useRef<HTMLDivElement>(null);
-    const notificationMessage = useRef("Ошибка при отправке данных!");
+
     // эта функция никогда не изменяется
 
-    const handlePrint = useReactToPrint({ contentRef: tableRef, documentTitle: "title" }); // !!!!!!!!!!
+    const handlePrint = useReactToPrint({ contentRef: tableRef});
 
     const createColumns = useCallback((headers: Record<string, string>) => {
         console.log("создаем колонки");
@@ -64,14 +64,14 @@ export function LogistPrint() {
             let col: GridColDef = {
                 field: columnname,
                 headerName: headers[columnname],
-                
-                flex: 0,
-                width: 100,
+                flex: 1,
+                // flex: 0,
+                // width: 100,
             };
             if (columnname === "part_pic") {
                 col = {
                     ...col,
-                    width: 138,
+                    width: 120,
                     flex: 0,
                     renderCell: (params) => <ImageWidget source={params.value} />,
                 };
@@ -106,11 +106,9 @@ export function LogistPrint() {
             preparedRow["fio_doers"] = row["fio_doers"].map((item) => item.fio_doer).join(", ");
             return preparedRow;
         });
-        tableHeigth.current = 145 + prepared.length * 145; // примерная высота одной строки + шапка и футер
         return prepared;
     };
 
-    
     /**Функция загрузки данных о деталях */
     const loader = async () => {
         setShowTable(false);
@@ -132,6 +130,13 @@ export function LogistPrint() {
         loader();
     }, []); // не надо вставлять зависимости, иначе появляются внезапные перезагрузки бесконтрольные
 
+    const handleVisibilityModel = (newModel: GridColumnVisibilityModel) => {
+        setColumnVisibilityModel(newModel);
+    };
+
+
+
+
     // не заметил ээфекта от мемоизации. Не перерисовывает даже если передаем в таблицу обычный объект
     // который должен каждый раз создаваться заново
     const gridParams = useMemo(
@@ -141,41 +146,33 @@ export function LogistPrint() {
             columns: columns.current,
             initialState: hiddenIdColumn,
             apiRef: apiRef,
+            tableRef: tableRef,
+            columnVisibilityModel: columnVisibilityModel,
+            onColumnVisibilityModelChange: handleVisibilityModel,
         }),
-        [apiRef, data]
+        [apiRef, columnVisibilityModel, data]
     );
 
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 1 }}>
-                <Typography variant="h5">Страница печати {programInfo.programName}</Typography>
-                {loadError && <div>Ошибка загрузки</div>}
-                {showTable && (
-                    <>
-                        <Button variant="contained" onClick={() => handlePrint()}>
-                            Печать
-                        </Button>
-
-                        {/* <div style={{ height: 600, width: "100%" }}>
-                            <FilteredDataGrid {...gridParams} />
-                        </div> */}
-
-                        <div
-                            id="table-div"
-                            ref={tableRef}
-                            // высота таблицы нужна обязательно, иначе обрезает строки
-                            style={{ height: tableHeigth.current, width: "1306px" }}
-                            className={styles["print-container"]}
-                        >
-                            <FilteredDataGrid className={styles["print-table"]} disableVirtualization {...gridParams} />
-                        </div>
-
-                        <Notification
-                            message={notificationMessage.current}
-                            value={notification}
-                            setValue={setNotification}
-                        />
-                    </>
+                <Grid2 container sx={{ width: "100%" }}>
+                    <Grid2 size={3}></Grid2>
+                    <Grid2 size={6}>
+                        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                            <Typography variant="h5">Страница печати {programInfo.programName}</Typography>
+                            {loadError && <div>Ошибка загрузки</div>}
+                        </Box>
+                    </Grid2>
+                    <Grid2 size={3}>
+                        <Box display="flex" justifyContent="end" alignItems="center" height="100%" paddingX={1}>
+                            <Button variant="contained" onClick={()=>handlePrint()} disabled={!showTable}>
+                                Печать
+                            </Button>
+                        </Box>
+                    </Grid2>
+                </Grid2>
+                {showTable && (<MixedPrintable {...gridParams} />
                 )}
             </Box>
         </>
